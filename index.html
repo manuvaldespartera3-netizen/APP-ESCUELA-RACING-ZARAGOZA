@@ -29,116 +29,30 @@
     padding:24px;
     background: radial-gradient(ellipse at 50% 0%, #0d2b5e 0%, #0a0a0a 60%);
   }
-
-  .header {
-    text-align:center;
-    margin-bottom:40px;
-  }
-  .logo {
-    width:110px;
-    height:110px;
-    border-radius:50%;
-    object-fit:contain;
-    border:3px solid rgba(74,144,217,.3);
-    margin-bottom:16px;
-    box-shadow: 0 0 40px rgba(74,144,217,.15);
-  }
-  .club-nombre {
-    font-family:"Bebas Neue",sans-serif;
-    font-size:36px;
-    color:var(--blanco);
-    letter-spacing:3px;
-    line-height:1;
-  }
-  .club-sub {
-    font-size:13px;
-    color:var(--azul-claro);
-    text-transform:uppercase;
-    letter-spacing:2px;
-    margin-top:6px;
-  }
-
-  .cards {
-    display:flex;
-    flex-direction:column;
-    gap:14px;
-    width:100%;
-    max-width:400px;
-  }
-
-  .card {
-    background:var(--gris-dark);
-    border:1px solid var(--gris-borde);
-    border-radius:16px;
-    padding:22px 20px;
-    display:flex;
-    align-items:center;
-    gap:18px;
-    cursor:pointer;
-    text-decoration:none;
-    transition:all .2s;
-    position:relative;
-    overflow:hidden;
-  }
-  .card::before {
-    content:'';
-    position:absolute;
-    left:0; top:0; bottom:0;
-    width:4px;
-    border-radius:4px 0 0 4px;
-  }
+  .header { text-align:center; margin-bottom:40px; }
+  .logo { width:110px; height:110px; border-radius:50%; object-fit:contain; border:3px solid rgba(74,144,217,.3); margin-bottom:16px; box-shadow:0 0 40px rgba(74,144,217,.15); }
+  .club-nombre { font-family:"Bebas Neue",sans-serif; font-size:36px; color:var(--blanco); letter-spacing:3px; line-height:1; }
+  .club-sub { font-size:13px; color:var(--azul-claro); text-transform:uppercase; letter-spacing:2px; margin-top:6px; }
+  .cards { display:flex; flex-direction:column; gap:14px; width:100%; max-width:400px; }
+  .card { background:var(--gris-dark); border:1px solid var(--gris-borde); border-radius:16px; padding:22px 20px; display:flex; align-items:center; gap:18px; cursor:pointer; text-decoration:none; transition:all .2s; position:relative; overflow:hidden; }
+  .card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:4px; border-radius:4px 0 0 4px; }
   .card-admin::before { background:var(--azul-claro); }
   .card-entrenador::before { background:#25a352; }
   .card-familia::before { background:#f0b429; }
-
-  .card:hover { transform:translateX(4px); border-color:rgba(74,144,217,.3); }
+  .card:hover { transform:translateX(4px); }
   .card-admin:hover { border-color:rgba(74,144,217,.4); }
   .card-entrenador:hover { border-color:rgba(37,163,82,.4); }
   .card-familia:hover { border-color:rgba(240,180,41,.4); }
-
-  .card-icon {
-    width:52px;
-    height:52px;
-    border-radius:14px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-size:24px;
-    flex-shrink:0;
-  }
+  .card-icon { width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0; }
   .card-admin .card-icon { background:rgba(74,144,217,.12); }
   .card-entrenador .card-icon { background:rgba(37,163,82,.12); }
   .card-familia .card-icon { background:rgba(240,180,41,.12); }
-
   .card-info { flex:1; }
-  .card-titulo {
-    font-family:"Bebas Neue",sans-serif;
-    font-size:22px;
-    color:var(--blanco);
-    letter-spacing:1px;
-    line-height:1;
-  }
-  .card-desc {
-    font-size:12px;
-    color:#666;
-    margin-top:4px;
-    line-height:1.4;
-  }
-  .card-arrow {
-    font-size:20px;
-    color:#333;
-    flex-shrink:0;
-    transition:color .2s;
-  }
+  .card-titulo { font-family:"Bebas Neue",sans-serif; font-size:22px; color:var(--blanco); letter-spacing:1px; line-height:1; }
+  .card-desc { font-size:12px; color:#666; margin-top:4px; line-height:1.4; }
+  .card-arrow { font-size:20px; color:#333; flex-shrink:0; transition:color .2s; }
   .card:hover .card-arrow { color:var(--azul-claro); }
-
-  .footer {
-    margin-top:36px;
-    text-align:center;
-    font-size:11px;
-    color:#333;
-    letter-spacing:.5px;
-  }
+  .footer { margin-top:36px; text-align:center; font-size:11px; color:#333; letter-spacing:.5px; }
 </style>
 </head>
 <body>
@@ -151,7 +65,7 @@
 
 <div class="cards">
 
-  <a class="card card-admin" href="admin-racing-zaragoza-v2.3.html">
+  <a class="card card-admin" href="admin.html">
     <div class="card-icon">👑</div>
     <div class="card-info">
       <div class="card-titulo">Administración</div>
@@ -160,7 +74,7 @@
     <div class="card-arrow">›</div>
   </a>
 
-  <a class="card card-entrenador" href="entrenadores-racing-zaragoza-v1.2.html">
+  <a class="card card-entrenador" href="coach.html">
     <div class="card-icon">⚽</div>
     <div class="card-info">
       <div class="card-titulo">Entrenadores</div>
@@ -169,7 +83,7 @@
     <div class="card-arrow">›</div>
   </a>
 
-  <a class="card card-familia" href="familias-racing-zaragoza-v1.1.html">
+  <a class="card card-familia" href="family.html">
     <div class="card-icon">👨‍👩‍👧</div>
     <div class="card-info">
       <div class="card-titulo">Familias</div>
