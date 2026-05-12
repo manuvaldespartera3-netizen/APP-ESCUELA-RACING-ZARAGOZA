@@ -1084,10 +1084,8 @@ async function cargarFinanzas() {
 
 // ── EXPORTAR ──
 function descargarCSV(nombre, cabeceras, filas) {
-  const bom = '﻿';
-const csv = bom + cabeceras.join(';') + '\n';
-' + filas.map(f => f.map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(';')).join('
-');
+  const bom = '\uFEFF';
+  const csv = bom + cabeceras.join(';') + '\n' + filas.map(f => f.map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(';')).join('\n');
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
