@@ -89,17 +89,7 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
 .badge-rojo{background:rgba(224,60,60,.15);color:var(--rojo);border:1px solid rgba(224,60,60,.3);}
 .asi-contador{font-family:"Bebas Neue",sans-serif;font-size:18px;color:var(--azul-claro);background:rgba(26,74,138,.15);padding:4px 10px;border-radius:8px;border:1px solid rgba(74,144,217,.25);flex-shrink:0;}
 
-/* PAGOS */
-.pago-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
-.pago-btn{padding:14px;border-radius:10px;border:2px solid;font-size:13px;font-weight:600;cursor:pointer;font-family:"DM Sans",sans-serif;text-align:center;}
-.pago-btn span{font-size:11px;color:#888;display:block;margin-bottom:4px;font-weight:400;}
-.pago-pagado{background:rgba(37,163,82,.15);color:var(--verde);border-color:rgba(37,163,82,.4);}
-.pago-pendiente{background:rgba(224,60,60,.12);color:var(--rojo);border-color:rgba(224,60,60,.3);}
-
 /* ASISTENCIA */
-.fecha-bar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:flex-end;}
-.fecha-bar input[type=date],.fecha-bar select{padding:10px 12px;background:var(--gris-dark);border:1px solid var(--gris-borde);border-radius:8px;color:var(--blanco);font-size:13px;font-family:"DM Sans",sans-serif;flex:1;}
-.btn-cargar{padding:10px 16px;background:var(--azul);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:"DM Sans",sans-serif;white-space:nowrap;}
 .asi-row{background:var(--gris-dark);border:1px solid var(--gris-borde);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;}
 .asi-nombre{flex:1;font-size:14px;color:var(--blanco);font-weight:500;}
 .tbtn-group{display:flex;gap:6px;}
@@ -108,79 +98,6 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
 .tbtn-p.on{background:var(--azul-claro);color:#fff;}
 .tbtn-a{background:rgba(224,60,60,.1);color:var(--rojo);border-color:rgba(224,60,60,.2);}
 .tbtn-a.on{background:var(--rojo);color:#fff;}
-.btn-full{width:100%;padding:13px;background:var(--azul);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:"DM Sans",sans-serif;margin-top:14px;}
-.btn-full:hover{background:var(--azul-claro);}
-
-/* FINANZAS */
-.resumen-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px;}
-.resumen-item{background:var(--gris-dark);border:1px solid var(--gris-borde);border-radius:10px;padding:12px 10px;text-align:center;}
-.resumen-num{font-family:"Bebas Neue",sans-serif;font-size:24px;}
-.resumen-label{font-size:10px;color:#555;margin-top:2px;}
-.fin-row{background:var(--gris-dark);border:1px solid var(--gris-borde);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;}
-.fin-icon{font-size:20px;width:32px;text-align:center;}
-.fin-info{flex:1;}
-.fin-desc{font-size:13px;color:var(--blanco);font-weight:500;}
-.fin-meta{font-size:11px;color:#555;margin-top:2px;}
-.fin-monto{font-family:"Bebas Neue",sans-serif;font-size:20px;}
-.monto-in{color:var(--azul-claro);}
-.monto-out{color:var(--rojo);}
-
-/* NOTAS */
-.nota-card{background:var(--gris-dark);border:1px solid var(--gris-borde);border-radius:10px;padding:14px 16px;margin-bottom:8px;}
-.nota-header{display:flex;justify-content:space-between;margin-bottom:6px;gap:8px;}
-.nota-quien{font-weight:600;font-size:13px;color:var(--blanco);}
-.nota-fecha{font-size:11px;color:#555;white-space:nowrap;}
-.nota-texto{font-size:13px;color:#888;line-height:1.5;}
-
-/* CALENDARIO */
-.evento-card{background:var(--gris-dark);border:1px solid var(--gris-borde);border-radius:12px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:14px;}
-.evento-fecha{background:var(--azul-dark);border-radius:10px;padding:8px 12px;text-align:center;flex-shrink:0;min-width:52px;}
-.evento-dia{font-family:"Bebas Neue",sans-serif;font-size:24px;color:var(--blanco);line-height:1;}
-.evento-mes{font-size:10px;color:var(--azul-claro);text-transform:uppercase;}
-.evento-info{flex:1;}
-.evento-titulo{font-weight:600;font-size:14px;color:var(--blanco);}
-.evento-meta{font-size:12px;color:#555;margin-top:3px;}
-.evento-tipo{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;margin-top:4px;}
-.tipo-entrenamiento{background:rgba(74,144,217,.15);color:var(--azul-claro);border:1px solid rgba(74,144,217,.25);}
-.tipo-partido{background:rgba(37,163,82,.15);color:var(--verde);border:1px solid rgba(37,163,82,.25);}
-.tipo-otro{background:rgba(240,180,41,.15);color:var(--amarillo);border:1px solid rgba(240,180,41,.25);}
-.btn-del{background:none;border:none;color:#444;font-size:16px;cursor:pointer;padding:4px;}
-.btn-del:hover{color:var(--rojo);}
-
-/* AVISOS */
-.aviso-card{border-radius:12px;padding:16px;margin-bottom:10px;position:relative;}
-.aviso-urgente{background:rgba(224,60,60,.1);border:1px solid rgba(224,60,60,.3);}
-.aviso-info{background:rgba(74,144,217,.08);border:1px solid rgba(74,144,217,.2);}
-.aviso-general{background:rgba(37,163,82,.08);border:1px solid rgba(37,163,82,.2);}
-.aviso-titulo{font-weight:600;font-size:14px;color:var(--blanco);margin-bottom:6px;}
-.aviso-texto{font-size:13px;color:#999;line-height:1.5;}
-.aviso-meta{font-size:11px;color:#555;margin-top:8px;}
-.aviso-del{position:absolute;top:12px;right:12px;background:none;border:none;color:#444;cursor:pointer;font-size:16px;}
-.aviso-del:hover{color:var(--rojo);}
-
-/* GALERIA */
-.galeria-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px;}
-.galeria-item{background:var(--gris-dark);border:1px solid var(--gris-borde);border-radius:12px;overflow:hidden;position:relative;}
-.galeria-img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;}
-.galeria-info{padding:10px 12px;}
-.galeria-desc{font-size:12px;color:var(--texto);font-weight:500;}
-.galeria-equipo{font-size:11px;color:#555;margin-top:2px;}
-.galeria-del{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.7);border:none;color:#fff;border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer;}
-
-/* EXPORTAR */
-.export-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
-.export-card{background:var(--gris-dark);border:1px solid var(--gris-borde);border-radius:12px;padding:20px 16px;text-align:center;cursor:pointer;}
-.export-card:hover{border-color:var(--azul-claro);}
-.export-icon{font-size:32px;margin-bottom:8px;}
-.export-titulo{font-size:13px;font-weight:600;color:var(--blanco);margin-bottom:4px;}
-.export-desc{font-size:11px;color:#555;}
-.btn-export{width:100%;padding:12px;background:var(--verde);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:"DM Sans",sans-serif;margin-top:12px;}
-
-/* FILTROS */
-.filtro-bar{display:flex;gap:8px;margin-bottom:14px;overflow-x:auto;padding-bottom:2px;}
-.filtro-bar::-webkit-scrollbar{display:none;}
-.filtro-btn{padding:7px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--gris-borde);color:#666;background:none;white-space:nowrap;font-family:"DM Sans",sans-serif;}
-.filtro-btn.active{background:var(--azul);color:#fff;border-color:var(--azul);}
 
 /* MODAL */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;display:none;align-items:center;justify-content:center;padding:16px;}
@@ -191,16 +108,11 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
 .modal-row:last-of-type{border-bottom:none;}
 .modal-label{font-size:12px;color:#666;}
 .modal-val{font-size:13px;color:var(--texto);text-align:right;max-width:60%;}
-.modal-btns{display:flex;justify-content:flex-end;gap:10px;margin-top:16px;flex-wrap:wrap;}
-.btn-cancel{padding:9px 16px;background:none;border:1px solid var(--gris-borde);color:#888;border-radius:8px;cursor:pointer;font-family:"DM Sans",sans-serif;font-size:13px;}
-.btn-danger{padding:9px 16px;background:rgba(224,60,60,.15);color:var(--rojo);border:1px solid rgba(224,60,60,.3);border-radius:8px;cursor:pointer;font-family:"DM Sans",sans-serif;font-size:13px;}
 
 .empty{text-align:center;padding:36px 20px;color:#444;font-size:13px;}
 .loading{text-align:center;padding:28px;color:#444;font-size:13px;}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--azul);color:#fff;padding:11px 20px;border-radius:8px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;max-width:90vw;text-align:center;}
 .toast.show{opacity:1;}
-.toast.err{background:var(--rojo);}
-.toast.ok{background:var(--verde);}
 </style>
 </head>
 <body>
@@ -208,7 +120,7 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
 <!-- LOGIN -->
 <div id="login-screen">
   <div class="login-box">
-    <div class="login-logo"><img src="https://manuvaldespartera3-netizen.github.io/APP-ESCUELA-RACING-ZARAGOZA/icons/icon-192x192.png" alt="Racing Zaragoza"></div>
+    <div class="login-logo"><img src="icons/icon-192x192.png" alt="Racing Zaragoza"></div>
     <div class="login-title">Racing Zaragoza</div>
     <div class="login-sub">Panel Administrador</div>
     <div class="field">
@@ -220,9 +132,7 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
       <input type="password" id="inp-pass" placeholder="••••••••">
     </div>
     <button class="btn-login" id="btn-login">Entrar</button>
-    <div class="login-error" id="login-error">Email o contraseña incorrectos</div>
-    <div class="login-recovery"><a href="#" id="link-recovery">¿Olvidaste tu contraseña?</a></div>
-    <div class="recovery-ok" id="recovery-ok">✅ Email de recuperación enviado. Revisa tu correo.</div>
+    <div class="login-error" id="login-error">Credenciales incorrectas</div>
   </div>
 </div>
 
@@ -230,9 +140,8 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
 <div id="app">
   <div class="topbar">
     <div class="topbar-left">
-      <img src="https://manuvaldespartera3-netizen.github.io/APP-ESCUELA-RACING-ZARAGOZA/icons/icon-192x192.png" alt="logo">
+      <img src="icons/icon-192x192.png" alt="logo">
       <span class="topbar-logo">Racing Zaragoza</span>
-      <span class="topbar-badge">Admin</span>
     </div>
     <button class="btn-logout" id="btn-logout">Salir</button>
   </div>
@@ -240,37 +149,25 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
   <div class="nav-tabs">
     <div class="nav-tab active" data-sec="inicio">Inicio</div>
     <div class="nav-tab" data-sec="jugadores">Jugadores</div>
-    <div class="nav-tab" data-sec="entrenadores">Entrena.</div>
+    <div class="nav-tab" data-sec="entrenadores">Entrenadores</div>
     <div class="nav-tab" data-sec="asistencia">Asistencia</div>
-    <div class="nav-tab" data-sec="notas">Notas</div>
-    <div class="nav-tab" data-sec="calendario">Calendario</div>
-    <div class="nav-tab" data-sec="avisos">Avisos</div>
-    <div class="nav-tab" data-sec="galeria">Galería</div>
     <div class="nav-tab" data-sec="finanzas">Finanzas</div>
     <div class="nav-tab" data-sec="exportar">Exportar</div>
   </div>
 
   <div class="content">
-
     <!-- SECCIÓN INICIO -->
     <div class="section active" id="sec-inicio">
-      <div style="margin-bottom:18px;">
-        <div style="font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--blanco)">Panel de administración</div>
-        <div style="font-size:13px;color:#555" id="fecha-hoy"></div>
-      </div>
+      <div class="sec-title">Administración</div>
       <div class="stats-grid">
-        <div class="stat-card"><div class="stat-num" id="st-jugadores">-</div><div class="stat-label">Jugadores activos</div></div>
-        <div class="stat-card"><div class="stat-num" id="st-entrenadores">-</div><div class="stat-label">Entrenadores</div></div>
-        <div class="stat-card"><div class="stat-num" id="st-cobros">-</div><div class="stat-label">Cobros mes (€)</div></div>
-        <div class="stat-card"><div class="stat-num" id="st-gastos">-</div><div class="stat-label">Gastos mes (€)</div></div>
+        <div class="stat-card"><div class="stat-num" id="st-jugadores">0</div><div class="stat-label">Jugadores</div></div>
+        <div class="stat-card"><div class="stat-num" id="st-entrenadores">0</div><div class="stat-label">Entrenadores</div></div>
       </div>
       <div class="acciones-grid">
-        <button class="accion-btn" data-goto="jugadores"><span class="accion-icon">⚽</span>Jugadores</button>
-        <button class="accion-btn" data-goto="asistencia"><span class="accion-icon">📋</span>Asistencia</button>
-        <button class="accion-btn" data-goto="calendario"><span class="accion-icon">📅</span>Calendario</button>
-        <button class="accion-btn" data-goto="avisos"><span class="accion-icon">📢</span>Avisos</button>
-        <button class="accion-btn" data-goto="galeria"><span class="accion-icon">📸</span>Galería</button>
-        <button class="accion-btn" data-goto="exportar"><span class="accion-icon">📊</span>Exportar</button>
+        <button class="accion-btn" data-goto="jugadores">⚽ Jugadores</button>
+        <button class="accion-btn" data-goto="asistencia">📋 Asistencia</button>
+        <button class="accion-btn" data-goto="finanzas">💶 Finanzas</button>
+        <button class="accion-btn" data-goto="exportar">📊 Exportar</button>
       </div>
     </div>
 
@@ -278,110 +175,33 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
     <div class="section" id="sec-jugadores">
       <div class="sec-title">Jugadores</div>
       <div class="form-card">
-        <div class="form-title">➕ Nuevo jugador</div>
+        <div class="form-title">➕ Nuevo Jugador</div>
         <div class="form-grid">
-          <div class="sec-label">📋 Datos del jugador</div>
-          <div class="fg"><label>Nombre *</label><input type="text" id="j-nombre" placeholder="Nombre"></div>
-          <div class="fg"><label>Apellidos *</label><input type="text" id="j-apellidos" placeholder="Apellidos"></div>
-          <div class="fg"><label>Fecha nacimiento</label><input type="date" id="j-fnac"></div>
-          <div class="fg"><label>Equipo</label><select id="j-grupo"><option value="Escuela">Escuela</option><option value="Debutantes">Debutantes</option><option value="Prebenjamín">Prebenjamín</option></select></div>
-          <div class="fg"><label>Cuota (€)</label><input type="number" id="j-cuota" value="45"></div>
-          <div class="fg"><label>Estado</label><select id="j-estado"><option value="activo">Activo</option><option value="baja">Baja</option></select></div>
-          <div class="sec-label">👨 Datos del padre</div>
-          <div class="fg"><label>Nombre padre</label><input type="text" id="j-padre-nombre" placeholder="Nombre"></div>
-          <div class="fg"><label>Teléfono padre</label><input type="tel" id="j-padre-tel" placeholder="600 000 000"></div>
-          <div class="fg full"><label>Email padre (acceso app)</label><input type="email" id="j-padre-email" placeholder="padre@email.com"></div>
-          <div class="sec-label">👩 Datos de la madre</div>
-          <div class="fg"><label>Nombre madre</label><input type="text" id="j-madre-nombre" placeholder="Nombre"></div>
-          <div class="fg"><label>Teléfono madre</label><input type="tel" id="j-madre-tel" placeholder="600 000 000"></div>
-          <div class="fg full"><label>Email madre (acceso app)</label><input type="email" id="j-madre-email" placeholder="madre@email.com"></div>
-          <div class="sec-label">💶 Estado de pagos</div>
-          <div class="fg"><label>1er Cuatrimestre</label><select id="j-pago1"><option value="pendiente">❌ Pendiente</option><option value="pagado">✅ Pagado</option></select></div>
-          <div class="fg"><label>2º Cuatrimestre</label><select id="j-pago2"><option value="pendiente">❌ Pendiente</option><option value="pagado">✅ Pagado</option></select></div>
+            <div class="fg"><label>Nombre</label><input type="text" id="j-nombre"></div>
+            <div class="fg"><label>Apellidos</label><input type="text" id="j-apellidos"></div>
+            <div class="fg"><label>Grupo</label><select id="j-grupo"><option value="Escuela">Escuela</option><option value="Debutantes">Debutantes</option><option value="Prebenjamín">Prebenjamín</option></select></div>
         </div>
-        <button class="btn-save" id="btn-guardar-jugador">💾 Guardar jugador</button>
+        <button class="btn-save" id="btn-guardar-jugador">💾 Guardar</button>
       </div>
-      <div id="lista-jugadores"><div class="loading">Cargando jugadores...</div></div>
-    </div>
-
-    <!-- SECCIÓN ENTRENADORES -->
-    <div class="section" id="sec-entrenadores">
-      <div class="sec-title">Entrenadores</div>
-      <div class="form-card">
-        <div class="form-title">➕ Nuevo entrenador</div>
-        <div class="form-grid">
-          <div class="fg"><label>Nombre completo *</label><input type="text" id="e-nombre" placeholder="Nombre Apellidos"></div>
-          <div class="fg"><label>Email (para login) *</label><input type="email" id="e-email" placeholder="entrenador@email.com"></div>
-          <div class="fg"><label>Teléfono</label><input type="tel" id="e-tel" placeholder="600 000 000"></div>
-          <div class="fg"><label>Equipo asignado</label><select id="e-grupo"><option value="Escuela">Escuela</option><option value="Debutantes">Debutantes</option><option value="Prebenjamín">Prebenjamín</option><option value="Todos">Todos</option></select></div>
-        </div>
-        <button class="btn-save" id="btn-guardar-entrenador">💾 Guardar entrenador</button>
-      </div>
-      <div id="lista-entrenadores"></div>
+      <div id="lista-jugadores"></div>
     </div>
 
     <!-- SECCIÓN ASISTENCIA -->
     <div class="section" id="sec-asistencia">
-      <div class="sec-title">Asistencia</div>
+      <div class="sec-title">Pasar Lista</div>
       <div class="fecha-bar">
         <input type="date" id="asi-fecha">
-        <select id="asi-grupo"><option value="">Todos</option><option value="Escuela">Escuela</option><option value="Debutantes">Debutantes</option><option value="Prebenjamín">Prebenjamín</option></select>
+        <select id="asi-grupo"><option value="Escuela">Escuela</option><option value="Debutantes">Debutantes</option><option value="Prebenjamín">Prebenjamín</option></select>
         <button class="btn-cargar" id="btn-cargar-asi">Cargar</button>
       </div>
-      <div id="lista-asistencia"><div class="empty">Selecciona fecha y pulsa Cargar</div></div>
-      <div id="wrap-guardar-asi" style="display:none"><button class="btn-full" id="btn-guardar-asi">💾 Guardar asistencia</button></div>
-    </div>
-
-    <!-- SECCIÓN NOTAS -->
-    <div class="section" id="sec-notas">
-      <div class="sec-title">Notas</div>
-      <div class="form-card">
-        <div class="form-title">📝 Nueva nota</div>
-        <div class="form-grid">
-          <div class="fg"><label>Jugador</label><select id="n-jugador"><option value="">Seleccionar...</option></select></div>
-          <div class="fg"><label>Tipo</label><select id="n-tipo"><option value="nota">📝 Nota general</option><option value="incidencia">⚠️ Incidencia</option><option value="progreso">📈 Progreso</option></select></div>
-          <div class="fg full"><label>Descripción</label><input type="text" id="n-texto" placeholder="Escribe la nota..."></div>
-        </div>
-        <button class="btn-save" id="btn-guardar-nota">💾 Guardar nota</button>
-      </div>
-      <div id="lista-notas"></div>
-    </div>
-
-    <!-- SECCIÓN CALENDARIO -->
-    <div class="section" id="sec-calendario">
-      <div class="sec-title">Calendario</div>
-      <div class="form-card">
-        <div class="form-title">➕ Nuevo evento</div>
-        <div class="form-grid">
-          <div class="fg"><label>Título *</label><input type="text" id="ev-titulo" placeholder="Ej: Partido vs Atleti"></div>
-          <div class="fg"><label>Tipo</label><select id="ev-tipo"><option value="entrenamiento">⚽ Entrenamiento</option><option value="partido">🏆 Partido</option><option value="otro">📌 Otro</option></select></div>
-          <div class="fg"><label>Fecha *</label><input type="date" id="ev-fecha"></div>
-          <div class="fg"><label>Equipo</label><select id="ev-equipo"><option value="Todos">Todos</option><option value="Escuela">Escuela</option><option value="Debutantes">Debutantes</option><option value="Prebenjamín">Prebenjamín</option></select></div>
-        </div>
-        <button class="btn-save" id="btn-guardar-evento">💾 Guardar evento</button>
-      </div>
-      <div id="lista-eventos"></div>
+      <div id="lista-asistencia"></div>
+      <button class="btn-save" id="btn-guardar-asi" style="display:none; width:100%">💾 Guardar Asistencia</button>
     </div>
 
     <!-- SECCIÓN EXPORTAR -->
     <div class="section" id="sec-exportar">
-      <div class="sec-title">Exportar datos</div>
-      <div class="export-grid">
-        <div class="export-card"><div class="export-icon">⚽</div><div class="export-titulo">Jugadores</div><button class="btn-export" id="btn-exp-jug">Descargar CSV</button></div>
-        <div class="export-card"><div class="export-icon">📋</div><div class="export-titulo">Asistencia</div><button class="btn-export" id="btn-exp-asi">Descargar CSV</button></div>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-<div class="overlay" id="modal-jugador">
-  <div class="modal">
-    <div class="modal-title" id="mj-titulo">Jugador</div>
-    <div id="mj-contenido"></div>
-    <div class="modal-btns">
-      <button class="btn-cancel" id="btn-cerrar-jugador">Cerrar</button>
-      <button class="btn-danger" id="btn-baja-jugador">Dar de baja</button>
+      <div class="sec-title">Exportar Datos</div>
+      <button class="btn-save" id="btn-exp-jug">Descargar CSV Jugadores</button>
     </div>
   </div>
 </div>
@@ -391,8 +211,8 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
 <!-- FIREBASE SDK -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where, orderBy, Timestamp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, query, where, Timestamp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAKHHJ-7fT-KS0F0CTvtVgssxCQcAhBIs8",
@@ -408,10 +228,9 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 let jugadores = [];
-let jugadorActual = null;
-let asistenciaEstado = {};
+let asistenciaActual = {};
 
-// --- AUTH LOGIC ---
+// --- AUTH ---
 onAuthStateChanged(auth, user => {
   if (user) {
     document.getElementById('login-screen').style.display = 'none';
@@ -424,29 +243,24 @@ onAuthStateChanged(auth, user => {
 });
 
 document.getElementById('btn-login').addEventListener('click', async () => {
-  const email = document.getElementById('inp-email').value.trim();
+  const email = document.getElementById('inp-email').value;
   const pass = document.getElementById('inp-pass').value;
-  const errEl = document.getElementById('login-error');
-  errEl.style.display = 'none';
-  if (!email || !pass) { errEl.style.display = 'block'; errEl.textContent = 'Completa los campos'; return; }
   try {
     await signInWithEmailAndPassword(auth, email, pass);
   } catch (e) {
-    errEl.style.display = 'block';
+    document.getElementById('login-error').style.display = 'block';
   }
 });
 
 document.getElementById('btn-logout').addEventListener('click', () => signOut(auth));
 
-// --- INITIALIZE APP ---
+// --- INIT ---
 async function initApp() {
-  const hoy = new Date();
-  document.getElementById('fecha-hoy').textContent = hoy.toLocaleDateString();
-  document.getElementById('asi-fecha').value = hoy.toISOString().split('T')[0];
+  document.getElementById('asi-fecha').value = new Date().toISOString().split('T')[0];
   await cargarJugadores();
 }
 
-// --- NAVIGATION ---
+// --- NAVEGACIÓN ---
 document.querySelectorAll('.nav-tab').forEach(tab => {
   tab.addEventListener('click', () => {
     const sec = tab.dataset.sec;
@@ -459,30 +273,24 @@ document.querySelectorAll('.nav-tab').forEach(tab => {
 
 document.querySelectorAll('.accion-btn').forEach(btn => {
   btn.addEventListener('click', () => {
-    const sec = btn.dataset.goto;
-    document.querySelector(`.nav-tab[data-sec="${sec}"]`).click();
+    const target = btn.dataset.goto;
+    document.querySelector(`.nav-tab[data-sec="${target}"]`).click();
   });
 });
 
 // --- JUGADORES ---
 async function cargarJugadores() {
-  try {
-    const snap = await getDocs(collection(db, 'alumnos'));
-    jugadores = [];
-    snap.forEach(d => jugadores.push({ id: d.id, ...d.data() }));
-    jugadores.sort((a, b) => a.nombre.localeCompare(b.nombre));
-    renderJugadores();
-    poblarSelects();
-    document.getElementById('st-jugadores').textContent = jugadores.filter(j => j.estado === 'activo').length;
-  } catch (e) { console.error(e); }
+  const snap = await getDocs(collection(db, 'alumnos'));
+  jugadores = [];
+  snap.forEach(d => jugadores.push({ id: d.id, ...d.data() }));
+  document.getElementById('st-jugadores').textContent = jugadores.length;
+  renderListaJugadores();
 }
 
-function renderJugadores() {
+function renderListaJugadores() {
   const el = document.getElementById('lista-jugadores');
-  const activos = jugadores.filter(j => j.estado !== 'baja');
-  if (activos.length === 0) { el.innerHTML = '<div class="empty">No hay jugadores</div>'; return; }
-  el.innerHTML = activos.map(j => `
-    <div class="item-card" onclick="verJugador('${j.id}')">
+  el.innerHTML = jugadores.map(j => `
+    <div class="item-card">
       <div class="item-avatar">⚽</div>
       <div class="item-info">
         <div class="item-nombre">${j.nombre} ${j.apellidos}</div>
@@ -492,115 +300,75 @@ function renderJugadores() {
   `).join('');
 }
 
-window.verJugador = (id) => {
-  const j = jugadores.find(x => x.id === id);
-  if (!j) return;
-  jugadorActual = j;
-  document.getElementById('mj-titulo').textContent = `${j.nombre} ${j.apellidos}`;
-  document.getElementById('mj-contenido').innerHTML = `
-    <div class="modal-row"><span class="modal-label">Equipo</span><span class="modal-val">${j.grupo}</span></div>
-    <div class="modal-row"><span class="modal-label">Padre</span><span class="modal-val">${j.padreNombre || '-'} (${j.padreTel || '-'})</span></div>
-    <div class="modal-row"><span class="modal-label">Madre</span><span class="modal-val">${j.madreNombre || '-'} (${j.madreTel || '-'})</span></div>
-  `;
-  document.getElementById('modal-jugador').classList.add('open');
-};
-
-document.getElementById('btn-cerrar-jugador').addEventListener('click', () => {
-  document.getElementById('modal-jugador').classList.remove('open');
-});
-
-function poblarSelects() {
-  const select = document.getElementById('n-jugador');
-  const activos = jugadores.filter(j => j.estado !== 'baja');
-  select.innerHTML = '<option value="">Seleccionar...</option>' + 
-    activos.map(j => `<option value="${j.id}">${j.nombre} ${j.apellidos}</option>`).join('');
-}
-
 document.getElementById('btn-guardar-jugador').addEventListener('click', async () => {
-  const data = {
-    nombre: document.getElementById('j-nombre').value,
-    apellidos: document.getElementById('j-apellidos').value,
-    grupo: document.getElementById('j-grupo').value,
-    estado: document.getElementById('j-estado').value,
-    creadoEn: Timestamp.now()
-  };
-  if (!data.nombre || !data.apellidos) return;
-  await addDoc(collection(db, 'alumnos'), data);
-  showToast('Jugador guardado');
+  const nombre = document.getElementById('j-nombre').value;
+  const apellidos = document.getElementById('j-apellidos').value;
+  const grupo = document.getElementById('j-grupo').value;
+  if(!nombre || !apellidos) return;
+  await addDoc(collection(db, 'alumnos'), { nombre, apellidos, grupo, estado: 'activo' });
+  showToast("Jugador guardado");
   cargarJugadores();
 });
 
 // --- ASISTENCIA ---
 document.getElementById('btn-cargar-asi').addEventListener('click', () => {
   const grupo = document.getElementById('asi-grupo').value;
-  let lista = jugadores.filter(j => j.estado === 'activo');
-  if (grupo) lista = lista.filter(j => j.grupo === grupo);
-  
+  const lista = jugadores.filter(j => j.grupo === grupo);
   const el = document.getElementById('lista-asistencia');
+  asistenciaActual = {};
   el.innerHTML = lista.map(j => `
     <div class="asi-row">
       <div class="asi-nombre">${j.nombre} ${j.apellidos}</div>
       <div class="tbtn-group">
-        <button class="tbtn tbtn-p" onclick="marcarAsi('${j.id}', true, this)">✓</button>
-        <button class="tbtn tbtn-a" onclick="marcarAsi('${j.id}', false, this)">✗</button>
+        <button class="tbtn tbtn-p" onclick="marcarAsistencia('${j.id}', true, this)">✓</button>
+        <button class="tbtn tbtn-a" onclick="marcarAsistencia('${j.id}', false, this)">✗</button>
       </div>
     </div>
   `).join('');
-  document.getElementById('wrap-guardar-asi').style.display = 'block';
+  document.getElementById('btn-guardar-asi').style.display = 'block';
 });
 
-window.marcarAsi = (id, val, btn) => {
-  asistenciaEstado[id] = val;
+window.marcarAsistencia = (id, presente, btn) => {
+  asistenciaActual[id] = presente;
   const parent = btn.parentElement;
-  parent.querySelectorAll('.tbtn').forEach(b => b.classList.remove('on'));
+  parent.querySelectorAll('button').forEach(b => b.classList.remove('on'));
   btn.classList.add('on');
 };
 
 document.getElementById('btn-guardar-asi').addEventListener('click', async () => {
   const fecha = document.getElementById('asi-fecha').value;
-  for (let id in asistenciaEstado) {
+  for (let id in asistenciaActual) {
     await addDoc(collection(db, 'asistencia'), {
       alumnoId: id,
       fecha: fecha,
-      presente: asistenciaEstado[id],
+      presente: asistenciaActual[id],
       creadoEn: Timestamp.now()
     });
   }
-  showToast('Asistencia guardada');
+  showToast("Asistencia guardada");
 });
 
 // --- EXPORTAR ---
 function descargarCSV(nombre, cabeceras, filas) {
   const bom = '\uFEFF';
-  const csvContent = bom + cabeceras.join(';') + '\n' + filas.map(f => f.join(';')).join('\n');
-  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
-  link.setAttribute('href', url);
-  link.setAttribute('download', nombre);
-  link.click();
+  const csv = bom + cabeceras.join(';') + '\n' + filas.map(f => f.map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(';')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = nombre;
+  a.click();
 }
 
 document.getElementById('btn-exp-jug').addEventListener('click', () => {
-  const filas = jugadores.map(j => [j.nombre, j.apellidos, j.grupo, j.estado]);
-  descargarCSV('jugadores.csv', ['Nombre', 'Apellidos', 'Equipo', 'Estado'], filas);
+  descargarCSV('jugadores.csv', ['Nombre', 'Apellidos', 'Grupo'], jugadores.map(j => [j.nombre, j.apellidos, j.grupo]));
 });
 
-// --- UTIL ---
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 3000);
 }
-
-// Stubs para evitar errores si no están implementadas
-function cargarNotas() {}
-function cargarFinanzas() {}
-function cargarEventos() {}
-function cargarAvisos() {}
-function cargarGaleria() {}
-async function cargarEntrenadores() {}
 
 </script>
 </body>
