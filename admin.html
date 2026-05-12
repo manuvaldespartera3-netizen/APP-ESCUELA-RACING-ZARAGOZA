@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Racing Zaragoza · Admin</title>
+<title>Racing Zaragoza · Panel Profesional Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{--azul:#1a4a8a;--azul-claro:#4a90d9;--azul-dark:#0d2b5e;--negro:#0a0a0a;--gris-dark:#141414;--gris-borde:#2a2a2a;--blanco:#f5f5f0;--texto:#d0d0c8;--rojo:#e03c3c;--amarillo:#f0b429;--verde:#25a352;}
@@ -19,24 +19,19 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
 .login-sub{font-size:11px;color:#666;text-align:center;margin-bottom:26px;text-transform:uppercase;letter-spacing:1px;margin-top:4px;}
 .field{margin-bottom:14px;}
 .field label{display:block;font-size:11px;color:#888;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;}
-.field input{width:100%;padding:12px 14px;background:#0a0a0a;border:1px solid var(--gris-borde);border-radius:8px;color:var(--blanco);font-size:15px;font-family:"DM Sans",sans-serif;}
+.field input{width:100%;padding:12px 14px;background:#0a0a0a;border:1px solid var(--gris-borde);border-radius:8px;color:var(--blanco);font-size:15px;}
 .field input:focus{outline:none;border-color:var(--azul-claro);}
-.btn-login{width:100%;padding:14px;background:var(--azul);color:#fff;border:none;border-radius:8px;font-size:15px;font-family:"DM Sans",sans-serif;font-weight:600;cursor:pointer;margin-top:6px;}
+.btn-login{width:100%;padding:14px;background:var(--azul);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;margin-top:6px;}
 .btn-login:hover{background:var(--azul-claro);}
 .login-error{color:var(--rojo);font-size:13px;margin-top:12px;text-align:center;display:none;}
-.login-recovery{text-align:center;margin-top:14px;}
-.login-recovery a{font-size:12px;color:var(--azul-claro);text-decoration:none;}
-.recovery-ok{display:none;text-align:center;margin-top:10px;font-size:12px;color:var(--verde);}
 
-/* APP */
+/* APP STRUCTURE */
 #app{display:none;}
 .topbar{background:var(--azul-dark);border-bottom:1px solid rgba(74,144,217,.2);padding:0 16px;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
 .topbar-left{display:flex;align-items:center;gap:10px;}
 .topbar-left img{width:34px;height:34px;border-radius:50%;object-fit:contain;}
 .topbar-logo{font-family:"Bebas Neue",sans-serif;font-size:20px;color:var(--azul-claro);letter-spacing:1px;}
-.topbar-badge{font-size:10px;background:rgba(74,144,217,.2);color:var(--azul-claro);padding:2px 7px;border-radius:20px;border:1px solid rgba(74,144,217,.3);}
-.btn-logout{background:none;border:1px solid var(--gris-borde);color:#888;padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer;font-family:"DM Sans",sans-serif;}
-.btn-logout:hover{border-color:var(--rojo);color:var(--rojo);}
+.btn-logout{background:none;border:1px solid var(--gris-borde);color:#888;padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer;}
 
 .nav-tabs{background:var(--gris-dark);border-bottom:1px solid var(--gris-borde);display:flex;overflow-x:auto;padding:0 8px;}
 .nav-tabs::-webkit-scrollbar{display:none;}
@@ -48,78 +43,54 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
 .section.active{display:block;}
 .sec-title{font-family:"Bebas Neue",sans-serif;font-size:22px;color:var(--blanco);letter-spacing:1px;margin-bottom:14px;}
 
-/* STATS */
+/* DASHBOARD STATS */
 .stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px;}
 .stat-card{background:var(--gris-dark);border:1px solid var(--gris-borde);border-radius:12px;padding:16px 14px;}
 .stat-num{font-family:"Bebas Neue",sans-serif;font-size:34px;color:var(--azul-claro);line-height:1;}
 .stat-label{font-size:12px;color:#555;margin-top:4px;}
 
-/* ACCIONES */
-.acciones-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.accion-btn{padding:16px 12px;background:var(--gris-dark);border:1px solid var(--gris-borde);border-radius:12px;color:var(--texto);font-size:13px;font-weight:500;cursor:pointer;font-family:"DM Sans",sans-serif;text-align:center;}
-.accion-btn:hover{border-color:var(--azul-claro);color:var(--blanco);}
-.accion-icon{font-size:22px;display:block;margin-bottom:6px;}
-
-/* FORM */
+/* FORMS */
 .form-card{background:var(--gris-dark);border:1px solid var(--gris-borde);border-radius:12px;padding:18px 16px;margin-bottom:18px;}
-.form-title{font-size:13px;font-weight:600;color:var(--blanco);margin-bottom:14px;}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .fg{display:flex;flex-direction:column;gap:5px;}
 .fg.full{grid-column:1/-1;}
-.fg label{font-size:11px;color:#777;text-transform:uppercase;letter-spacing:.5px;}
-.fg input,.fg select,.fg textarea{padding:10px 12px;background:#0a0a0a;border:1px solid var(--gris-borde);border-radius:8px;color:var(--blanco);font-size:13px;font-family:"DM Sans",sans-serif;width:100%;}
-.fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--azul-claro);}
-.fg textarea{resize:vertical;min-height:70px;}
-.fg select option{background:#141414;}
-.sec-label{grid-column:1/-1;font-size:11px;color:var(--azul-claro);text-transform:uppercase;letter-spacing:1px;padding:10px 0 4px;border-top:1px solid var(--gris-borde);margin-top:4px;}
+.fg label{font-size:11px;color:#777;text-transform:uppercase;}
+.fg input,.fg select,.fg textarea{padding:10px 12px;background:#0a0a0a;border:1px solid var(--gris-borde);border-radius:8px;color:var(--blanco);font-size:13px;width:100%;}
+.sec-label{grid-column:1/-1;font-size:11px;color:var(--azul-claro);text-transform:uppercase;padding:10px 0 4px;border-top:1px solid var(--gris-borde);margin-top:4px;}
 .btn-save{padding:11px 20px;background:var(--azul);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;margin-top:12px;}
-.btn-save:hover{background:var(--azul-claro);}
-.btn-save:disabled{background:#333;color:#666;cursor:not-allowed;}
 
-/* ITEMS */
+/* LIST ITEMS */
 .item-card{background:var(--gris-dark);border:1px solid var(--gris-borde);border-radius:12px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:pointer;}
-.item-card:hover{border-color:var(--azul);}
-.item-avatar{width:40px;height:40px;border-radius:50%;background:var(--azul-dark);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
-.item-info{flex:1;min-width:0;}
+.item-avatar{width:40px;height:40px;border-radius:50%;background:var(--azul-dark);display:flex;align-items:center;justify-content:center;font-size:16px;}
+.item-info{flex:1;}
 .item-nombre{font-weight:600;font-size:14px;color:var(--blanco);}
-.item-meta{font-size:12px;color:#555;margin-top:2px;}
-.badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;}
-.badge-azul{background:rgba(26,74,138,.25);color:var(--azul-claro);border:1px solid rgba(74,144,217,.3);}
+.item-meta{font-size:12px;color:#555;}
+.badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:600;}
 .badge-verde{background:rgba(37,163,82,.15);color:var(--verde);border:1px solid rgba(37,163,82,.3);}
 .badge-rojo{background:rgba(224,60,60,.15);color:var(--rojo);border:1px solid rgba(224,60,60,.3);}
 
-/* ASISTENCIA */
-.asi-row{background:var(--gris-dark);border:1px solid var(--gris-borde);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;}
-.asi-nombre{flex:1;font-size:14px;color:var(--blanco);font-weight:500;}
-.tbtn-group{display:flex;gap:6px;}
-.tbtn{padding:7px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid transparent;}
-.tbtn-p{background:rgba(26,74,138,.2);color:var(--azul-claro);border-color:rgba(74,144,217,.3);}
-.tbtn-p.on{background:var(--azul-claro);color:#fff;}
-.tbtn-a{background:rgba(224,60,60,.1);color:var(--rojo);border-color:rgba(224,60,60,.2);}
-.tbtn-a.on{background:var(--rojo);color:#fff;}
+/* FINANCE */
+.resumen-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px;}
+.resumen-item{background:var(--gris-dark);border:1px solid var(--gris-borde);border-radius:10px;padding:12px 10px;text-align:center;}
+.monto-in{color:var(--verde);}
+.monto-out{color:var(--rojo);}
 
-/* MODAL */
+/* UTILS */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;display:none;align-items:center;justify-content:center;padding:16px;}
 .overlay.open{display:flex;}
-.modal{background:var(--gris-dark);border:1px solid var(--gris-borde);border-radius:14px;padding:22px;width:100%;max-width:420px;max-height:90vh;overflow-y:auto;}
-.modal-title{font-family:"Bebas Neue",sans-serif;font-size:20px;color:var(--blanco);margin-bottom:16px;}
+.modal{background:var(--gris-dark);border:1px solid var(--gris-borde);border-radius:14px;padding:22px;width:100%;max-width:420px;}
 .modal-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--gris-borde);}
-.modal-row:last-of-type{border-bottom:none;}
-.modal-label{font-size:12px;color:#666;}
-.modal-val{font-size:13px;color:var(--texto);text-align:right;max-width:60%;}
-
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--azul);color:#fff;padding:11px 20px;border-radius:8px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;max-width:90vw;text-align:center;}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--azul);color:#fff;padding:11px 20px;border-radius:8px;z-index:999;opacity:0;transition:opacity .3s;}
 .toast.show{opacity:1;}
+.loading{text-align:center;padding:20px;color:#666;}
 </style>
 </head>
 <body>
 
-<!-- LOGIN -->
+<!-- PANTALLA LOGIN -->
 <div id="login-screen">
   <div class="login-box">
-    <div class="login-logo">
-        <img src="./icons/icon-192x192.png" alt="Racing Zaragoza" onerror="this.src='https://manuvaldespartera3-netizen.github.io/APP-ESCUELA-RACING-ZARAGOZA/icons/icon-192x192.png'">
-    </div>
+    <div class="login-logo"><img src="icons/icon-192x192.png" alt="Logo" onerror="this.src='https://placehold.co/192x192/0d2b5e/ffffff?text=RZ'"></div>
     <div class="login-title">Racing Zaragoza</div>
     <div class="login-sub">Panel Administrador</div>
     <div class="field">
@@ -131,15 +102,15 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
       <input type="password" id="inp-pass" placeholder="••••••••">
     </div>
     <button class="btn-login" id="btn-login">Entrar</button>
-    <div class="login-error" id="login-error" style="display:none">Credenciales incorrectas</div>
+    <div class="login-error" id="login-error">Acceso denegado</div>
   </div>
 </div>
 
-<!-- APP -->
+<!-- APLICACIÓN PRINCIPAL -->
 <div id="app">
   <div class="topbar">
     <div class="topbar-left">
-      <img src="./icons/icon-192x192.png" alt="logo" onerror="this.src='https://manuvaldespartera3-netizen.github.io/APP-ESCUELA-RACING-ZARAGOZA/icons/icon-192x192.png'">
+      <img src="icons/icon-192x192.png" alt="Logo" onerror="this.src='https://placehold.co/34x34/0d2b5e/ffffff?text=R'">
       <span class="topbar-logo">Racing Zaragoza</span>
     </div>
     <button class="btn-logout" id="btn-logout">Salir</button>
@@ -148,65 +119,127 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
   <div class="nav-tabs">
     <div class="nav-tab active" data-sec="inicio">Inicio</div>
     <div class="nav-tab" data-sec="jugadores">Jugadores</div>
+    <div class="nav-tab" data-sec="entrenadores">Entrenadores</div>
     <div class="nav-tab" data-sec="asistencia">Asistencia</div>
+    <div class="nav-tab" data-sec="notas">Notas</div>
+    <div class="nav-tab" data-sec="calendario">Calendario</div>
+    <div class="nav-tab" data-sec="avisos">Avisos</div>
+    <div class="nav-tab" data-sec="galeria">Galería</div>
+    <div class="nav-tab" data-sec="finanzas">Finanzas</div>
     <div class="nav-tab" data-sec="exportar">Exportar</div>
   </div>
 
   <div class="content">
+
+    <!-- SECCIÓN INICIO -->
     <div class="section active" id="sec-inicio">
-      <div class="sec-title">Administración</div>
+      <div class="sec-title">Dashboard</div>
       <div class="stats-grid">
-        <div class="stat-card"><div class="stat-num" id="st-jugadores">0</div><div class="stat-label">Jugadores</div></div>
+        <div class="stat-card"><div class="stat-num" id="st-jugadores">-</div><div class="stat-label">Jugadores activos</div></div>
+        <div class="stat-card"><div class="stat-num" id="st-entrenadores">-</div><div class="stat-label">Entrenadores</div></div>
       </div>
-      <div class="acciones-grid">
-        <button class="accion-btn" data-goto="jugadores">⚽ Jugadores</button>
-        <button class="accion-btn" data-goto="asistencia">📋 Asistencia</button>
-        <button class="accion-btn" data-goto="exportar">📊 Exportar</button>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <button class="btn-save" onclick="document.querySelector('[data-sec=asistencia]').click()">📋 Pasar Asistencia</button>
+        <button class="btn-save" onclick="document.querySelector('[data-sec=avisos]').click()" style="background:var(--azul-claro)">📢 Enviar Aviso</button>
       </div>
     </div>
 
+    <!-- SECCIÓN JUGADORES -->
     <div class="section" id="sec-jugadores">
-      <div class="sec-title">Jugadores</div>
+      <div class="sec-title">Gestión de Jugadores</div>
       <div class="form-card">
-        <div class="form-title">➕ Nuevo Jugador</div>
         <div class="form-grid">
-            <div class="fg"><label>Nombre</label><input type="text" id="j-nombre"></div>
-            <div class="fg"><label>Apellidos</label><input type="text" id="j-apellidos"></div>
-            <div class="fg"><label>Grupo</label><select id="j-grupo"><option value="Escuela">Escuela</option><option value="Debutantes">Debutantes</option><option value="Prebenjamín">Prebenjamín</option></select></div>
+          <div class="sec-label">Datos Jugador</div>
+          <div class="fg"><label>Nombre</label><input type="text" id="j-nombre"></div>
+          <div class="fg"><label>Apellidos</label><input type="text" id="j-apellidos"></div>
+          <div class="fg"><label>Equipo</label><select id="j-grupo"><option value="Escuela">Escuela</option><option value="Debutantes">Debutantes</option><option value="Prebenjamín">Prebenjamín</option></select></div>
+          <div class="fg"><label>Cuota (€)</label><input type="number" id="j-cuota" value="45"></div>
+          <div class="sec-label">Contacto Familias</div>
+          <div class="fg"><label>Padre</label><input type="text" id="j-p-nombre" placeholder="Nombre"></div>
+          <div class="fg"><label>Tel. Padre</label><input type="tel" id="j-p-tel"></div>
+          <div class="fg"><label>Madre</label><input type="text" id="j-m-nombre" placeholder="Nombre"></div>
+          <div class="fg"><label>Tel. Madre</label><input type="tel" id="j-m-tel"></div>
+          <div class="sec-label">Pagos</div>
+          <div class="fg"><label>1er Cuatrimestre</label><select id="j-pago1"><option value="pendiente">❌ Pendiente</option><option value="pagado">✅ Pagado</option></select></div>
+          <div class="fg"><label>2º Cuatrimestre</label><select id="j-pago2"><option value="pendiente">❌ Pendiente</option><option value="pagado">✅ Pagado</option></select></div>
         </div>
-        <button class="btn-save" id="btn-guardar-jugador">💾 Guardar</button>
+        <button class="btn-save" id="btn-guardar-jugador">💾 Guardar Jugador</button>
       </div>
       <div id="lista-jugadores"></div>
     </div>
 
+    <!-- ASISTENCIA -->
     <div class="section" id="sec-asistencia">
-      <div class="sec-title">Asistencia</div>
-      <div style="display:flex; gap:10px; margin-bottom:15px;">
-        <input type="date" id="asi-fecha" style="padding:10px; background:#141414; border:1px solid #2a2a2a; color:#fff; border-radius:8px; flex:1">
-        <select id="asi-grupo" style="padding:10px; background:#141414; border:1px solid #2a2a2a; color:#fff; border-radius:8px; flex:1">
-            <option value="Escuela">Escuela</option>
-            <option value="Debutantes">Debutantes</option>
-            <option value="Prebenjamín">Prebenjamín</option>
-        </select>
-        <button id="btn-cargar-asi" style="padding:10px 20px; background:var(--azul); border:none; border-radius:8px; color:#fff; font-weight:600">Cargar</button>
+      <div class="sec-title">Control de Asistencia</div>
+      <div class="form-card" style="display:flex; gap:10px; flex-wrap:wrap;">
+        <input type="date" id="asi-fecha" style="flex:1">
+        <select id="asi-grupo" style="flex:1"><option value="Escuela">Escuela</option><option value="Debutantes">Debutantes</option><option value="Prebenjamín">Prebenjamín</option></select>
+        <button id="btn-cargar-asi" class="btn-save" style="margin:0">Cargar Lista</button>
       </div>
       <div id="lista-asistencia"></div>
-      <button class="btn-save" id="btn-guardar-asi" style="display:none; width:100%; margin-top:15px">💾 Guardar Asistencia</button>
+      <button id="btn-guardar-asi" class="btn-save" style="width:100%; display:none">💾 Guardar Asistencia</button>
     </div>
 
-    <div class="section" id="sec-exportar">
-      <div class="sec-title">Exportar</div>
-      <button class="btn-save" id="btn-exp-jug">Descargar CSV Jugadores</button>
+    <!-- FINANZAS -->
+    <div class="section" id="sec-finanzas">
+      <div class="sec-title">Estado Financiero</div>
+      <div class="resumen-grid">
+        <div class="resumen-item"><div class="resumen-num monto-in" id="f-ingresos">0€</div><div class="stat-label">Ingresos mes</div></div>
+        <div class="resumen-item"><div class="resumen-num monto-out" id="f-gastos">0€</div><div class="stat-label">Gastos mes</div></div>
+        <div class="resumen-item"><div class="resumen-num" id="f-total">0€</div><div class="stat-label">Balance</div></div>
+      </div>
+      <div class="form-card">
+        <div class="form-grid">
+          <div class="fg"><label>Tipo</label><select id="fin-tipo"><option value="cobro">Cobro Familia</option><option value="gasto">Gasto / Pago</option></select></div>
+          <div class="fg"><label>Importe (€)</label><input type="number" id="fin-monto"></div>
+          <div class="fg full"><label>Concepto</label><input type="text" id="fin-concepto" placeholder="Ej: Pago cuota Mayo - Juan Perez"></div>
+        </div>
+        <button class="btn-save" id="btn-guardar-fin">💾 Registrar Movimiento</button>
+      </div>
+      <div id="lista-finanzas"></div>
     </div>
+
+    <!-- EXPORTAR -->
+    <div class="section" id="sec-exportar">
+        <div class="sec-title">Exportar Datos</div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+            <div class="stat-card" style="text-align:center">
+                <div style="font-size:30px">⚽</div>
+                <button class="btn-save" id="btn-exp-jug">CSV Jugadores</button>
+            </div>
+            <div class="stat-card" style="text-align:center">
+                <div style="font-size:30px">💶</div>
+                <button class="btn-save" id="btn-exp-fin">CSV Finanzas</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECCIONES STUBS (Para que no rompa el JS) -->
+    <div class="section" id="sec-entrenadores"><div class="sec-title">Entrenadores</div><div id="lista-entrenadores"></div></div>
+    <div class="section" id="sec-notas"><div class="sec-title">Notas</div><div id="lista-notas"></div></div>
+    <div class="section" id="sec-calendario"><div class="sec-title">Calendario</div><div id="lista-eventos"></div></div>
+    <div class="section" id="sec-avisos"><div class="sec-title">Avisos</div><div id="lista-avisos"></div></div>
+    <div class="section" id="sec-galeria"><div class="sec-title">Galería</div><div id="lista-galeria"></div></div>
+
+  </div>
+</div>
+
+<!-- MODAL GENÉRICO -->
+<div class="overlay" id="modal-base">
+  <div class="modal">
+    <div class="modal-title" id="mod-titulo">Detalles</div>
+    <div id="mod-contenido"></div>
+    <button class="btn-save" onclick="document.getElementById('modal-base').classList.remove('open')" style="width:100%">Cerrar</button>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
 
+<!-- FIREBASE Y LÓGICA -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, getDocs, Timestamp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, query, orderBy, Timestamp, where } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAKHHJ-7fT-KS0F0CTvtVgssxCQcAhBIs8",
@@ -224,6 +257,7 @@ const db = getFirestore(app);
 let jugadores = [];
 let asistenciaActual = {};
 
+// --- GESTIÓN SESIÓN ---
 onAuthStateChanged(auth, user => {
   if (user) {
     document.getElementById('login-screen').style.display = 'none';
@@ -236,22 +270,20 @@ onAuthStateChanged(auth, user => {
 });
 
 document.getElementById('btn-login').addEventListener('click', async () => {
-  const email = document.getElementById('inp-email').value;
+  const email = document.getElementById('inp-email').value.trim();
   const pass = document.getElementById('inp-pass').value;
   try {
     await signInWithEmailAndPassword(auth, email, pass);
   } catch (e) {
-    document.getElementById('login-error').style.display = 'block';
+    const err = document.getElementById('login-error');
+    err.style.display = 'block';
+    setTimeout(() => err.style.display = 'none', 3000);
   }
 });
 
 document.getElementById('btn-logout').addEventListener('click', () => signOut(auth));
 
-async function initApp() {
-  document.getElementById('asi-fecha').value = new Date().toISOString().split('T')[0];
-  await cargarJugadores();
-}
-
+// --- NAVEGACIÓN ---
 document.querySelectorAll('.nav-tab').forEach(tab => {
   tab.addEventListener('click', () => {
     const sec = tab.dataset.sec;
@@ -262,55 +294,86 @@ document.querySelectorAll('.nav-tab').forEach(tab => {
   });
 });
 
-document.querySelectorAll('.accion-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const target = btn.dataset.goto;
-    document.querySelector(`.nav-tab[data-sec="${target}"]`).click();
-  });
-});
+// --- INICIALIZACIÓN ---
+async function initApp() {
+  document.getElementById('asi-fecha').value = new Date().toISOString().split('T')[0];
+  await cargarJugadores();
+  cargarFinanzas();
+}
 
+// --- JUGADORES ---
 async function cargarJugadores() {
   const snap = await getDocs(collection(db, 'alumnos'));
   jugadores = [];
   snap.forEach(d => jugadores.push({ id: d.id, ...d.data() }));
   document.getElementById('st-jugadores').textContent = jugadores.length;
-  renderListaJugadores();
+  renderJugadores();
 }
 
-function renderListaJugadores() {
+function renderJugadores() {
   const el = document.getElementById('lista-jugadores');
   el.innerHTML = jugadores.map(j => `
-    <div class="item-card">
+    <div class="item-card" onclick="window.verDetalleJugador('${j.id}')">
       <div class="item-avatar">⚽</div>
       <div class="item-info">
         <div class="item-nombre">${j.nombre} ${j.apellidos}</div>
-        <div class="item-meta">${j.grupo}</div>
+        <div class="item-meta">${j.grupo} | Cuota: ${j.cuota}€</div>
       </div>
+      <span class="badge ${j.pago1==='pagado'?'badge-verde':'badge-rojo'}">C1</span>
     </div>
   `).join('');
 }
 
+window.verDetalleJugador = (id) => {
+    const j = jugadores.find(x => x.id === id);
+    document.getElementById('mod-titulo').textContent = j.nombre + " " + j.apellidos;
+    document.getElementById('mod-contenido').innerHTML = `
+        <div class="modal-row"><span>Equipo</span><span>${j.grupo}</span></div>
+        <div class="modal-row"><span>Cuota</span><span>${j.cuota}€</span></div>
+        <div class="modal-row"><span>Padre</span><span>${j.padreNombre || '-'} (${j.padreTel || '-'})</span></div>
+        <div class="modal-row"><span>Madre</span><span>${j.madreNombre || '-'} (${j.madreTel || '-'})</span></div>
+        <div class="modal-row"><span>Pago C1</span><span>${j.pago1}</span></div>
+        <div class="modal-row"><span>Pago C2</span><span>${j.pago2}</span></div>
+    `;
+    document.getElementById('modal-base').classList.add('open');
+};
+
 document.getElementById('btn-guardar-jugador').addEventListener('click', async () => {
-  const nombre = document.getElementById('j-nombre').value;
-  const apellidos = document.getElementById('j-apellidos').value;
-  const grupo = document.getElementById('j-grupo').value;
-  if(!nombre || !apellidos) return;
-  await addDoc(collection(db, 'alumnos'), { nombre, apellidos, grupo, estado: 'activo' });
-  showToast("Jugador guardado");
+  const btn = document.getElementById('btn-guardar-jugador');
+  const data = {
+    nombre: document.getElementById('j-nombre').value,
+    apellidos: document.getElementById('j-apellidos').value,
+    grupo: document.getElementById('j-grupo').value,
+    cuota: document.getElementById('j-cuota').value,
+    padreNombre: document.getElementById('j-p-nombre').value,
+    padreTel: document.getElementById('j-p-tel').value,
+    madreNombre: document.getElementById('j-m-nombre').value,
+    madreTel: document.getElementById('j-m-tel').value,
+    pago1: document.getElementById('j-pago1').value,
+    pago2: document.getElementById('j-pago2').value,
+    creadoEn: Timestamp.now()
+  };
+  if(!data.nombre) return;
+  btn.disabled = true;
+  await addDoc(collection(db, 'alumnos'), data);
+  showToast("✅ Jugador guardado");
+  btn.disabled = false;
   cargarJugadores();
 });
 
+// --- ASISTENCIA ---
 document.getElementById('btn-cargar-asi').addEventListener('click', () => {
   const grupo = document.getElementById('asi-grupo').value;
   const lista = jugadores.filter(j => j.grupo === grupo);
   const el = document.getElementById('lista-asistencia');
   asistenciaActual = {};
+  if(lista.length === 0){ el.innerHTML = "<div class='empty'>No hay jugadores en este grupo</div>"; return; }
   el.innerHTML = lista.map(j => `
     <div class="asi-row">
       <div class="asi-nombre">${j.nombre} ${j.apellidos}</div>
       <div class="tbtn-group">
-        <button class="tbtn tbtn-p" id="p-${j.id}" onclick="marcarAsi('${j.id}', true)">✓</button>
-        <button class="tbtn tbtn-a" id="a-${j.id}" onclick="marcarAsi('${j.id}', false)">✗</button>
+        <button class="tbtn tbtn-p" id="p-${j.id}" onclick="window.marcarAsi('${j.id}', true)">✓</button>
+        <button class="tbtn tbtn-a" id="a-${j.id}" onclick="window.marcarAsi('${j.id}', false)">✗</button>
       </div>
     </div>
   `).join('');
@@ -327,37 +390,72 @@ window.marcarAsi = (id, val) => {
 
 document.getElementById('btn-guardar-asi').addEventListener('click', async () => {
   const fecha = document.getElementById('asi-fecha').value;
-  for (let id in asistenciaActual) {
-    await addDoc(collection(db, 'asistencia'), {
-      alumnoId: id,
-      fecha: fecha,
-      presente: asistenciaActual[id],
-      creadoEn: Timestamp.now()
+  const promesas = Object.entries(asistenciaActual).map(([id, p]) => {
+    const j = jugadores.find(x => x.id === id);
+    return addDoc(collection(db, 'asistencia'), {
+        alumnoId: id,
+        nombre: j.nombre + " " + j.apellidos,
+        fecha: fecha,
+        presente: p,
+        creadoEn: Timestamp.now()
     });
-  }
-  showToast("Asistencia guardada");
+  });
+  await Promise.all(promesas);
+  showToast("✅ Asistencia registrada");
 });
 
+// --- FINANZAS ---
+async function cargarFinanzas() {
+    const snap = await getDocs(query(collection(db, 'finanzas'), orderBy('creadoEn', 'desc')));
+    let ing = 0, gas = 0;
+    const el = document.getElementById('lista-finanzas');
+    el.innerHTML = "";
+    snap.forEach(d => {
+        const f = d.data();
+        if(f.tipo === 'cobro') ing += parseFloat(f.monto);
+        else gas += parseFloat(f.monto);
+        el.innerHTML += `<div class="modal-row"><span>${f.concepto}</span><span class="${f.tipo==='cobro'?'monto-in':'monto-out'}">${f.tipo==='cobro'?'+':'-'}${f.monto}€</span></div>`;
+    });
+    document.getElementById('f-ingresos').textContent = ing + "€";
+    document.getElementById('f-gastos').textContent = gas + "€";
+    document.getElementById('f-total').textContent = (ing - gas) + "€";
+}
+
+document.getElementById('btn-guardar-fin').addEventListener('click', async () => {
+    const monto = document.getElementById('fin-monto').value;
+    const concepto = document.getElementById('fin-concepto').value;
+    const tipo = document.getElementById('fin-tipo').value;
+    if(!monto || !concepto) return;
+    await addDoc(collection(db, 'finanzas'), { monto, concepto, tipo, creadoEn: Timestamp.now() });
+    showToast("✅ Movimiento registrado");
+    cargarFinanzas();
+});
+
+// --- EXPORTAR ---
 function descargarCSV(nombre, cabeceras, filas) {
   const bom = '\uFEFF';
-  const csv = bom + cabeceras.join(';') + '\n' + filas.map(f => f.join(';')).join('\n');
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = nombre;
-  a.click();
+  const csvStr = bom + cabeceras.join(';') + '\n' + filas.map(f => f.join(';')).join('\n');
+  const blob = new Blob([csvStr], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = nombre;
+  link.click();
 }
 
 document.getElementById('btn-exp-jug').addEventListener('click', () => {
-  descargarCSV('jugadores.csv', ['Nombre', 'Apellidos', 'Grupo'], jugadores.map(j => [j.nombre, j.apellidos, j.grupo]));
+    const data = jugadores.map(j => [j.nombre, j.apellidos, j.grupo, j.pago1, j.pago2]);
+    descargarCSV('jugadores_racing.csv', ['Nombre','Apellidos','Equipo','Pago_C1','Pago_C2'], data);
 });
 
-function showToast(msg) {
+// --- UTILS ---
+function showToast(m) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
+  t.textContent = m;
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 3000);
 }
+
 </script>
 </body>
 </html>
