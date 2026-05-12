@@ -72,7 +72,7 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
 .fg textarea{resize:vertical;min-height:70px;}
 .fg select option{background:#141414;}
 .sec-label{grid-column:1/-1;font-size:11px;color:var(--azul-claro);text-transform:uppercase;letter-spacing:1px;padding:10px 0 4px;border-top:1px solid var(--gris-borde);margin-top:4px;}
-.btn-save{padding:11px 20px;background:var(--azul);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:"DM Sans",sans-serif;margin-top:12px;}
+.btn-save{padding:11px 20px;background:var(--azul);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;margin-top:12px;}
 .btn-save:hover{background:var(--azul-claro);}
 .btn-save:disabled{background:#333;color:#666;cursor:not-allowed;}
 
@@ -87,13 +87,12 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
 .badge-azul{background:rgba(26,74,138,.25);color:var(--azul-claro);border:1px solid rgba(74,144,217,.3);}
 .badge-verde{background:rgba(37,163,82,.15);color:var(--verde);border:1px solid rgba(37,163,82,.3);}
 .badge-rojo{background:rgba(224,60,60,.15);color:var(--rojo);border:1px solid rgba(224,60,60,.3);}
-.asi-contador{font-family:"Bebas Neue",sans-serif;font-size:18px;color:var(--azul-claro);background:rgba(26,74,138,.15);padding:4px 10px;border-radius:8px;border:1px solid rgba(74,144,217,.25);flex-shrink:0;}
 
 /* ASISTENCIA */
 .asi-row{background:var(--gris-dark);border:1px solid var(--gris-borde);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;}
 .asi-nombre{flex:1;font-size:14px;color:var(--blanco);font-weight:500;}
 .tbtn-group{display:flex;gap:6px;}
-.tbtn{padding:7px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid transparent;font-family:"DM Sans",sans-serif;}
+.tbtn{padding:7px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid transparent;}
 .tbtn-p{background:rgba(26,74,138,.2);color:var(--azul-claro);border-color:rgba(74,144,217,.3);}
 .tbtn-p.on{background:var(--azul-claro);color:#fff;}
 .tbtn-a{background:rgba(224,60,60,.1);color:var(--rojo);border-color:rgba(224,60,60,.2);}
@@ -109,8 +108,6 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
 .modal-label{font-size:12px;color:#666;}
 .modal-val{font-size:13px;color:var(--texto);text-align:right;max-width:60%;}
 
-.empty{text-align:center;padding:36px 20px;color:#444;font-size:13px;}
-.loading{text-align:center;padding:28px;color:#444;font-size:13px;}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--azul);color:#fff;padding:11px 20px;border-radius:8px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;max-width:90vw;text-align:center;}
 .toast.show{opacity:1;}
 </style>
@@ -120,7 +117,9 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
 <!-- LOGIN -->
 <div id="login-screen">
   <div class="login-box">
-    <div class="login-logo"><img src="icons/icon-192x192.png" alt="Racing Zaragoza"></div>
+    <div class="login-logo">
+        <img src="./icons/icon-192x192.png" alt="Racing Zaragoza" onerror="this.src='https://manuvaldespartera3-netizen.github.io/APP-ESCUELA-RACING-ZARAGOZA/icons/icon-192x192.png'">
+    </div>
     <div class="login-title">Racing Zaragoza</div>
     <div class="login-sub">Panel Administrador</div>
     <div class="field">
@@ -132,7 +131,7 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
       <input type="password" id="inp-pass" placeholder="••••••••">
     </div>
     <button class="btn-login" id="btn-login">Entrar</button>
-    <div class="login-error" id="login-error">Credenciales incorrectas</div>
+    <div class="login-error" id="login-error" style="display:none">Credenciales incorrectas</div>
   </div>
 </div>
 
@@ -140,7 +139,7 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
 <div id="app">
   <div class="topbar">
     <div class="topbar-left">
-      <img src="icons/icon-192x192.png" alt="logo">
+      <img src="./icons/icon-192x192.png" alt="logo" onerror="this.src='https://manuvaldespartera3-netizen.github.io/APP-ESCUELA-RACING-ZARAGOZA/icons/icon-192x192.png'">
       <span class="topbar-logo">Racing Zaragoza</span>
     </div>
     <button class="btn-logout" id="btn-logout">Salir</button>
@@ -149,29 +148,23 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
   <div class="nav-tabs">
     <div class="nav-tab active" data-sec="inicio">Inicio</div>
     <div class="nav-tab" data-sec="jugadores">Jugadores</div>
-    <div class="nav-tab" data-sec="entrenadores">Entrenadores</div>
     <div class="nav-tab" data-sec="asistencia">Asistencia</div>
-    <div class="nav-tab" data-sec="finanzas">Finanzas</div>
     <div class="nav-tab" data-sec="exportar">Exportar</div>
   </div>
 
   <div class="content">
-    <!-- SECCIÓN INICIO -->
     <div class="section active" id="sec-inicio">
       <div class="sec-title">Administración</div>
       <div class="stats-grid">
         <div class="stat-card"><div class="stat-num" id="st-jugadores">0</div><div class="stat-label">Jugadores</div></div>
-        <div class="stat-card"><div class="stat-num" id="st-entrenadores">0</div><div class="stat-label">Entrenadores</div></div>
       </div>
       <div class="acciones-grid">
         <button class="accion-btn" data-goto="jugadores">⚽ Jugadores</button>
         <button class="accion-btn" data-goto="asistencia">📋 Asistencia</button>
-        <button class="accion-btn" data-goto="finanzas">💶 Finanzas</button>
         <button class="accion-btn" data-goto="exportar">📊 Exportar</button>
       </div>
     </div>
 
-    <!-- SECCIÓN JUGADORES -->
     <div class="section" id="sec-jugadores">
       <div class="sec-title">Jugadores</div>
       <div class="form-card">
@@ -186,21 +179,23 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
       <div id="lista-jugadores"></div>
     </div>
 
-    <!-- SECCIÓN ASISTENCIA -->
     <div class="section" id="sec-asistencia">
-      <div class="sec-title">Pasar Lista</div>
-      <div class="fecha-bar">
-        <input type="date" id="asi-fecha">
-        <select id="asi-grupo"><option value="Escuela">Escuela</option><option value="Debutantes">Debutantes</option><option value="Prebenjamín">Prebenjamín</option></select>
-        <button class="btn-cargar" id="btn-cargar-asi">Cargar</button>
+      <div class="sec-title">Asistencia</div>
+      <div style="display:flex; gap:10px; margin-bottom:15px;">
+        <input type="date" id="asi-fecha" style="padding:10px; background:#141414; border:1px solid #2a2a2a; color:#fff; border-radius:8px; flex:1">
+        <select id="asi-grupo" style="padding:10px; background:#141414; border:1px solid #2a2a2a; color:#fff; border-radius:8px; flex:1">
+            <option value="Escuela">Escuela</option>
+            <option value="Debutantes">Debutantes</option>
+            <option value="Prebenjamín">Prebenjamín</option>
+        </select>
+        <button id="btn-cargar-asi" style="padding:10px 20px; background:var(--azul); border:none; border-radius:8px; color:#fff; font-weight:600">Cargar</button>
       </div>
       <div id="lista-asistencia"></div>
-      <button class="btn-save" id="btn-guardar-asi" style="display:none; width:100%">💾 Guardar Asistencia</button>
+      <button class="btn-save" id="btn-guardar-asi" style="display:none; width:100%; margin-top:15px">💾 Guardar Asistencia</button>
     </div>
 
-    <!-- SECCIÓN EXPORTAR -->
     <div class="section" id="sec-exportar">
-      <div class="sec-title">Exportar Datos</div>
+      <div class="sec-title">Exportar</div>
       <button class="btn-save" id="btn-exp-jug">Descargar CSV Jugadores</button>
     </div>
   </div>
@@ -208,11 +203,10 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
 
 <div class="toast" id="toast"></div>
 
-<!-- FIREBASE SDK -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
-import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, query, where, Timestamp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, Timestamp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAKHHJ-7fT-KS0F0CTvtVgssxCQcAhBIs8",
@@ -230,7 +224,6 @@ const db = getFirestore(app);
 let jugadores = [];
 let asistenciaActual = {};
 
-// --- AUTH ---
 onAuthStateChanged(auth, user => {
   if (user) {
     document.getElementById('login-screen').style.display = 'none';
@@ -254,13 +247,11 @@ document.getElementById('btn-login').addEventListener('click', async () => {
 
 document.getElementById('btn-logout').addEventListener('click', () => signOut(auth));
 
-// --- INIT ---
 async function initApp() {
   document.getElementById('asi-fecha').value = new Date().toISOString().split('T')[0];
   await cargarJugadores();
 }
 
-// --- NAVEGACIÓN ---
 document.querySelectorAll('.nav-tab').forEach(tab => {
   tab.addEventListener('click', () => {
     const sec = tab.dataset.sec;
@@ -278,7 +269,6 @@ document.querySelectorAll('.accion-btn').forEach(btn => {
   });
 });
 
-// --- JUGADORES ---
 async function cargarJugadores() {
   const snap = await getDocs(collection(db, 'alumnos'));
   jugadores = [];
@@ -310,7 +300,6 @@ document.getElementById('btn-guardar-jugador').addEventListener('click', async (
   cargarJugadores();
 });
 
-// --- ASISTENCIA ---
 document.getElementById('btn-cargar-asi').addEventListener('click', () => {
   const grupo = document.getElementById('asi-grupo').value;
   const lista = jugadores.filter(j => j.grupo === grupo);
@@ -320,19 +309,20 @@ document.getElementById('btn-cargar-asi').addEventListener('click', () => {
     <div class="asi-row">
       <div class="asi-nombre">${j.nombre} ${j.apellidos}</div>
       <div class="tbtn-group">
-        <button class="tbtn tbtn-p" onclick="marcarAsistencia('${j.id}', true, this)">✓</button>
-        <button class="tbtn tbtn-a" onclick="marcarAsistencia('${j.id}', false, this)">✗</button>
+        <button class="tbtn tbtn-p" id="p-${j.id}" onclick="marcarAsi('${j.id}', true)">✓</button>
+        <button class="tbtn tbtn-a" id="a-${j.id}" onclick="marcarAsi('${j.id}', false)">✗</button>
       </div>
     </div>
   `).join('');
   document.getElementById('btn-guardar-asi').style.display = 'block';
 });
 
-window.marcarAsistencia = (id, presente, btn) => {
-  asistenciaActual[id] = presente;
-  const parent = btn.parentElement;
-  parent.querySelectorAll('button').forEach(b => b.classList.remove('on'));
-  btn.classList.add('on');
+window.marcarAsi = (id, val) => {
+    asistenciaActual[id] = val;
+    document.getElementById(`p-${id}`).classList.remove('on');
+    document.getElementById(`a-${id}`).classList.remove('on');
+    if(val) document.getElementById(`p-${id}`).classList.add('on');
+    else document.getElementById(`a-${id}`).classList.add('on');
 };
 
 document.getElementById('btn-guardar-asi').addEventListener('click', async () => {
@@ -348,10 +338,9 @@ document.getElementById('btn-guardar-asi').addEventListener('click', async () =>
   showToast("Asistencia guardada");
 });
 
-// --- EXPORTAR ---
 function descargarCSV(nombre, cabeceras, filas) {
   const bom = '\uFEFF';
-  const csv = bom + cabeceras.join(';') + '\n' + filas.map(f => f.map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(';')).join('\n');
+  const csv = bom + cabeceras.join(';') + '\n' + filas.map(f => f.join(';')).join('\n');
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -369,7 +358,6 @@ function showToast(msg) {
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 3000);
 }
-
 </script>
 </body>
 </html>
