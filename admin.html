@@ -1085,7 +1085,7 @@ async function cargarFinanzas() {
 // ── EXPORTAR ──
 function descargarCSV(nombre, cabeceras, filas) {
   const bom = '﻿';
-  const csv = bom + cabeceras.join(';') + '
+const csv = bom + cabeceras.join(';') + '\n';
 ' + filas.map(f => f.map(v => `"${String(v || '').replace(/"/g, '""')}"`).join(';')).join('
 ');
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
