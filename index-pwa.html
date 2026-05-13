@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Escuela Racing Zaragoza</title>
+
+<!-- PWA META TAGS -->
+<meta name="application-name" content="Racing Zgz">
+<meta name="description" content="App de gestión de la Escuela de Fútbol Racing Club Zaragoza">
+<meta name="theme-color" content="#0d2b5e">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Racing Zgz">
+<meta name="msapplication-TileColor" content="#0d2b5e">
+<meta name="msapplication-TileImage" content="icons/icon-144.png">
+
+<!-- ICONOS APPLE -->
+<link rel="apple-touch-icon" href="icons/icon-152.png">
+<link rel="apple-touch-icon" sizes="72x72" href="icons/icon-72.png">
+<link rel="apple-touch-icon" sizes="96x96" href="icons/icon-96.png">
+<link rel="apple-touch-icon" sizes="128x128" href="icons/icon-128.png">
+<link rel="apple-touch-icon" sizes="144x144" href="icons/icon-144.png">
+<link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152.png">
+<link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192.png">
+
+<!-- MANIFEST -->
+<link rel="manifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/icon-96.png">
+
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --azul:#1a4a8a; --azul-claro:#4a90d9; --azul-dark:#0d2b5e;
+    --negro:#0a0a0a; --gris-dark:#141414; --gris-borde:#2a2a2a;
+    --blanco:#f5f5f0; --texto:#d0d0c8;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body {
+    background:var(--negro); color:var(--texto); font-family:"DM Sans",sans-serif;
+    min-height:100vh; min-height:-webkit-fill-available;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:24px; padding-top:env(safe-area-inset-top);
+    padding-bottom:env(safe-area-inset-bottom);
+    background:radial-gradient(ellipse at 50% 0%, #0d2b5e 0%, #0a0a0a 60%);
+  }
+  .header { text-align:center; margin-bottom:40px; }
+  .logo { width:110px; height:110px; border-radius:50%; object-fit:contain; border:3px solid rgba(74,144,217,.3); margin-bottom:16px; box-shadow:0 0 40px rgba(74,144,217,.15); }
+  .club-nombre { font-family:"Bebas Neue",sans-serif; font-size:34px; color:var(--blanco); letter-spacing:3px; line-height:1; }
+  .club-sub { font-size:12px; color:var(--azul-claro); text-transform:uppercase; letter-spacing:2px; margin-top:6px; }
+
+  .cards { display:flex; flex-direction:column; gap:14px; width:100%; max-width:400px; }
+  .card { background:var(--gris-dark); border:1px solid var(--gris-borde); border-radius:16px; padding:22px 20px; display:flex; align-items:center; gap:18px; cursor:pointer; text-decoration:none; transition:all .2s; position:relative; overflow:hidden; user-select:none; }
+  .card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:4px; border-radius:4px 0 0 4px; }
+  .card-admin::before { background:var(--azul-claro); }
+  .card-entrenador::before { background:#25a352; }
+  .card-familia::before { background:#f0b429; }
+  .card:active { transform:scale(0.98); opacity:.9; }
+  .card-icon { width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; font-size:24px; flex-shrink:0; }
+  .card-admin .card-icon { background:rgba(74,144,217,.12); }
+  .card-entrenador .card-icon { background:rgba(37,163,82,.12); }
+  .card-familia .card-icon { background:rgba(240,180,41,.12); }
+  .card-info { flex:1; }
+  .card-titulo { font-family:"Bebas Neue",sans-serif; font-size:22px; color:var(--blanco); letter-spacing:1px; line-height:1; }
+  .card-desc { font-size:12px; color:#666; margin-top:4px; line-height:1.4; }
+  .card-arrow { font-size:20px; color:#333; flex-shrink:0; }
+
+  /* BANNER INSTALAR PWA */
+  .install-banner {
+    position:fixed; bottom:20px; left:16px; right:16px;
+    background:var(--azul-dark); border:1px solid rgba(74,144,217,.3);
+    border-radius:14px; padding:14px 16px;
+    display:flex; align-items:center; gap:12px;
+    box-shadow:0 8px 32px rgba(0,0,0,.5); z-index:100;
+    display:none;
+  }
+  .install-banner-icon { font-size:28px; flex-shrink:0; }
+  .install-banner-info { flex:1; }
+  .install-banner-titulo { font-size:13px; font-weight:600; color:var(--blanco); }
+  .install-banner-desc { font-size:11px; color:#888; margin-top:2px; }
+  .install-banner-btn { padding:8px 14px; background:var(--azul-claro); color:#fff; border:none; border-radius:8px; font-size:12px; font-weight:600; cursor:pointer; font-family:"DM Sans",sans-serif; white-space:nowrap; }
+  .install-banner-close { background:none; border:none; color:#555; font-size:20px; cursor:pointer; padding:0 4px; }
+
+  .footer { margin-top:36px; text-align:center; font-size:11px; color:#333; letter-spacing:.5px; }
+
+  /* SPLASH para iOS */
+  @media (display-mode: standalone) {
+    body { padding-top:max(24px, env(safe-area-inset-top)); }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <img src="ESCUDO_PLACEHOLDER" alt="Racing Club Zaragoza" class="logo" id="logo-img">
+  <div class="club-nombre">Racing Zaragoza</div>
+  <div class="club-sub">Escuela de Fútbol</div>
+</div>
+
+<div class="cards">
+  <a class="card card-admin" href="admin.html">
+    <div class="card-icon">👑</div>
+    <div class="card-info">
+      <div class="card-titulo">Administración</div>
+      <div class="card-desc">Jugadores, finanzas, asistencia y entrenadores</div>
+    </div>
+    <div class="card-arrow">›</div>
+  </a>
+  <a class="card card-entrenador" href="coach.html">
+    <div class="card-icon">⚽</div>
+    <div class="card-info">
+      <div class="card-titulo">Entrenadores</div>
+      <div class="card-desc">Marcar asistencia y añadir notas del equipo</div>
+    </div>
+    <div class="card-arrow">›</div>
+  </a>
+  <a class="card card-familia" href="family.html">
+    <div class="card-icon">👨‍👩‍👧</div>
+    <div class="card-info">
+      <div class="card-titulo">Familias</div>
+      <div class="card-desc">Asistencia, notas y estado de pagos de tu hijo</div>
+    </div>
+    <div class="card-arrow">›</div>
+  </a>
+</div>
+
+<div class="footer">Racing Club Zaragoza · Temporada 2025/2026</div>
+
+<!-- BANNER INSTALAR -->
+<div class="install-banner" id="install-banner">
+  <div class="install-banner-icon">📱</div>
+  <div class="install-banner-info">
+    <div class="install-banner-titulo">Instalar como app</div>
+    <div class="install-banner-desc">Añade Racing Zaragoza a tu pantalla de inicio</div>
+  </div>
+  <button class="install-banner-btn" id="install-btn">Instalar</button>
+  <button class="install-banner-close" id="install-close">✕</button>
+</div>
+
+<script>
+// ── REGISTRO SERVICE WORKER ──
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js')
+      .then(reg => console.log('[PWA] Service Worker registrado:', reg.scope))
+      .catch(err => console.log('[PWA] Error SW:', err));
+  });
+}
+
+// ── BANNER DE INSTALACIÓN (Android/Chrome) ──
+let deferredPrompt;
+const banner = document.getElementById('install-banner');
+const installBtn = document.getElementById('install-btn');
+const closeBtn = document.getElementById('install-close');
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  // Mostrar banner solo si no está en modo standalone
+  if (!window.matchMedia('(display-mode: standalone)').matches) {
+    banner.style.display = 'flex';
+  }
+});
+
+installBtn.addEventListener('click', async () => {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  console.log('[PWA] Usuario eligió:', outcome);
+  deferredPrompt = null;
+  banner.style.display = 'none';
+});
+
+closeBtn.addEventListener('click', () => {
+  banner.style.display = 'none';
+});
+
+window.addEventListener('appinstalled', () => {
+  console.log('[PWA] App instalada correctamente');
+  banner.style.display = 'none';
+});
+</script>
+</body>
+</html>
