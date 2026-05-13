@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Test Login</title>
+<style>
+body{font-family:sans-serif;background:#111;color:#fff;display:flex;align-items:center;justify-content:center;min-height:100vh;margin:0;}
+.box{background:#222;padding:30px;border-radius:12px;width:300px;}
+input{width:100%;padding:10px;margin:8px 0;background:#333;border:1px solid #444;border-radius:6px;color:#fff;font-size:14px;box-sizing:border-box;}
+button{width:100%;padding:12px;background:#1a4a8a;color:#fff;border:none;border-radius:6px;font-size:15px;cursor:pointer;margin-top:6px;}
+#msg{margin-top:10px;font-size:13px;text-align:center;}
+.ok{color:#25a352;}.err{color:#e03c3c;}
+</style>
+</head>
+<body>
+<div class="box">
+  <h2 style="text-align:center;margin-bottom:20px">Test Login Firebase</h2>
+  <input type="email" id="email" placeholder="Email">
+  <input type="password" id="pass" placeholder="Contraseña">
+  <button id="btn">Entrar</button>
+  <div id="msg"></div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+
+const msg = document.getElementById("msg");
+
+try {
+  const app = initializeApp({
+    apiKey: "AIzaSyAKHHJ-7fT-KS0F0CTvtVgssxCQcAhBIs8",
+    authDomain: "escuela-racing-zaragoza.firebaseapp.com",
+    projectId: "escuela-racing-zaragoza",
+    storageBucket: "escuela-racing-zaragoza.firebasestorage.app",
+    messagingSenderId: "862620560075",
+    appId: "1:862620560075:web:51c178f8893bbd5fb1494e"
+  });
+
+  const auth = getAuth(app);
+  msg.textContent = "✅ Firebase cargado correctamente";
+  msg.className = "ok";
+
+  document.getElementById("btn").addEventListener("click", function() {
+    const email = document.getElementById("email").value.trim();
+    const pass = document.getElementById("pass").value;
+    msg.textContent = "Intentando login...";
+    msg.className = "";
+    signInWithEmailAndPassword(auth, email, pass)
+      .then(function(cred) {
+        msg.textContent = "✅ Login correcto: " + cred.user.email;
+        msg.className = "ok";
+      })
+      .catch(function(e) {
+        msg.textContent = "❌ Error: " + e.message;
+        msg.className = "err";
+      });
+  });
+
+} catch(e) {
+  msg.textContent = "❌ Error cargando Firebase: " + e.message;
+  msg.className = "err";
+}
+</script>
+</body>
+</html>
