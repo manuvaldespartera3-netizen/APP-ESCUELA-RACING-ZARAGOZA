@@ -1,0 +1,67 @@
+{
+  "name": "Escuela Racing Zaragoza",
+  "short_name": "Racing Zgz",
+  "description": "App de gestión de la Escuela de Fútbol Racing Club Zaragoza",
+  "start_url": "/APP-ESCUELA-RACING-ZARAGOZA/index.html",
+  "scope": "/APP-ESCUELA-RACING-ZARAGOZA/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#060d1a",
+  "theme_color": "#0d2b5e",
+  "lang": "es",
+  "icons": [
+    {
+      "src": "/APP-ESCUELA-RACING-ZARAGOZA/icons/icon-72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/APP-ESCUELA-RACING-ZARAGOZA/icons/icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/APP-ESCUELA-RACING-ZARAGOZA/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/APP-ESCUELA-RACING-ZARAGOZA/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/APP-ESCUELA-RACING-ZARAGOZA/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/APP-ESCUELA-RACING-ZARAGOZA/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Administración",
+      "url": "/APP-ESCUELA-RACING-ZARAGOZA/admin.html",
+      "icons": [{"src": "/APP-ESCUELA-RACING-ZARAGOZA/icons/icon-96.png", "sizes": "96x96"}]
+    },
+    {
+      "name": "Entrenadores",
+      "url": "/APP-ESCUELA-RACING-ZARAGOZA/coach.html",
+      "icons": [{"src": "/APP-ESCUELA-RACING-ZARAGOZA/icons/icon-96.png", "sizes": "96x96"}]
+    },
+    {
+      "name": "Familias",
+      "url": "/APP-ESCUELA-RACING-ZARAGOZA/family.html",
+      "icons": [{"src": "/APP-ESCUELA-RACING-ZARAGOZA/icons/icon-96.png", "sizes": "96x96"}]
+    }
+  ]
+}
