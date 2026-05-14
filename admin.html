@@ -1,0 +1,1884 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Racing Zaragoza · Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--a:#1a4a8a;--ac:#4a90d9;--ad:#0d2b5e;--n:#0a0a0a;--g:#141414;--b:#2a2a2a;--w:#f5f5f0;--t:#d0d0c8;--r:#e03c3c;--y:#f0b429;--v:#25a352;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--n);color:var(--t);font-family:"DM Sans",sans-serif;min-height:100vh;}
+#login{min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 40% 40%,#0d2b5e,#0a0a0a 65%);padding:24px;}
+.box{background:var(--g);border:1px solid #1e3a6a;border-radius:16px;padding:36px 28px;width:100%;max-width:380px;box-shadow:0 40px 80px rgba(0,0,0,.6);}
+.logo-wrap{text-align:center;margin-bottom:12px;}
+.logo-wrap img{width:88px;height:88px;object-fit:contain;border-radius:50%;border:2px solid var(--a);}
+.titulo{font-family:"Bebas Neue",sans-serif;font-size:28px;color:var(--ac);letter-spacing:2px;text-align:center;}
+.sub{font-size:11px;color:#666;text-align:center;margin-bottom:24px;text-transform:uppercase;letter-spacing:1px;margin-top:4px;}
+.campo{margin-bottom:14px;}
+.campo label{display:block;font-size:11px;color:#888;margin-bottom:5px;text-transform:uppercase;}
+.campo input{width:100%;padding:12px 14px;background:#0a0a0a;border:1px solid var(--b);border-radius:8px;color:var(--w);font-size:15px;font-family:"DM Sans",sans-serif;}
+.campo input:focus{outline:none;border-color:var(--ac);}
+.btn-entrar{width:100%;padding:14px;background:var(--a);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;font-family:"DM Sans",sans-serif;margin-top:6px;}
+.btn-entrar:hover{background:var(--ac);}
+.error{color:var(--r);font-size:13px;margin-top:10px;text-align:center;display:none;}
+.recovery-link{text-align:center;margin-top:12px;}
+.recovery-link a{font-size:12px;color:var(--ac);text-decoration:none;}
+.recovery-ok{display:none;text-align:center;margin-top:10px;font-size:12px;color:var(--v);}
+#app{display:none;}
+.topbar{background:var(--ad);border-bottom:1px solid rgba(74,144,217,.2);padding:0 16px;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
+.topbar-left{display:flex;align-items:center;gap:10px;}
+.topbar-left img{width:34px;height:34px;border-radius:50%;object-fit:contain;}
+.topbar-nombre{font-family:"Bebas Neue",sans-serif;font-size:20px;color:var(--ac);letter-spacing:1px;}
+.topbar-rol{font-size:10px;background:rgba(74,144,217,.2);color:var(--ac);padding:2px 7px;border-radius:20px;border:1px solid rgba(74,144,217,.3);}
+.btn-salir{background:none;border:1px solid var(--b);color:#888;padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer;font-family:"DM Sans",sans-serif;}
+.tabs{background:var(--g);border-bottom:1px solid var(--b);display:flex;overflow-x:auto;padding:0 8px;}
+.tabs::-webkit-scrollbar{display:none;}
+.tab{padding:13px 11px;font-size:12px;color:#666;cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;font-weight:500;}
+.tab.activo{color:var(--ac);border-bottom-color:var(--ac);}
+.contenido{padding:18px 14px;max-width:800px;margin:0 auto;}
+.seccion{display:none;}.seccion.activo{display:block;}
+.sec-titulo{font-family:"Bebas Neue",sans-serif;font-size:22px;color:var(--w);letter-spacing:1px;margin-bottom:14px;}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px;}
+.stat{background:var(--g);border:1px solid var(--b);border-radius:12px;padding:16px 14px;}
+.stat-num{font-family:"Bebas Neue",sans-serif;font-size:34px;color:var(--ac);line-height:1;}
+.stat-label{font-size:12px;color:#555;margin-top:4px;}
+.acciones{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.accion{padding:16px 12px;background:var(--g);border:1px solid var(--b);border-radius:12px;color:var(--t);font-size:13px;font-weight:500;cursor:pointer;font-family:"DM Sans",sans-serif;text-align:center;}
+.accion:hover{border-color:var(--ac);}
+.accion-ico{font-size:22px;display:block;margin-bottom:6px;}
+.form-card{background:var(--g);border:1px solid var(--b);border-radius:12px;padding:18px 16px;margin-bottom:18px;}
+.form-titulo{font-size:13px;font-weight:600;color:var(--w);margin-bottom:14px;}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.form-campo{display:flex;flex-direction:column;gap:5px;}
+.form-campo.ancho{grid-column:1/-1;}
+.form-campo label{font-size:11px;color:#777;text-transform:uppercase;letter-spacing:.5px;}
+.form-campo input,.form-campo select,.form-campo textarea{padding:10px 12px;background:#0a0a0a;border:1px solid var(--b);border-radius:8px;color:var(--w);font-size:13px;font-family:"DM Sans",sans-serif;width:100%;}
+.form-campo input:focus,.form-campo select:focus,.form-campo textarea:focus{outline:none;border-color:var(--ac);}
+.form-campo textarea{resize:vertical;min-height:70px;}
+.form-campo select option{background:#141414;}
+.form-seccion{grid-column:1/-1;font-size:11px;color:var(--ac);text-transform:uppercase;letter-spacing:1px;padding:10px 0 4px;border-top:1px solid var(--b);margin-top:4px;}
+.btn-guardar{padding:11px 20px;background:var(--a);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:"DM Sans",sans-serif;margin-top:12px;}
+.btn-guardar:hover{background:var(--ac);}
+.btn-guardar:disabled{background:#333;color:#666;cursor:not-allowed;}
+.jugador-card{background:var(--g);border:1px solid var(--b);border-radius:12px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;cursor:pointer;}
+.jugador-card:hover{border-color:var(--a);}
+.jugador-acciones{display:flex;flex-direction:column;gap:6px;flex-shrink:0;}
+.btn-editar-j{padding:7px 10px;background:rgba(26,74,138,.2);border:1px solid rgba(74,144,217,.3);border-radius:8px;font-size:16px;cursor:pointer;color:var(--ac);}
+.btn-editar-j:hover{background:var(--ac);color:#fff;}
+.btn-baja-j{padding:7px 10px;background:rgba(224,60,60,.1);border:1px solid rgba(224,60,60,.25);border-radius:8px;font-size:16px;cursor:pointer;color:var(--r);}
+.btn-baja-j:hover{background:var(--r);color:#fff;}
+.jugador-ico{width:40px;height:40px;border-radius:50%;background:var(--ad);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.jugador-info{flex:1;}
+.jugador-nombre{font-weight:600;font-size:14px;color:var(--w);}
+.jugador-meta{font-size:12px;color:#555;margin-top:2px;}
+.jugador-badges{display:flex;gap:6px;margin-top:6px;flex-wrap:wrap;}
+.badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600;}
+.badge-v{background:rgba(37,163,82,.15);color:var(--v);border:1px solid rgba(37,163,82,.3);}
+.badge-r{background:rgba(224,60,60,.15);color:var(--r);border:1px solid rgba(224,60,60,.3);}
+.badge-a{background:rgba(26,74,138,.25);color:var(--ac);border:1px solid rgba(74,144,217,.3);}
+.contador-asi{font-family:"Bebas Neue",sans-serif;font-size:17px;color:var(--ac);background:rgba(26,74,138,.15);padding:4px 10px;border-radius:8px;border:1px solid rgba(74,144,217,.25);flex-shrink:0;}
+.pagos-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.pago-btn{padding:14px;border-radius:10px;border:2px solid;font-size:13px;font-weight:600;cursor:pointer;font-family:"DM Sans",sans-serif;text-align:center;}
+.pago-btn span{font-size:11px;color:#888;display:block;margin-bottom:4px;font-weight:400;}
+.pago-pagado{background:rgba(37,163,82,.15);color:var(--v);border-color:rgba(37,163,82,.4);}
+.pago-pendiente{background:rgba(224,60,60,.12);color:var(--r);border-color:rgba(224,60,60,.3);}
+.fecha-bar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:flex-end;}
+.fecha-bar input,.fecha-bar select{padding:10px 12px;background:var(--g);border:1px solid var(--b);border-radius:8px;color:var(--w);font-size:13px;font-family:"DM Sans",sans-serif;flex:1;}
+.btn-cargar{padding:10px 16px;background:var(--a);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:"DM Sans",sans-serif;}
+.asi-fila{background:var(--g);border:1px solid var(--b);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;}
+.asi-nombre{flex:1;font-size:14px;color:var(--w);font-weight:500;}
+.toggle-wrap{display:flex;gap:6px;}
+.tbtn{padding:7px 14px;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid transparent;font-family:"DM Sans",sans-serif;}
+.tbtn-p{background:rgba(26,74,138,.2);color:var(--ac);border-color:rgba(74,144,217,.3);}
+.tbtn-p.marcado{background:var(--ac);color:#fff;}
+.tbtn-a{background:rgba(224,60,60,.1);color:var(--r);border-color:rgba(224,60,60,.2);}
+.tbtn-a.marcado{background:var(--r);color:#fff;}
+.btn-full{width:100%;padding:13px;background:var(--a);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:"DM Sans",sans-serif;margin-top:14px;}
+.resumen{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:18px;}
+.resumen-item{background:var(--g);border:1px solid var(--b);border-radius:10px;padding:12px 10px;text-align:center;}
+.resumen-num{font-family:"Bebas Neue",sans-serif;font-size:24px;}
+.resumen-label{font-size:10px;color:#555;margin-top:2px;}
+.fin-fila{background:var(--g);border:1px solid var(--b);border-radius:10px;padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;gap:10px;}
+.fin-ico{font-size:20px;width:32px;text-align:center;}
+.fin-info{flex:1;}
+.fin-desc{font-size:13px;color:var(--w);font-weight:500;}
+.fin-meta{font-size:11px;color:#555;margin-top:2px;}
+.fin-monto{font-family:"Bebas Neue",sans-serif;font-size:20px;}
+.ingreso{color:var(--ac);}.gasto{color:var(--r);}
+.nota-card{background:var(--g);border:1px solid var(--b);border-radius:10px;padding:14px 16px;margin-bottom:8px;}
+.nota-head{display:flex;justify-content:space-between;margin-bottom:6px;gap:8px;}
+.nota-quien{font-weight:600;font-size:13px;color:var(--w);}
+.nota-fecha{font-size:11px;color:#555;white-space:nowrap;}
+.nota-texto{font-size:13px;color:#888;line-height:1.5;}
+.evento-card{background:var(--g);border:1px solid var(--b);border-radius:12px;padding:14px 16px;margin-bottom:8px;display:flex;align-items:center;gap:14px;}
+.evento-fecha{background:var(--ad);border-radius:10px;padding:8px 12px;text-align:center;flex-shrink:0;min-width:52px;}
+.evento-dia{font-family:"Bebas Neue",sans-serif;font-size:24px;color:var(--w);line-height:1;}
+.evento-mes{font-size:10px;color:var(--ac);text-transform:uppercase;}
+.evento-info{flex:1;}
+.evento-titulo{font-weight:600;font-size:14px;color:var(--w);}
+.evento-meta{font-size:12px;color:#555;margin-top:3px;}
+.evento-tipo{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:600;margin-top:4px;}
+.et-entreno{background:rgba(74,144,217,.15);color:var(--ac);border:1px solid rgba(74,144,217,.25);}
+.et-partido{background:rgba(37,163,82,.15);color:var(--v);border:1px solid rgba(37,163,82,.25);}
+.et-otro{background:rgba(240,180,41,.15);color:var(--y);border:1px solid rgba(240,180,41,.25);}
+.btn-eliminar{background:none;border:none;color:#444;font-size:16px;cursor:pointer;padding:4px;}
+.btn-eliminar:hover{color:var(--r);}
+.aviso-card{border-radius:12px;padding:16px;margin-bottom:10px;position:relative;}
+.av-urgente{background:rgba(224,60,60,.1);border:1px solid rgba(224,60,60,.3);}
+.av-info{background:rgba(74,144,217,.08);border:1px solid rgba(74,144,217,.2);}
+.av-general{background:rgba(37,163,82,.08);border:1px solid rgba(37,163,82,.2);}
+.aviso-titulo{font-weight:600;font-size:14px;color:var(--w);margin-bottom:6px;}
+.aviso-texto{font-size:13px;color:#999;line-height:1.5;}
+.aviso-meta{font-size:11px;color:#555;margin-top:8px;}
+.aviso-del{position:absolute;top:12px;right:12px;background:none;border:none;color:#444;cursor:pointer;font-size:16px;}
+.galeria-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px;}
+.galeria-item{background:var(--g);border:1px solid var(--b);border-radius:12px;overflow:hidden;position:relative;}
+.galeria-img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;}
+.galeria-info{padding:10px 12px;}
+.galeria-desc{font-size:12px;color:var(--t);font-weight:500;}
+.galeria-equipo{font-size:11px;color:#555;margin-top:2px;}
+.galeria-del{position:absolute;top:6px;right:6px;background:rgba(0,0,0,.7);border:none;color:#fff;border-radius:6px;padding:4px 8px;font-size:12px;cursor:pointer;}
+.filtros{display:flex;gap:8px;margin-bottom:14px;overflow-x:auto;padding-bottom:2px;}
+.filtros::-webkit-scrollbar{display:none;}
+.filtro-btn{padding:7px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1px solid var(--b);color:#666;background:none;white-space:nowrap;font-family:"DM Sans",sans-serif;}
+.filtro-btn.activo{background:var(--a);color:#fff;border-color:var(--a);}
+.export-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.export-card{background:var(--g);border:1px solid var(--b);border-radius:12px;padding:20px 16px;text-align:center;cursor:pointer;}
+.export-card:hover{border-color:var(--ac);}
+.export-ico{font-size:32px;margin-bottom:8px;}
+.export-titulo{font-size:13px;font-weight:600;color:var(--w);margin-bottom:4px;}
+.export-desc{font-size:11px;color:#555;}
+.btn-export{width:100%;padding:12px;background:var(--v);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:"DM Sans",sans-serif;margin-top:12px;}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:200;display:none;align-items:center;justify-content:center;padding:16px;}
+.overlay.abierto{display:flex;}
+.modal{background:var(--g);border:1px solid var(--b);border-radius:14px;padding:22px;width:100%;max-width:420px;max-height:90vh;overflow-y:auto;}
+.modal-titulo{font-family:"Bebas Neue",sans-serif;font-size:20px;color:var(--w);margin-bottom:16px;}
+.modal-fila{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--b);}
+.modal-label{font-size:12px;color:#666;}
+.modal-valor{font-size:13px;color:var(--t);text-align:right;max-width:60%;}
+.modal-botones{display:flex;justify-content:flex-end;gap:10px;margin-top:16px;flex-wrap:wrap;}
+.btn-cancelar{padding:9px 16px;background:none;border:1px solid var(--b);color:#888;border-radius:8px;cursor:pointer;font-family:"DM Sans",sans-serif;font-size:13px;}
+.btn-peligro{padding:9px 16px;background:rgba(224,60,60,.15);color:var(--r);border:1px solid rgba(224,60,60,.3);border-radius:8px;cursor:pointer;font-family:"DM Sans",sans-serif;font-size:13px;}
+.vacio{text-align:center;padding:36px 20px;color:#444;font-size:13px;}
+.cargando{text-align:center;padding:28px;color:#444;font-size:13px;}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--a);color:#fff;padding:11px 20px;border-radius:8px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;max-width:90vw;text-align:center;}
+.toast.visible{opacity:1;}
+.toast.ok{background:var(--v);}
+.toast.error{background:var(--r);}
+
+.mul-tabla{width:100%;border-collapse:collapse;}
+.mul-tabla th{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px;padding:10px 12px;text-align:left;border-bottom:1px solid var(--b);}
+.mul-tabla td{padding:11px 12px;border-bottom:1px solid var(--b);vertical-align:middle;font-size:13px;color:var(--t);}
+.mul-tabla tr:last-child td{border-bottom:none;}
+.mul-evento{font-weight:600;color:var(--w);}
+.mul-meta{font-size:11px;color:#555;margin-top:2px;}
+.mul-btn{width:34px;height:34px;border-radius:8px;border:none;cursor:pointer;font-size:16px;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;}
+.mul-btn-f{background:rgba(74,144,217,.15);border:1px solid rgba(74,144,217,.3);}
+.mul-btn-v{background:rgba(224,60,60,.12);border:1px solid rgba(224,60,60,.3);}
+.mul-btn-off{opacity:.25;cursor:default;pointer-events:none;}
+.mul-btn-del{background:rgba(224,60,60,.1);border:1px solid rgba(224,60,60,.2);color:var(--r);}
+.mul-btn-del:hover{background:var(--r);color:#fff;}
+
+.jugador-foto{width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid rgba(74,144,217,.3);flex-shrink:0;}
+.jugador-foto-placeholder{width:44px;height:44px;border-radius:50%;background:var(--azul-d);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;border:2px solid rgba(74,144,217,.2);}
+.foto-upload-wrap{grid-column:1/-1;display:flex;align-items:center;gap:12px;padding:12px;background:rgba(74,144,217,.05);border:1px dashed rgba(74,144,217,.3);border-radius:10px;}
+.foto-preview{width:64px;height:64px;border-radius:50%;object-fit:cover;border:2px solid rgba(74,144,217,.3);display:none;}
+.foto-preview-placeholder{width:64px;height:64px;border-radius:50%;background:var(--azul-d);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0;border:2px solid rgba(74,144,217,.2);}
+.btn-upload{padding:9px 16px;background:rgba(74,144,217,.15);border:1px solid rgba(74,144,217,.3);color:var(--azul-c);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:"DM Sans",sans-serif;}
+.btn-upload:hover{background:var(--azul-c);color:#fff;}
+.upload-info{flex:1;}
+.upload-titulo{font-size:13px;color:var(--blanco);font-weight:500;}
+.upload-sub{font-size:11px;color:#555;margin-top:3px;}
+.upload-progress{font-size:12px;color:var(--amarillo);margin-top:4px;display:none;}
+</style>
+</head>
+<body>
+
+<div id="login">
+  <div class="box">
+    <div class="logo-wrap"><img src="data:image/png;base64,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" alt="Racing Club Zaragoza"></div>
+    <div class="titulo">Racing Zaragoza</div>
+    <div class="sub">Panel Administrador</div>
+    <div class="campo">
+      <label>Email</label>
+      <input type="email" id="inputEmail" placeholder="admin@email.com" autocomplete="email">
+    </div>
+    <div class="campo">
+      <label>Contraseña</label>
+      <input type="password" id="inputPass" placeholder="••••••••" autocomplete="current-password">
+    </div>
+    <button class="btn-entrar" id="btnEntrar">Entrar</button>
+    <div class="error" id="msgError">Email o contraseña incorrectos</div>
+    <div class="recovery-link"><a href="#" id="linkRecuperar">¿Olvidaste tu contraseña?</a></div>
+    <div class="recovery-ok" id="msgRecuperar">✅ Email de recuperación enviado. Revisa tu correo.</div>
+  </div>
+</div>
+
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-left">
+      <img src="data:image/png;base64,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" alt="logo">
+      <span class="topbar-nombre">Racing Zaragoza</span>
+      <span class="topbar-rol">Admin</span>
+    </div>
+    <button class="btn-salir" id="btnSalir">Salir</button>
+  </div>
+
+  <div class="tabs">
+    <div class="tab activo" data-seccion="inicio">Inicio</div>
+    <div class="tab" data-seccion="jugadores">Jugadores</div>
+    <div class="tab" data-seccion="entrenadores">Entrena.</div>
+    <div class="tab" data-seccion="asistencia">Asistencia</div>
+    <div class="tab" data-seccion="notas">Notas</div>
+    <div class="tab" data-seccion="calendario">Calendario</div>
+    <div class="tab" data-seccion="avisos">Avisos</div>
+    <div class="tab" data-seccion="galeria">Galería</div>
+    <div class="tab" data-seccion="finanzas">Finanzas</div>
+    <div class="tab" data-seccion="exportar">Exportar</div>
+    <div class="tab" data-seccion="multimedia">📸 Multimedia</div>
+  </div>
+
+  <div class="contenido">
+
+    <div class="seccion activo" id="sec-inicio">
+      <div style="margin-bottom:18px">
+        <div style="font-family:Bebas Neue,sans-serif;font-size:26px;color:var(--w)">Panel de administración</div>
+        <div style="font-size:13px;color:#555" id="fechaHoy"></div>
+      </div>
+      <div class="stats">
+        <div class="stat"><div class="stat-num" id="statJ">-</div><div class="stat-label">Jugadores activos</div></div>
+        <div class="stat"><div class="stat-num" id="statE">-</div><div class="stat-label">Entrenadores</div></div>
+        <div class="stat"><div class="stat-num" id="statC">-</div><div class="stat-label">Cobros mes (€)</div></div>
+        <div class="stat"><div class="stat-num" id="statG">-</div><div class="stat-label">Gastos mes (€)</div></div>
+      </div>
+      <div class="acciones">
+        <button class="accion" data-ir="jugadores"><span class="accion-ico">⚽</span>Jugadores</button>
+        <button class="accion" data-ir="asistencia"><span class="accion-ico">📋</span>Asistencia</button>
+        <button class="accion" data-ir="calendario"><span class="accion-ico">📅</span>Calendario</button>
+        <button class="accion" data-ir="avisos"><span class="accion-ico">📢</span>Avisos</button>
+        <button class="accion" data-ir="galeria"><span class="accion-ico">📸</span>Galería</button>
+        <button class="accion" data-ir="exportar"><span class="accion-ico">📊</span>Exportar</button>
+      </div>
+    </div>
+
+    <div class="seccion" id="sec-jugadores">
+      <div class="sec-titulo">Jugadores</div>
+      <div class="form-card">
+        <div class="form-titulo">➕ Nuevo jugador</div>
+        <div class="form-grid">
+          <div class="form-seccion">📋 Datos del jugador</div>
+          <div class="form-campo"><label>Nombre *</label><input type="text" id="jNombre" placeholder="Nombre"></div>
+          <div class="form-campo"><label>Apellidos *</label><input type="text" id="jApellidos" placeholder="Apellidos"></div>
+          <div class="form-campo"><label>Fecha nacimiento</label><input type="date" id="jFnac"></div>
+          <div class="form-campo"><label>Equipo</label><select id="jGrupo"><option value="Escuela">Escuela</option><option value="Debutantes">Debutantes</option><option value="Prebenjamín">Prebenjamín</option></select></div>
+          <div class="form-campo"><label>Cuota (€)</label><input type="number" id="jCuota" value="45"></div>
+          <div class="form-campo"><label>Estado</label><select id="jEstado"><option value="activo">Activo</option><option value="baja">Baja</option></select></div>
+          <div class="form-seccion">👨 Padre</div>
+          <div class="form-campo"><label>Nombre padre</label><input type="text" id="jPadreNom" placeholder="Nombre y apellidos"></div>
+          <div class="form-campo"><label>Teléfono padre</label><input type="tel" id="jPadreTel" placeholder="600 000 000"></div>
+          <div class="form-campo ancho"><label>Email padre (acceso app familias)</label><input type="email" id="jPadreEmail" placeholder="padre@email.com"></div>
+          <div class="form-seccion">👩 Madre</div>
+          <div class="form-campo"><label>Nombre madre</label><input type="text" id="jMadreNom" placeholder="Nombre y apellidos"></div>
+          <div class="form-campo"><label>Teléfono madre</label><input type="tel" id="jMadreTel" placeholder="600 000 000"></div>
+          <div class="form-campo ancho"><label>Email madre (acceso app familias)</label><input type="email" id="jMadreEmail" placeholder="madre@email.com"></div>
+          <div class="form-seccion">💶 Pagos</div>
+          <div class="form-campo"><label>1er Cuatrimestre</label><select id="jPago1"><option value="pendiente">❌ Pendiente</option><option value="pagado">✅ Pagado</option></select></div>
+          <div class="form-campo"><label>2º Cuatrimestre</label><select id="jPago2"><option value="pendiente">❌ Pendiente</option><option value="pagado">✅ Pagado</option></select></div>
+          <div class="form-seccion">📸 Foto del jugador</div>
+          <div class="foto-upload-wrap" style="grid-column:1/-1">
+            <div class="foto-preview-placeholder" id="jFotoPlaceholder">⚽</div>
+            <img class="foto-preview" id="jFotoPreview" src="" alt="foto">
+            <div class="upload-info">
+              <div class="upload-titulo">Foto del jugador</div>
+              <div class="upload-sub">Recomendado: foto de carnet o retrato</div>
+              <div class="upload-progress" id="jFotoProgress">Subiendo...</div>
+            </div>
+            <label class="btn-upload">
+              📷 Seleccionar
+              <input type="file" id="jFotoInput" accept="image/*" style="display:none">
+            </label>
+          </div>
+        </div>
+        <button class="btn-guardar" id="btnGuardarJugador">💾 Guardar jugador</button>
+      </div>
+      <div id="listaJugadores"><div class="cargando">Cargando jugadores...</div></div>
+    </div>
+
+    <div class="seccion" id="sec-entrenadores">
+      <div class="sec-titulo">Entrenadores</div>
+      <div class="form-card">
+        <div class="form-titulo">➕ Nuevo entrenador</div>
+        <div class="form-grid">
+          <div class="form-campo"><label>Nombre completo *</label><input type="text" id="eNombre" placeholder="Nombre Apellidos"></div>
+          <div class="form-campo"><label>Email (para login) *</label><input type="email" id="eEmail" placeholder="entrenador@email.com"></div>
+          <div class="form-campo"><label>Teléfono</label><input type="tel" id="eTelefono" placeholder="600 000 000"></div>
+          <div class="form-campo"><label>Equipo asignado</label><select id="eGrupo"><option value="Escuela">Escuela</option><option value="Debutantes">Debutantes</option><option value="Prebenjamín">Prebenjamín</option><option value="Todos">Todos</option></select></div>
+        </div>
+        <button class="btn-guardar" id="btnGuardarEntrenador">💾 Guardar entrenador</button>
+        <div style="margin-top:10px;font-size:12px;color:#555">⚠️ Recuerda crear también el usuario en Firebase Authentication con el mismo email.</div>
+      </div>
+      <div id="listaEntrenadores"><div class="cargando">Cargando...</div></div>
+    </div>
+
+    <div class="seccion" id="sec-asistencia">
+      <div class="sec-titulo">Asistencia</div>
+      <div class="fecha-bar">
+        <input type="date" id="asiFecha">
+        <select id="asiGrupo"><option value="">Todos los equipos</option><option value="Escuela">Escuela</option><option value="Debutantes">Debutantes</option><option value="Prebenjamín">Prebenjamín</option></select>
+        <button class="btn-cargar" id="btnCargarAsi">Cargar</button>
+      </div>
+      <div id="listaAsistencia"><div class="vacio">Selecciona fecha y pulsa Cargar</div></div>
+      <div id="wrapGuardarAsi" style="display:none"><button class="btn-full" id="btnGuardarAsi">💾 Guardar asistencia</button></div>
+    </div>
+
+    <div class="seccion" id="sec-notas">
+      <div class="sec-titulo">Notas</div>
+      <div class="form-card">
+        <div class="form-titulo">📝 Nueva nota</div>
+        <div class="form-grid">
+          <div class="form-campo"><label>Jugador</label><select id="notaJugador"><option value="">Seleccionar...</option></select></div>
+          <div class="form-campo"><label>Tipo</label><select id="notaTipo"><option value="nota">📝 Nota general</option><option value="incidencia">⚠️ Incidencia</option><option value="progreso">📈 Progreso</option><option value="medico">🏥 Aviso médico</option></select></div>
+          <div class="form-campo ancho"><label>Descripción</label><input type="text" id="notaTexto" placeholder="Escribe la nota aquí..."></div>
+        </div>
+        <button class="btn-guardar" id="btnGuardarNota">💾 Guardar nota</button>
+      </div>
+      <div id="listaNotas"><div class="cargando">Cargando...</div></div>
+    </div>
+
+    <div class="seccion" id="sec-calendario">
+      <div class="sec-titulo">Calendario</div>
+      <div class="form-card">
+        <div class="form-titulo">➕ Nuevo evento</div>
+        <div class="form-grid">
+          <div class="form-campo"><label>Título *</label><input type="text" id="evTitulo" placeholder="Ej: Partido vs Atlético"></div>
+          <div class="form-campo"><label>Tipo</label><select id="evTipo"><option value="entrenamiento">⚽ Entrenamiento</option><option value="partido">🏆 Partido</option><option value="otro">📌 Otro</option></select></div>
+          <div class="form-campo"><label>Fecha *</label><input type="date" id="evFecha"></div>
+          <div class="form-campo"><label>Hora</label><input type="time" id="evHora"></div>
+          <div class="form-campo"><label>Lugar</label><input type="text" id="evLugar" placeholder="Ciudad Deportiva..."></div>
+          <div class="form-campo"><label>Equipo</label><select id="evEquipo"><option value="Todos">Todos</option><option value="Escuela">Escuela</option><option value="Debutantes">Debutantes</option><option value="Prebenjamín">Prebenjamín</option></select></div>
+          <div class="form-campo ancho"><label>Descripción</label><input type="text" id="evDesc" placeholder="Detalles..."></div>
+        </div>
+        <button class="btn-guardar" id="btnGuardarEvento">💾 Guardar evento</button>
+      </div>
+      <div class="filtros">
+        <button class="filtro-btn activo" data-fev="todos">Todos</button>
+        <button class="filtro-btn" data-fev="entrenamiento">⚽ Entrenos</button>
+        <button class="filtro-btn" data-fev="partido">🏆 Partidos</button>
+      </div>
+      <div id="listaEventos"><div class="cargando">Cargando...</div></div>
+    </div>
+
+    <div class="seccion" id="sec-avisos">
+      <div class="sec-titulo">Avisos importantes</div>
+      <div class="form-card">
+        <div class="form-titulo">📢 Nuevo aviso</div>
+        <div class="form-grid">
+          <div class="form-campo ancho"><label>Título *</label><input type="text" id="avTitulo" placeholder="Ej: Cambio de horario"></div>
+          <div class="form-campo"><label>Tipo</label><select id="avTipo"><option value="info">ℹ️ Información</option><option value="urgente">🚨 Urgente</option><option value="general">📌 General</option></select></div>
+          <div class="form-campo"><label>Destinatario</label><select id="avDest"><option value="todos">Todos</option><option value="familias">Solo familias</option><option value="entrenadores">Solo entrenadores</option></select></div>
+          <div class="form-campo ancho"><label>Mensaje</label><textarea id="avTexto" placeholder="Escribe el aviso..."></textarea></div>
+        </div>
+        <button class="btn-guardar" id="btnGuardarAviso">📢 Publicar aviso</button>
+      </div>
+      <div id="listaAvisos"><div class="cargando">Cargando...</div></div>
+    </div>
+
+    <div class="seccion" id="sec-galeria">
+      <div class="sec-titulo">Galería de fotos</div>
+      <div class="form-card">
+        <div class="form-titulo">📸 Añadir foto</div>
+        <div style="font-size:12px;color:#666;margin-bottom:12px">Pega la URL directa de una imagen pública</div>
+        <div class="form-grid">
+          <div class="form-campo ancho"><label>URL de la imagen *</label><input type="url" id="galUrl" placeholder="https://..."></div>
+          <div class="form-campo"><label>Descripción</label><input type="text" id="galDesc" placeholder="Ej: Entrenamiento sábado"></div>
+          <div class="form-campo"><label>Equipo</label><select id="galEquipo"><option value="Todos">Todos</option><option value="Escuela">Escuela</option><option value="Debutantes">Debutantes</option><option value="Prebenjamín">Prebenjamín</option></select></div>
+        </div>
+        <button class="btn-guardar" id="btnGuardarFoto">💾 Añadir foto</button>
+      </div>
+      <div class="filtros">
+        <button class="filtro-btn activo" data-fgal="Todos">Todas</button>
+        <button class="filtro-btn" data-fgal="Escuela">Escuela</button>
+        <button class="filtro-btn" data-fgal="Debutantes">Debutantes</button>
+        <button class="filtro-btn" data-fgal="Prebenjamín">Prebenjamín</button>
+      </div>
+      <div class="galeria-grid" id="listaGaleria"><div class="cargando" style="grid-column:1/-1">Cargando...</div></div>
+    </div>
+
+    <div class="seccion" id="sec-finanzas">
+      <div class="sec-titulo">Finanzas</div>
+      <div class="resumen">
+        <div class="resumen-item"><div class="resumen-num ingreso" id="resIng">0€</div><div class="resumen-label">Ingresos mes</div></div>
+        <div class="resumen-item"><div class="resumen-num gasto" id="resGas">0€</div><div class="resumen-label">Gastos mes</div></div>
+        <div class="resumen-item"><div class="resumen-num" id="resBal" style="color:var(--y)">0€</div><div class="resumen-label">Balance</div></div>
+      </div>
+      <div class="form-card">
+        <div class="form-titulo">➕ Nuevo movimiento</div>
+        <div class="form-grid">
+          <div class="form-campo"><label>Tipo</label><select id="finTipo"><option value="cobro">Cobro a familia</option><option value="pago-entrenador">Pago entrenador</option><option value="gasto">Gasto general</option><option value="ingreso">Otro ingreso</option></select></div>
+          <div class="form-campo"><label>Importe (€) *</label><input type="number" id="finImporte" placeholder="0.00" step="0.01"></div>
+          <div class="form-campo" id="finJugadorWrap"><label>Jugador</label><select id="finJugador"><option value="">Seleccionar...</option></select></div>
+          <div class="form-campo"><label>Descripción *</label><input type="text" id="finDesc" placeholder="Ej: Cuota mayo"></div>
+          <div class="form-campo"><label>Fecha</label><input type="date" id="finFecha"></div>
+          <div class="form-campo"><label>Método</label><select id="finMetodo"><option value="efectivo">Efectivo</option><option value="transferencia">Transferencia</option><option value="bizum">Bizum</option><option value="tarjeta">Tarjeta</option></select></div>
+        </div>
+        <button class="btn-guardar" id="btnGuardarMovimiento">💾 Registrar movimiento</button>
+      </div>
+      <div id="listaFinanzas"><div class="cargando">Cargando...</div></div>
+    </div>
+
+    <div class="seccion" id="sec-multimedia">
+      <div class="sec-titulo">Fotos y Vídeos</div>
+      <div class="form-card">
+        <div class="form-titulo">➕ Nuevo evento multimedia</div>
+        <div class="form-grid">
+          <div class="form-campo ancho"><label>Nombre del evento *</label><input type="text" id="mulTitulo" placeholder="Ej: Racing-Olivar, Entrenamiento sábado..."></div>
+          <div class="form-campo"><label>Fecha</label><input type="date" id="mulFecha"></div>
+          <div class="form-campo"><label>Equipo</label>
+            <select id="mulEquipo">
+              <option value="Todos">Todos los equipos</option>
+              <option value="Escuela">Escuela</option>
+              <option value="Debutantes">Debutantes</option>
+              <option value="Prebenjamín">Prebenjamín</option>
+            </select>
+          </div>
+          <div class="form-campo ancho"><label>📷 Enlace a fotos (Google Photos, Drive...)</label><input type="url" id="mulFotoUrl" placeholder="https://photos.google.com/..."></div>
+          <div class="form-campo ancho"><label>🎬 Enlace a vídeo (YouTube, Drive...)</label><input type="url" id="mulVideoUrl" placeholder="https://youtube.com/..."></div>
+          <div class="form-campo ancho"><label>Descripción (opcional)</label><input type="text" id="mulDesc" placeholder="Ej: Final de temporada, Primer gol de Lucas..."></div>
+        </div>
+        <button class="btn-guardar" id="btnGuardarMul">💾 Guardar evento</button>
+      </div>
+
+      <div style="margin-bottom:12px;font-size:12px;color:#555">
+        📷 = enlace a álbum de fotos &nbsp;·&nbsp; 🎬 = enlace a vídeo &nbsp;·&nbsp; Icono gris = sin enlace todavía
+      </div>
+
+      <div id="listaMultimediaAdmin"><div class="cargando">Cargando...</div></div>
+    </div>
+
+    <div class="seccion" id="sec-exportar">
+      <div class="sec-titulo">Exportar datos</div>
+      <div class="export-grid">
+        <div class="export-card"><div class="export-ico">📋</div><div class="export-titulo">Asistencia</div><div class="export-desc">Historial completo</div><button class="btn-export" id="btnExpAsi">Descargar CSV</button></div>
+        <div class="export-card"><div class="export-ico">💶</div><div class="export-titulo">Finanzas</div><div class="export-desc">Cobros y gastos</div><button class="btn-export" id="btnExpFin">Descargar CSV</button></div>
+        <div class="export-card"><div class="export-ico">⚽</div><div class="export-titulo">Jugadores</div><div class="export-desc">Listado con contactos</div><button class="btn-export" id="btnExpJug">Descargar CSV</button></div>
+        <div class="export-card"><div class="export-ico">✅</div><div class="export-titulo">Estado pagos</div><div class="export-desc">Por cuatrimestre</div><button class="btn-export" id="btnExpPag">Descargar CSV</button></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+
+<!-- MODAL EDITAR ENTRENADOR -->
+<div class="overlay" id="modalEditarE">
+  <div class="modal">
+    <div class="modal-titulo">✏️ Editar entrenador</div>
+    <div class="form-grid">
+      <div class="form-campo"><label>Nombre completo *</label><input type="text" id="eENombre" placeholder="Nombre Apellidos"></div>
+      <div class="form-campo"><label>Email *</label><input type="email" id="eEEmail" placeholder="entrenador@email.com"></div>
+      <div class="form-campo"><label>Teléfono</label><input type="tel" id="eETelefono" placeholder="600 000 000"></div>
+      <div class="form-campo"><label>Equipo asignado</label>
+        <select id="eEGrupo">
+          <option value="Escuela">Escuela</option>
+          <option value="Debutantes">Debutantes</option>
+          <option value="Prebenjamín">Prebenjamín</option>
+          <option value="Todos">Todos</option>
+        </select>
+      </div>
+    </div>
+    <div class="modal-botones" style="margin-top:16px">
+      <button class="btn-cancelar" id="btnCerrarEditarE">Cancelar</button>
+      <button class="btn-guardar" id="btnGuardarEditarE" style="margin-top:0">💾 Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL FICHA JUGADOR -->
+<div class="overlay" id="modalFicha">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-titulo" id="fichaTitulo">Ficha del jugador</div>
+    
+    <!-- DATOS PERSONALES -->
+    <div style="margin-bottom:16px">
+      <div style="font-size:11px;color:var(--ac);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">📋 Datos del jugador</div>
+      <div id="fichaDatos"></div>
+    </div>
+
+    <!-- PAGOS -->
+    <div style="margin-bottom:16px">
+      <div style="font-size:11px;color:var(--ac);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">💶 Estado de pagos</div>
+      <div class="pagos-grid">
+        <button class="pago-btn pago-pendiente" id="fichaPago1"><span>1er Cuatrimestre</span><span id="fichaPago1txt">❌ Pendiente</span></button>
+        <button class="pago-btn pago-pendiente" id="fichaPago2"><span>2º Cuatrimestre</span><span id="fichaPago2txt">❌ Pendiente</span></button>
+      </div>
+    </div>
+
+    <!-- ASISTENCIA -->
+    <div style="margin-bottom:16px">
+      <div style="font-size:11px;color:var(--ac);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">📅 Historial de asistencia</div>
+      <div id="fichaAsistenciaResumen" style="background:rgba(26,74,138,.1);border:1px solid rgba(74,144,217,.2);border-radius:10px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <div><div style="font-family:Bebas Neue,sans-serif;font-size:36px;color:var(--ac);line-height:1" id="fichaAsiContador">-/-</div><div style="font-size:12px;color:#666">entrenamientos asistidos</div></div>
+        <div style="text-align:right"><div style="font-family:Bebas Neue,sans-serif;font-size:28px" id="fichaAsiPct">-%</div><div style="font-size:12px;color:#666">asistencia</div></div>
+      </div>
+      <div id="fichaHistorial" style="max-height:200px;overflow-y:auto"></div>
+    </div>
+
+    <!-- NOTAS -->
+    <div style="margin-bottom:16px">
+      <div style="font-size:11px;color:var(--ac);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px">📝 Últimas notas</div>
+      <div id="fichaNotas"></div>
+    </div>
+
+    <div class="modal-botones">
+      <button class="btn-cancelar" id="btnCerrarFicha">Cerrar</button>
+      <button class="btn-guardar" style="margin-top:0" id="btnEditarDesdeFicha">✏️ Editar jugador</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR JUGADOR -->
+<div class="overlay" id="modalEditar">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-titulo">✏️ Editar jugador</div>
+    <div class="form-grid">
+      <div class="form-seccion">📋 Datos del jugador</div>
+      <div class="form-campo"><label>Nombre *</label><input type="text" id="eJNombre" placeholder="Nombre"></div>
+      <div class="form-campo"><label>Apellidos *</label><input type="text" id="eJApellidos" placeholder="Apellidos"></div>
+      <div class="form-campo"><label>Fecha nacimiento</label><input type="date" id="eJFnac"></div>
+      <div class="form-campo"><label>Equipo</label><select id="eJGrupo"><option value="Escuela">Escuela</option><option value="Debutantes">Debutantes</option><option value="Prebenjamín">Prebenjamín</option></select></div>
+      <div class="form-campo"><label>Cuota (€)</label><input type="number" id="eJCuota"></div>
+      <div class="form-campo"><label>Estado</label><select id="eJEstado"><option value="activo">Activo</option><option value="baja">Baja</option></select></div>
+      <div class="form-seccion">👨 Padre</div>
+      <div class="form-campo"><label>Nombre padre</label><input type="text" id="eJPadreNom"></div>
+      <div class="form-campo"><label>Teléfono padre</label><input type="tel" id="eJPadreTel"></div>
+      <div class="form-campo ancho"><label>Email padre</label><input type="email" id="eJPadreEmail"></div>
+      <div class="form-seccion">👩 Madre</div>
+      <div class="form-campo"><label>Nombre madre</label><input type="text" id="eJMadreNom"></div>
+      <div class="form-campo"><label>Teléfono madre</label><input type="tel" id="eJMadreTel"></div>
+      <div class="form-campo ancho"><label>Email madre</label><input type="email" id="eJMadreEmail"></div>
+      <div class="form-seccion">💶 Pagos</div>
+      <div class="form-campo"><label>1er Cuatrimestre</label><select id="eJPago1"><option value="pendiente">❌ Pendiente</option><option value="pagado">✅ Pagado</option></select></div>
+      <div class="form-campo"><label>2º Cuatrimestre</label><select id="eJPago2"><option value="pendiente">❌ Pendiente</option><option value="pagado">✅ Pagado</option></select></div>
+      <div class="fs">📸 Foto del jugador</div>
+      <div class="foto-upload-wrap" style="grid-column:1/-1">
+        <div class="foto-preview-placeholder" id="eJFotoPlaceholder">⚽</div>
+        <img class="foto-preview" id="eJFotoPreview" src="" alt="foto">
+        <div class="upload-info">
+          <div class="upload-titulo">Cambiar foto</div>
+          <div class="upload-sub">Selecciona una nueva imagen</div>
+          <div class="upload-progress" id="eJFotoProgress">Subiendo...</div>
+        </div>
+        <label class="btn-upload">
+          📷 Seleccionar
+          <input type="file" id="eJFotoInput" accept="image/*" style="display:none">
+        </label>
+      </div>
+    </div>
+    <div class="modal-botones" style="margin-top:16px">
+      <button class="btn-cancelar" id="btnCerrarEditar">Cancelar</button>
+      <button class="btn-guardar" id="btnGuardarEditar" style="margin-top:0">💾 Guardar cambios</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL JUGADOR -->
+<div class="overlay" id="modalJugador">
+  <div class="modal">
+    <div class="modal-titulo" id="modalJugadorTitulo">Jugador</div>
+    <div id="modalJugadorContenido"></div>
+    <div style="margin-top:14px">
+      <div style="font-size:12px;color:#888;margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">Estado de pagos</div>
+      <div class="pagos-grid">
+        <button class="pago-btn pago-pendiente" id="btnPago1"><span>1er Cuatrimestre</span><span id="txtPago1">❌ Pendiente</span></button>
+        <button class="pago-btn pago-pendiente" id="btnPago2"><span>2º Cuatrimestre</span><span id="txtPago2">❌ Pendiente</span></button>
+      </div>
+    </div>
+    <div class="modal-botones">
+      <button class="btn-cancelar" id="btnCerrarModalJ">Cerrar</button>
+      <button class="btn-peligro" id="btnBajaJugador">Dar de baja</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL ENTRENADOR -->
+<div class="overlay" id="modalEntrenador">
+  <div class="modal">
+    <div class="modal-titulo" id="modalEntrenadorTitulo">Entrenador</div>
+    <div id="modalEntrenadorContenido"></div>
+    <div class="modal-botones">
+      <button class="btn-cancelar" id="btnCerrarModalE">Cerrar</button>
+      <button class="btn-peligro" id="btnEliminarEntrenador">Eliminar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, query, where, orderBy, Timestamp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyAKHHJ-7fT-KS0F0CTvtVgssxCQcAhBIs8",
+  authDomain: "escuela-racing-zaragoza.firebaseapp.com",
+  projectId: "escuela-racing-zaragoza",
+  storageBucket: "escuela-racing-zaragoza.firebasestorage.app",
+  messagingSenderId: "862620560075",
+  appId: "1:862620560075:web:51c178f8893bbd5fb1494e"
+};
+
+const firebaseApp = initializeApp(FIREBASE_CONFIG);
+const auth = getAuth(firebaseApp);
+const db = getFirestore(firebaseApp);
+
+let listaJugadores = [];
+let estadoAsistencia = {};
+let jugadorActivo = null;
+let entrenadorActivo = null;
+let eventosGuardados = [];
+let fotosGuardadas = [];
+
+// ═══════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════
+
+onAuthStateChanged(auth, function(usuario) {
+  if (usuario) {
+    document.getElementById("login").style.display = "none";
+    document.getElementById("app").style.display = "block";
+    arrancar();
+  } else {
+    document.getElementById("login").style.display = "flex";
+    document.getElementById("app").style.display = "none";
+  }
+});
+
+document.getElementById("btnEntrar").addEventListener("click", function() {
+  var email = document.getElementById("inputEmail").value.trim();
+  var pass = document.getElementById("inputPass").value;
+  var err = document.getElementById("msgError");
+  err.style.display = "none";
+  if (!email || !pass) {
+    err.style.display = "block";
+    err.textContent = "Completa todos los campos";
+    return;
+  }
+  signInWithEmailAndPassword(auth, email, pass).catch(function() {
+    err.style.display = "block";
+    err.textContent = "Email o contraseña incorrectos";
+  });
+});
+
+document.getElementById("inputPass").addEventListener("keydown", function(e) {
+  if (e.key === "Enter") { document.getElementById("btnEntrar").click(); }
+});
+
+document.getElementById("linkRecuperar").addEventListener("click", function(e) {
+  e.preventDefault();
+  var email = document.getElementById("inputEmail").value.trim();
+  var err = document.getElementById("msgError");
+  if (!email) {
+    err.style.display = "block";
+    err.textContent = "Escribe tu email primero";
+    return;
+  }
+  sendPasswordResetEmail(auth, email).then(function() {
+    document.getElementById("msgRecuperar").style.display = "block";
+    err.style.display = "none";
+  }).catch(function() {
+    err.style.display = "block";
+    err.textContent = "No se encontró ese email";
+  });
+});
+
+document.getElementById("btnSalir").addEventListener("click", function() {
+  signOut(auth);
+});
+
+// ═══════════════════════════════════════
+// NAVEGACIÓN
+// ═══════════════════════════════════════
+
+function irA(seccion) {
+  document.querySelectorAll(".tab").forEach(function(t) { t.classList.remove("activo"); });
+  document.querySelectorAll(".seccion").forEach(function(s) { s.classList.remove("activo"); });
+  var tab = document.querySelector(".tab[data-seccion='" + seccion + "']");
+  var sec = document.getElementById("sec-" + seccion);
+  if (tab) tab.classList.add("activo");
+  if (sec) sec.classList.add("activo");
+}
+
+document.querySelectorAll(".tab").forEach(function(t) {
+  t.addEventListener("click", function() { irA(t.dataset.seccion); });
+});
+
+document.querySelectorAll(".accion").forEach(function(b) {
+  b.addEventListener("click", function() { irA(b.dataset.ir); });
+});
+
+// ═══════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════
+
+function toast(msg, tipo) {
+  var t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = "toast visible" + (tipo ? " " + tipo : "");
+  setTimeout(function() { t.className = "toast"; }, 3000);
+}
+
+// ═══════════════════════════════════════
+// ARRANCAR APP
+// ═══════════════════════════════════════
+
+function arrancar() {
+  var hoy = new Date();
+  document.getElementById("fechaHoy").textContent = hoy.toLocaleDateString("es-ES", {weekday:"long", year:"numeric", month:"long", day:"numeric"});
+  document.getElementById("asiFecha").value = hoy.toISOString().split("T")[0];
+  document.getElementById("finFecha").value = hoy.toISOString().split("T")[0];
+  document.getElementById("evFecha").value = hoy.toISOString().split("T")[0];
+  document.getElementById("mulFecha").value = hoy.toISOString().split("T")[0];
+  cargarJugadores();
+  cargarEntrenadores();
+  cargarNotas();
+  cargarFinanzas();
+  cargarEventos();
+  cargarAvisos();
+  cargarGaleria();
+  actualizarFinJugador();
+  cargarMultimediaAdmin();
+}
+
+// ═══════════════════════════════════════
+// JUGADORES
+// ═══════════════════════════════════════
+
+async function contarAsistencia(id) {
+  try {
+    var snap = await getDocs(query(collection(db, "asistencia"), where("alumnoId", "==", id)));
+    var total = 0, presentes = 0;
+    snap.forEach(function(d) { total++; if (d.data().presente) presentes++; });
+    return { presentes: presentes, total: total };
+  } catch(e) { return { presentes: 0, total: 0 }; }
+}
+
+async function cargarJugadores() {
+  try {
+    var snap = await getDocs(collection(db, "alumnos"));
+    listaJugadores = [];
+    snap.forEach(function(d) { listaJugadores.push(Object.assign({id: d.id}, d.data())); });
+    listaJugadores.sort(function(a,b) { return a.nombre.localeCompare(b.nombre); });
+    await pintarJugadores();
+    rellenarSelectsJugadores();
+    document.getElementById("statJ").textContent = listaJugadores.filter(function(j) { return j.estado !== "baja"; }).length;
+  } catch(e) {
+    document.getElementById("listaJugadores").innerHTML = '<div class="vacio">Error al cargar. Comprueba tu conexión.</div>';
+  }
+}
+
+async function pintarJugadores() {
+  var activos = listaJugadores.filter(function(j) { return j.estado !== "baja"; });
+  var el = document.getElementById("listaJugadores");
+  if (!activos.length) { el.innerHTML = '<div class="vacio">No hay jugadores todavía</div>'; return; }
+  el.innerHTML = '<div class="cargando">Cargando estadísticas...</div>';
+  var html = "";
+  for (var i = 0; i < activos.length; i++) {
+    var j = activos[i];
+    var c = await contarAsistencia(j.id);
+    var ok1 = j.pago1 === "pagado", ok2 = j.pago2 === "pagado";
+    html += '<div class="jugador-card">';
+    var fotoHtml = j.photoUrl ? '<img class="jugador-foto" src="' + j.photoUrl + '" alt="">' : '<div class="jugador-foto-placeholder">⚽</div>';
+    html += fotoHtml;
+    html += '<div class="jugador-info">';
+    html += '<div class="jugador-nombre">' + j.nombre + ' ' + j.apellidos + '</div>';
+    html += '<div class="jugador-meta">' + j.grupo + ' · ' + (j.padreTel || j.madreTel || "Sin teléfono") + '</div>';
+    html += '<div class="jugador-badges">';
+    html += '<span class="badge ' + (ok1 ? "badge-v" : "badge-r") + '">' + (ok1 ? "✅" : "❌") + ' 1er C.</span>';
+    html += '<span class="badge ' + (ok2 ? "badge-v" : "badge-r") + '">' + (ok2 ? "✅" : "❌") + ' 2º C.</span>';
+    html += '</div></div>';
+    html += '<div class="contador-asi">' + c.presentes + '/' + c.total + '</div>';
+    html += '<div class="jugador-acciones">';
+    html += '<button class="btn-editar-j" data-id="' + j.id + '">✏️</button>';
+    html += '<button class="btn-baja-j" data-id="' + j.id + '">🗑️</button>';
+    html += '</div>';
+    html += '</div>';
+  }
+  el.innerHTML = html;
+  el.querySelectorAll(".btn-editar-j").forEach(function(btn) {
+    btn.addEventListener("click", function(e) {
+      e.stopPropagation();
+      editarJugador(btn.dataset.id);
+    });
+  });
+  el.querySelectorAll(".btn-baja-j").forEach(function(btn) {
+    btn.addEventListener("click", function(e) {
+      e.stopPropagation();
+      bajaJugador(btn.dataset.id);
+    });
+  });
+}
+
+function rellenarSelectsJugadores() {
+  var activos = listaJugadores.filter(function(j) { return j.estado !== "baja"; });
+  var opciones = '<option value="">Seleccionar...</option>' + activos.map(function(j) {
+    return '<option value="' + j.id + '">' + j.nombre + ' ' + j.apellidos + '</option>';
+  }).join("");
+  document.getElementById("notaJugador").innerHTML = opciones;
+  document.getElementById("finJugador").innerHTML = opciones;
+}
+
+document.getElementById("btnGuardarJugador").addEventListener("click", async function() {
+  var btn = document.getElementById("btnGuardarJugador");
+  var nombre = document.getElementById("jNombre").value.trim();
+  var apellidos = document.getElementById("jApellidos").value.trim();
+  if (!nombre || !apellidos) { toast("Nombre y apellidos son obligatorios", "error"); return; }
+  btn.disabled = true; btn.textContent = "Guardando...";
+  try {
+    await addDoc(collection(db, "alumnos"), {
+      nombre: nombre,
+      apellidos: apellidos,
+      photoUrl: fotoUrlNuevoJugador || "",
+      fechaNacimiento: document.getElementById("jFnac").value || "",
+      grupo: document.getElementById("jGrupo").value,
+      cuota: parseFloat(document.getElementById("jCuota").value) || 45,
+      estado: document.getElementById("jEstado").value,
+      padreNombre: document.getElementById("jPadreNom").value.trim() || "",
+      padreTel: document.getElementById("jPadreTel").value.trim() || "",
+      padreEmail: document.getElementById("jPadreEmail").value.trim() || "",
+      madreNombre: document.getElementById("jMadreNom").value.trim() || "",
+      madreTel: document.getElementById("jMadreTel").value.trim() || "",
+      madreEmail: document.getElementById("jMadreEmail").value.trim() || "",
+      pago1: document.getElementById("jPago1").value,
+      pago2: document.getElementById("jPago2").value,
+      creadoEn: Timestamp.now()
+    });
+    toast("✅ Jugador guardado correctamente", "ok");
+    ["jNombre","jApellidos","jFnac","jPadreNom","jPadreTel","jPadreEmail","jMadreNom","jMadreTel","jMadreEmail"].forEach(function(id) {
+      document.getElementById(id).value = "";
+    });
+    document.getElementById("jCuota").value = "45";
+    fotoUrlNuevoJugador = "";
+    document.getElementById("jFotoPreview").style.display = "none";
+    document.getElementById("jFotoPlaceholder").style.display = "flex";
+    document.getElementById("jFotoProgress").style.display = "none";
+    await cargarJugadores();
+  } catch(e) { toast("❌ Error: " + e.message, "error"); }
+  btn.disabled = false; btn.textContent = "💾 Guardar jugador";
+});
+
+async function verJugador(id) {
+  var j = listaJugadores.find(function(x) { return x.id === id; });
+  if (!j) return;
+  jugadorActivo = j;
+  document.getElementById("modalJugadorTitulo").textContent = j.nombre + " " + j.apellidos;
+  var c = await contarAsistencia(id);
+  var pct = c.total > 0 ? Math.round((c.presentes / c.total) * 100) : 0;
+  var filas = [
+    ["Equipo", j.grupo || "-"],
+    ["Fecha nac.", j.fechaNacimiento || "-"],
+    ["Cuota", (j.cuota || 45) + "€"],
+    ["Asistencia", c.presentes + "/" + c.total + " (" + pct + "%)"],
+    ["── Padre ──", ""],
+    ["Nombre", j.padreNombre || "-"],
+    ["Teléfono", j.padreTel || "-"],
+    ["Email", j.padreEmail || "-"],
+    ["── Madre ──", ""],
+    ["Nombre", j.madreNombre || "-"],
+    ["Teléfono", j.madreTel || "-"],
+    ["Email", j.madreEmail || "-"]
+  ];
+  document.getElementById("modalJugadorContenido").innerHTML = filas.map(function(f) {
+    return '<div class="modal-fila"><span class="modal-label">' + f[0] + '</span><span class="modal-valor">' + f[1] + '</span></div>';
+  }).join("");
+  pintarBotonesPago(j);
+  document.getElementById("modalJugador").classList.add("abierto");
+}
+
+function pintarBotonesPago(j) {
+  var p1 = j.pago1 === "pagado", p2 = j.pago2 === "pagado";
+  document.getElementById("btnPago1").className = "pago-btn " + (p1 ? "pago-pagado" : "pago-pendiente");
+  document.getElementById("btnPago2").className = "pago-btn " + (p2 ? "pago-pagado" : "pago-pendiente");
+  document.getElementById("txtPago1").textContent = p1 ? "✅ Pagado" : "❌ Pendiente";
+  document.getElementById("txtPago2").textContent = p2 ? "✅ Pagado" : "❌ Pendiente";
+}
+
+document.getElementById("btnPago1").addEventListener("click", function() { togglePago(1); });
+document.getElementById("btnPago2").addEventListener("click", function() { togglePago(2); });
+
+async function togglePago(num) {
+  if (!jugadorActivo) return;
+  var campo = "pago" + num;
+  var nuevo = jugadorActivo[campo] === "pagado" ? "pendiente" : "pagado";
+  jugadorActivo[campo] = nuevo;
+  try {
+    var datos = {};
+    datos[campo] = nuevo;
+    await updateDoc(doc(db, "alumnos", jugadorActivo.id), datos);
+    pintarBotonesPago(jugadorActivo);
+    var j = listaJugadores.find(function(x) { return x.id === jugadorActivo.id; });
+    if (j) j[campo] = nuevo;
+    pintarJugadores();
+    toast(nuevo === "pagado" ? "✅ Marcado como pagado" : "❌ Marcado como pendiente", nuevo === "pagado" ? "ok" : "error");
+  } catch(e) { toast("Error al actualizar", "error"); }
+}
+
+document.getElementById("btnCerrarModalJ").addEventListener("click", function() {
+  document.getElementById("modalJugador").classList.remove("abierto");
+});
+
+document.getElementById("btnBajaJugador").addEventListener("click", async function() {
+  if (!jugadorActivo) return;
+  if (!confirm("¿Dar de baja a este jugador?")) return;
+  await updateDoc(doc(db, "alumnos", jugadorActivo.id), { estado: "baja" });
+  document.getElementById("modalJugador").classList.remove("abierto");
+  toast("Jugador dado de baja");
+  await cargarJugadores();
+});
+
+// ═══════════════════════════════════════
+// ENTRENADORES
+// ═══════════════════════════════════════
+
+async function cargarEntrenadores() {
+  try {
+    var snap = await getDocs(collection(db, "entrenadores"));
+    var lista = [];
+    snap.forEach(function(d) { lista.push(Object.assign({id: d.id}, d.data())); });
+    document.getElementById("statE").textContent = lista.length;
+    var el = document.getElementById("listaEntrenadores");
+    if (!lista.length) { el.innerHTML = '<div class="vacio">No hay entrenadores</div>'; return; }
+    var html = "";
+    lista.forEach(function(e) {
+      html += '<div class="jugador-card">';
+      html += '<div class="jugador-ico">👤</div>';
+      html += '<div class="jugador-info"><div class="jugador-nombre">' + e.nombre + '</div><div class="jugador-meta">' + (e.grupo||"Sin equipo") + ' · ' + e.email + '</div></div>';
+      html += '<span class="badge badge-a">' + (e.grupo||"-") + '</span>';
+      html += '<div class="jugador-acciones">';
+      html += '<button class="btn-editar-j" data-eid="' + e.id + '">✏️</button>';
+      html += '<button class="btn-baja-j" data-eid="' + e.id + '">🗑️</button>';
+      html += '</div></div>';
+    });
+    el.innerHTML = html;
+    el.querySelectorAll(".btn-editar-j").forEach(function(btn) {
+      btn.addEventListener("click", function(e) {
+        e.stopPropagation();
+        editarEntrenador(btn.dataset.eid);
+      });
+    });
+    el.querySelectorAll(".btn-baja-j").forEach(function(btn) {
+      btn.addEventListener("click", function(e) {
+        e.stopPropagation();
+        eliminarEntrenador(btn.dataset.eid);
+      });
+    });
+  } catch(e) {}
+}
+
+document.getElementById("btnGuardarEntrenador").addEventListener("click", async function() {
+  var btn = document.getElementById("btnGuardarEntrenador");
+  var nombre = document.getElementById("eNombre").value.trim();
+  var email = document.getElementById("eEmail").value.trim();
+  if (!nombre || !email) { toast("Nombre y email son obligatorios", "error"); return; }
+  btn.disabled = true; btn.textContent = "Guardando...";
+  try {
+    await addDoc(collection(db, "entrenadores"), {
+      nombre: nombre, email: email,
+      telefono: document.getElementById("eTelefono").value || "",
+      grupo: document.getElementById("eGrupo").value,
+      creadoEn: Timestamp.now()
+    });
+    toast("✅ Entrenador añadido", "ok");
+    ["eNombre","eEmail","eTelefono"].forEach(function(id) { document.getElementById(id).value = ""; });
+    await cargarEntrenadores();
+  } catch(e) { toast("❌ Error", "error"); }
+  btn.disabled = false; btn.textContent = "💾 Guardar entrenador";
+});
+
+function verEntrenador(id, nombre, email, grupo, tel) {
+  entrenadorActivo = { id: id };
+  document.getElementById("modalEntrenadorTitulo").textContent = nombre;
+  document.getElementById("modalEntrenadorContenido").innerHTML = [
+    ["Email", email], ["Equipo", grupo||"-"], ["Teléfono", tel||"-"]
+  ].map(function(f) {
+    return '<div class="modal-fila"><span class="modal-label">' + f[0] + '</span><span class="modal-valor">' + f[1] + '</span></div>';
+  }).join("");
+  document.getElementById("modalEntrenador").classList.add("abierto");
+}
+
+document.getElementById("btnCerrarModalE").addEventListener("click", function() {
+  document.getElementById("modalEntrenador").classList.remove("abierto");
+});
+
+document.getElementById("btnEliminarEntrenador").addEventListener("click", async function() {
+  if (!entrenadorActivo) return;
+  if (!confirm("¿Eliminar este entrenador?")) return;
+  await deleteDoc(doc(db, "entrenadores", entrenadorActivo.id));
+  document.getElementById("modalEntrenador").classList.remove("abierto");
+  toast("Entrenador eliminado");
+  await cargarEntrenadores();
+});
+
+// ═══════════════════════════════════════
+// ASISTENCIA
+// ═══════════════════════════════════════
+
+document.getElementById("btnCargarAsi").addEventListener("click", async function() {
+  var fecha = document.getElementById("asiFecha").value;
+  var grupo = document.getElementById("asiGrupo").value;
+  if (!fecha) { toast("Selecciona una fecha", "error"); return; }
+  var lista = listaJugadores.filter(function(j) { return j.estado !== "baja"; });
+  if (grupo) lista = lista.filter(function(j) { return j.grupo === grupo; });
+  if (!lista.length) { document.getElementById("listaAsistencia").innerHTML = '<div class="vacio">No hay jugadores</div>'; return; }
+  estadoAsistencia = {};
+  try {
+    var snap = await getDocs(query(collection(db, "asistencia"), where("fecha", "==", fecha)));
+    snap.forEach(function(d) {
+      var dat = d.data();
+      if (lista.find(function(j) { return j.id === dat.alumnoId; })) {
+        estadoAsistencia[dat.alumnoId] = dat.presente;
+      }
+    });
+  } catch(e) {}
+  var html = "";
+  lista.forEach(function(j) {
+    var p = estadoAsistencia[j.id];
+    html += '<div class="asi-fila">';
+    html += '<div class="asi-nombre">' + j.nombre + ' ' + j.apellidos + '<br><span style="font-size:11px;color:#555">' + j.grupo + '</span></div>';
+    html += '<div class="toggle-wrap">';
+    html += '<button class="tbtn tbtn-p' + (p === true ? " marcado" : "") + '" data-id="' + j.id + '" data-v="true">✓</button>';
+    html += '<button class="tbtn tbtn-a' + (p === false ? " marcado" : "") + '" data-id="' + j.id + '" data-v="false">✗</button>';
+    html += '</div></div>';
+  });
+  var el = document.getElementById("listaAsistencia");
+  el.innerHTML = html;
+  el.querySelectorAll(".tbtn").forEach(function(btn) {
+    btn.addEventListener("click", function() {
+      estadoAsistencia[btn.dataset.id] = btn.dataset.v === "true";
+      var fila = btn.closest(".asi-fila");
+      fila.querySelectorAll(".tbtn-p").forEach(function(b) { b.classList.remove("marcado"); });
+      fila.querySelectorAll(".tbtn-a").forEach(function(b) { b.classList.remove("marcado"); });
+      btn.classList.add("marcado");
+    });
+  });
+  document.getElementById("wrapGuardarAsi").style.display = "block";
+});
+
+document.getElementById("btnGuardarAsi").addEventListener("click", async function() {
+  var fecha = document.getElementById("asiFecha").value;
+  if (!Object.keys(estadoAsistencia).length) { toast("Marca la asistencia primero", "error"); return; }
+  try {
+    var promesas = Object.entries(estadoAsistencia).map(function(entry) {
+      var id = entry[0], presente = entry[1];
+      var j = listaJugadores.find(function(x) { return x.id === id; });
+      return addDoc(collection(db, "asistencia"), {
+        alumnoId: id, fecha: fecha, presente: presente,
+        nombreAlumno: j ? j.nombre + " " + j.apellidos : "",
+        creadoEn: Timestamp.now()
+      });
+    });
+    await Promise.all(promesas);
+    toast("✅ Asistencia guardada", "ok");
+  } catch(e) { toast("❌ Error", "error"); }
+});
+
+// ═══════════════════════════════════════
+// NOTAS
+// ═══════════════════════════════════════
+
+document.getElementById("btnGuardarNota").addEventListener("click", async function() {
+  var alumnoId = document.getElementById("notaJugador").value;
+  var texto = document.getElementById("notaTexto").value.trim();
+  if (!alumnoId || !texto) { toast("Selecciona jugador y escribe la nota", "error"); return; }
+  var j = listaJugadores.find(function(x) { return x.id === alumnoId; });
+  try {
+    await addDoc(collection(db, "notas"), {
+      alumnoId: alumnoId, texto: texto,
+      tipo: document.getElementById("notaTipo").value,
+      nombreAlumno: j ? j.nombre + " " + j.apellidos : "",
+      fecha: new Date().toISOString().split("T")[0],
+      creadoEn: Timestamp.now()
+    });
+    document.getElementById("notaTexto").value = "";
+    toast("✅ Nota guardada", "ok");
+    cargarNotas();
+  } catch(e) { toast("❌ Error", "error"); }
+});
+
+async function cargarNotas() {
+  try {
+    var snap = await getDocs(query(collection(db, "notas"), orderBy("creadoEn", "desc")));
+    var el = document.getElementById("listaNotas");
+    if (snap.empty) { el.innerHTML = '<div class="vacio">No hay notas</div>'; return; }
+    var ico = { nota: "📝", incidencia: "⚠️", progreso: "📈", medico: "🏥" };
+    var html = "";
+    snap.forEach(function(d) {
+      var n = d.data();
+      html += '<div class="nota-card"><div class="nota-head"><div class="nota-quien">' + (ico[n.tipo]||"📝") + " " + n.nombreAlumno + '</div><span class="nota-fecha">' + n.fecha + '</span></div><div class="nota-texto">' + n.texto + '</div></div>';
+    });
+    el.innerHTML = html;
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════
+// CALENDARIO
+// ═══════════════════════════════════════
+
+document.getElementById("btnGuardarEvento").addEventListener("click", async function() {
+  var titulo = document.getElementById("evTitulo").value.trim();
+  var fecha = document.getElementById("evFecha").value;
+  if (!titulo || !fecha) { toast("Título y fecha son obligatorios", "error"); return; }
+  try {
+    await addDoc(collection(db, "eventos"), {
+      titulo: titulo, fecha: fecha,
+      hora: document.getElementById("evHora").value || "",
+      tipo: document.getElementById("evTipo").value,
+      lugar: document.getElementById("evLugar").value || "",
+      equipo: document.getElementById("evEquipo").value,
+      descripcion: document.getElementById("evDesc").value || "",
+      creadoEn: Timestamp.now()
+    });
+    toast("✅ Evento guardado", "ok");
+    ["evTitulo","evHora","evLugar","evDesc"].forEach(function(id) { document.getElementById(id).value = ""; });
+    cargarEventos();
+  } catch(e) { toast("❌ Error", "error"); }
+});
+
+document.querySelectorAll("[data-fev]").forEach(function(btn) {
+  btn.addEventListener("click", function() {
+    document.querySelectorAll("[data-fev]").forEach(function(b) { b.classList.remove("activo"); });
+    btn.classList.add("activo");
+    pintarEventos(btn.dataset.fev === "todos" ? eventosGuardados : eventosGuardados.filter(function(e) { return e.tipo === btn.dataset.fev; }));
+  });
+});
+
+async function cargarEventos() {
+  try {
+    var snap = await getDocs(query(collection(db, "eventos"), orderBy("fecha", "asc")));
+    eventosGuardados = [];
+    snap.forEach(function(d) { eventosGuardados.push(Object.assign({id: d.id}, d.data())); });
+    pintarEventos(eventosGuardados);
+  } catch(e) {}
+}
+
+var MESES = ["ENE","FEB","MAR","ABR","MAY","JUN","JUL","AGO","SEP","OCT","NOV","DIC"];
+
+function pintarEventos(eventos) {
+  var el = document.getElementById("listaEventos");
+  if (!eventos.length) { el.innerHTML = '<div class="vacio">No hay eventos</div>'; return; }
+  var hoy = new Date().toISOString().split("T")[0];
+  var futuros = eventos.filter(function(e) { return e.fecha >= hoy; });
+  var pasados = eventos.filter(function(e) { return e.fecha < hoy; });
+  var cssMap = { entrenamiento: "et-entreno", partido: "et-partido", otro: "et-otro" };
+  var icoMap = { entrenamiento: "⚽", partido: "🏆", otro: "📌" };
+  function bloque(lista, titulo) {
+    if (!lista.length) return "";
+    var h = '<div style="font-size:11px;color:#555;text-transform:uppercase;letter-spacing:.5px;margin:12px 0 8px">' + titulo + '</div>';
+    lista.forEach(function(e) {
+      var partes = e.fecha.split("-");
+      h += '<div class="evento-card">';
+      h += '<div class="evento-fecha"><div class="evento-dia">' + partes[2] + '</div><div class="evento-mes">' + MESES[parseInt(partes[1])-1] + '</div></div>';
+      h += '<div class="evento-info"><div class="evento-titulo">' + e.titulo + '</div>';
+      h += '<div class="evento-meta">' + (e.hora||"") + (e.lugar ? " · " + e.lugar : "") + (e.equipo !== "Todos" ? " · " + e.equipo : "") + '</div>';
+      h += '<span class="evento-tipo ' + (cssMap[e.tipo]||"et-otro") + '">' + (icoMap[e.tipo]||"📌") + " " + e.tipo + '</span></div>';
+      h += '<button class="btn-eliminar" data-evid="' + e.id + '">🗑</button></div>';
+    });
+    return h;
+  }
+  el.innerHTML = bloque(futuros, "Próximos") + bloque(pasados, "Pasados");
+  el.querySelectorAll("[data-evid]").forEach(function(btn) {
+    btn.addEventListener("click", async function() {
+      if (!confirm("¿Eliminar este evento?")) return;
+      await deleteDoc(doc(db, "eventos", btn.dataset.evid));
+      toast("Evento eliminado");
+      cargarEventos();
+    });
+  });
+}
+
+// ═══════════════════════════════════════
+// AVISOS
+// ═══════════════════════════════════════
+
+document.getElementById("btnGuardarAviso").addEventListener("click", async function() {
+  var titulo = document.getElementById("avTitulo").value.trim();
+  var texto = document.getElementById("avTexto").value.trim();
+  if (!titulo || !texto) { toast("Título y mensaje son obligatorios", "error"); return; }
+  try {
+    await addDoc(collection(db, "avisos"), {
+      titulo: titulo, texto: texto,
+      tipo: document.getElementById("avTipo").value,
+      destinatario: document.getElementById("avDest").value,
+      fecha: new Date().toISOString().split("T")[0],
+      activo: true, creadoEn: Timestamp.now()
+    });
+    toast("✅ Aviso publicado", "ok");
+    document.getElementById("avTitulo").value = "";
+    document.getElementById("avTexto").value = "";
+    cargarAvisos();
+  } catch(e) { toast("❌ Error", "error"); }
+});
+
+async function cargarAvisos() {
+  try {
+    var snap = await getDocs(query(collection(db, "avisos"), orderBy("creadoEn", "desc")));
+    var el = document.getElementById("listaAvisos");
+    if (snap.empty) { el.innerHTML = '<div class="vacio">No hay avisos</div>'; return; }
+    var cssMap = { urgente: "av-urgente", info: "av-info", general: "av-general" };
+    var html = "";
+    snap.forEach(function(d) {
+      var a = d.data();
+      html += '<div class="aviso-card ' + (cssMap[a.tipo]||"av-general") + '">';
+      html += '<button class="aviso-del" data-avid="' + d.id + '">🗑</button>';
+      html += '<div class="aviso-titulo">' + a.titulo + '</div>';
+      html += '<div class="aviso-texto">' + a.texto + '</div>';
+      html += '<div class="aviso-meta">' + a.fecha + ' · Para: ' + a.destinatario + '</div></div>';
+    });
+    el.innerHTML = html;
+    el.querySelectorAll("[data-avid]").forEach(function(btn) {
+      btn.addEventListener("click", async function() {
+        if (!confirm("¿Eliminar este aviso?")) return;
+        await deleteDoc(doc(db, "avisos", btn.dataset.avid));
+        toast("Aviso eliminado");
+        cargarAvisos();
+      });
+    });
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════
+// GALERIA
+// ═══════════════════════════════════════
+
+document.getElementById("btnGuardarFoto").addEventListener("click", async function() {
+  var url = document.getElementById("galUrl").value.trim();
+  if (!url) { toast("La URL es obligatoria", "error"); return; }
+  try {
+    await addDoc(collection(db, "galeria"), {
+      url: url,
+      descripcion: document.getElementById("galDesc").value || "",
+      equipo: document.getElementById("galEquipo").value,
+      fecha: new Date().toISOString().split("T")[0],
+      creadoEn: Timestamp.now()
+    });
+    toast("✅ Foto añadida", "ok");
+    document.getElementById("galUrl").value = "";
+    document.getElementById("galDesc").value = "";
+    cargarGaleria();
+  } catch(e) { toast("❌ Error", "error"); }
+});
+
+document.querySelectorAll("[data-fgal]").forEach(function(btn) {
+  btn.addEventListener("click", function() {
+    document.querySelectorAll("[data-fgal]").forEach(function(b) { b.classList.remove("activo"); });
+    btn.classList.add("activo");
+    var eq = btn.dataset.fgal;
+    pintarGaleria(eq === "Todos" ? fotosGuardadas : fotosGuardadas.filter(function(f) { return f.equipo === eq || f.equipo === "Todos"; }));
+  });
+});
+
+async function cargarGaleria() {
+  try {
+    var snap = await getDocs(query(collection(db, "galeria"), orderBy("creadoEn", "desc")));
+    fotosGuardadas = [];
+    snap.forEach(function(d) { fotosGuardadas.push(Object.assign({id: d.id}, d.data())); });
+    pintarGaleria(fotosGuardadas);
+  } catch(e) {}
+}
+
+function pintarGaleria(fotos) {
+  var el = document.getElementById("listaGaleria");
+  if (!fotos.length) {
+    el.innerHTML = '<div class="vacio" style="grid-column:1/-1">No hay fotos</div>';
+    return;
+  }
+  el.innerHTML = "";
+  fotos.forEach(function(f) {
+    var item = document.createElement("div");
+    item.className = "galeria-item";
+
+    var img = document.createElement("img");
+    img.className = "galeria-img";
+    img.src = f.url;
+    img.alt = f.descripcion || "";
+    img.addEventListener("error", function() { item.style.display = "none"; });
+
+    var delBtn = document.createElement("button");
+    delBtn.className = "galeria-del";
+    delBtn.textContent = "🗑";
+    delBtn.dataset.fid = f.id;
+    delBtn.addEventListener("click", async function() {
+      if (!confirm("Eliminar esta foto?")) return;
+      await deleteDoc(doc(db, "galeria", f.id));
+      toast("Foto eliminada");
+      cargarGaleria();
+    });
+
+    var info = document.createElement("div");
+    info.className = "galeria-info";
+    info.innerHTML = '<div class="galeria-desc">' + (f.descripcion || "Sin descripcion") + '</div><div class="galeria-equipo">' + f.equipo + " - " + f.fecha + "</div>";
+
+    item.appendChild(img);
+    item.appendChild(delBtn);
+    item.appendChild(info);
+    el.appendChild(item);
+  });
+}
+
+// ═══════════════════════════════════════
+// FINANZAS
+// ═══════════════════════════════════════
+
+function actualizarFinJugador() {
+  var tipo = document.getElementById("finTipo").value;
+  document.getElementById("finJugadorWrap").style.display = tipo === "cobro" ? "flex" : "none";
+}
+document.getElementById("finTipo").addEventListener("change", actualizarFinJugador);
+
+document.getElementById("btnGuardarMovimiento").addEventListener("click", async function() {
+  var importe = parseFloat(document.getElementById("finImporte").value);
+  var desc = document.getElementById("finDesc").value.trim();
+  if (!importe || !desc) { toast("Importe y descripción son obligatorios", "error"); return; }
+  var tipo = document.getElementById("finTipo").value;
+  var esIngreso = tipo === "cobro" || tipo === "ingreso";
+  var alumnoId = document.getElementById("finJugador").value;
+  var j = listaJugadores.find(function(x) { return x.id === alumnoId; });
+  try {
+    await addDoc(collection(db, "finanzas"), {
+      tipo: tipo, importe: importe, desc: desc, esIngreso: esIngreso,
+      alumnoId: alumnoId || null,
+      nombreAlumno: j ? j.nombre + " " + j.apellidos : null,
+      fecha: document.getElementById("finFecha").value,
+      metodo: document.getElementById("finMetodo").value,
+      creadoEn: Timestamp.now()
+    });
+    document.getElementById("finImporte").value = "";
+    document.getElementById("finDesc").value = "";
+    toast("✅ Movimiento registrado", "ok");
+    cargarFinanzas();
+  } catch(e) { toast("❌ Error", "error"); }
+});
+
+async function cargarFinanzas() {
+  try {
+    var snap = await getDocs(query(collection(db, "finanzas"), orderBy("creadoEn", "desc")));
+    var el = document.getElementById("listaFinanzas");
+    if (snap.empty) { el.innerHTML = '<div class="vacio">No hay movimientos</div>'; return; }
+    var icoMap = { cobro: "💶", "pago-entrenador": "👤", gasto: "🛒", ingreso: "💰" };
+    var ing = 0, gas = 0;
+    var mes = new Date().toISOString().slice(0, 7);
+    var html = "";
+    snap.forEach(function(d) {
+      var f = d.data();
+      if (f.fecha && f.fecha.startsWith(mes)) { f.esIngreso ? ing += f.importe : gas += f.importe; }
+      html += '<div class="fin-fila">';
+      html += '<div class="fin-ico">' + (icoMap[f.tipo]||"💶") + '</div>';
+      html += '<div class="fin-info"><div class="fin-desc">' + f.desc + (f.nombreAlumno ? " · " + f.nombreAlumno : "") + '</div><div class="fin-meta">' + f.fecha + ' · ' + f.metodo + '</div></div>';
+      html += '<div class="fin-monto ' + (f.esIngreso ? "ingreso" : "gasto") + '">' + (f.esIngreso ? "+" : "-") + f.importe + '€</div></div>';
+    });
+    el.innerHTML = html;
+    document.getElementById("resIng").textContent = ing + "€";
+    document.getElementById("resGas").textContent = gas + "€";
+    var bal = ing - gas;
+    var balEl = document.getElementById("resBal");
+    balEl.textContent = bal + "€";
+    balEl.style.color = bal >= 0 ? "var(--ac)" : "var(--r)";
+    document.getElementById("statC").textContent = ing + "€";
+    document.getElementById("statG").textContent = gas + "€";
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════
+// EXPORTAR
+// ═══════════════════════════════════════
+
+function descargarCSV(nombre, cabeceras, filas) {
+  var separador = ";";
+  var salto = "\n";
+  var comilla = '"';
+  var bom = "\uFEFF";
+  var cabLine = cabeceras.join(separador);
+  var dataLines = filas.map(function(fila) {
+    return fila.map(function(v) {
+      var val = String(v || "").replace(/"/g, comilla + comilla);
+      return comilla + val + comilla;
+    }).join(separador);
+  }).join(salto);
+  var csv = bom + cabLine + salto + dataLines;
+  var blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement("a");
+  a.href = url;
+  a.download = nombre;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+document.getElementById("btnExpJug").addEventListener("click", function() {
+  var activos = listaJugadores.filter(function(j) { return j.estado !== "baja"; });
+  descargarCSV("jugadores.csv",
+    ["Nombre","Apellidos","Equipo","Fecha Nac.","Cuota","Padre","Tel.Padre","Email Padre","Madre","Tel.Madre","Email Madre","1er Cuatrimestre","2º Cuatrimestre"],
+    activos.map(function(j) { return [j.nombre,j.apellidos,j.grupo,j.fechaNacimiento,j.cuota||45,j.padreNombre,j.padreTel,j.padreEmail,j.madreNombre,j.madreTel,j.madreEmail,j.pago1||"pendiente",j.pago2||"pendiente"]; })
+  );
+});
+
+document.getElementById("btnExpAsi").addEventListener("click", async function() {
+  toast("Preparando...", "ok");
+  try {
+    var snap = await getDocs(query(collection(db, "asistencia"), orderBy("fecha", "desc")));
+    var filas = [];
+    snap.forEach(function(d) { var a = d.data(); filas.push([a.nombreAlumno, a.fecha, a.presente ? "Presente" : "Ausente"]); });
+    descargarCSV("asistencia.csv", ["Jugador","Fecha","Estado"], filas);
+  } catch(e) { toast("Error", "error"); }
+});
+
+document.getElementById("btnExpFin").addEventListener("click", async function() {
+  toast("Preparando...", "ok");
+  try {
+    var snap = await getDocs(query(collection(db, "finanzas"), orderBy("fecha", "desc")));
+    var filas = [];
+    snap.forEach(function(d) { var f = d.data(); filas.push([f.desc,f.tipo,f.importe,f.esIngreso?"Ingreso":"Gasto",f.fecha,f.metodo,f.nombreAlumno||""]); });
+    descargarCSV("finanzas.csv", ["Descripción","Tipo","Importe","Ingreso/Gasto","Fecha","Método","Jugador"], filas);
+  } catch(e) { toast("Error", "error"); }
+});
+
+document.getElementById("btnExpPag").addEventListener("click", function() {
+  var activos = listaJugadores.filter(function(j) { return j.estado !== "baja"; });
+  descargarCSV("pagos.csv",
+    ["Nombre","Apellidos","Equipo","1er Cuatrimestre","2º Cuatrimestre","Email Padre","Email Madre"],
+    activos.map(function(j) { return [j.nombre,j.apellidos,j.grupo,j.pago1||"pendiente",j.pago2||"pendiente",j.padreEmail,j.madreEmail]; })
+  );
+});
+
+
+// ═══════════════════════════════════════
+// EDITAR JUGADOR
+// ═══════════════════════════════════════
+
+function editarJugador(id) {
+  var j = listaJugadores.find(function(x) { return x.id === id; });
+  if (!j) return;
+  jugadorActivo = j;
+
+  // Rellenar el formulario con los datos actuales
+  document.getElementById("eJNombre").value = j.nombre || "";
+  document.getElementById("eJApellidos").value = j.apellidos || "";
+  document.getElementById("eJFnac").value = j.fechaNacimiento || "";
+  document.getElementById("eJGrupo").value = j.grupo || "Escuela";
+  document.getElementById("eJCuota").value = j.cuota || 45;
+  document.getElementById("eJEstado").value = j.estado || "activo";
+  document.getElementById("eJPadreNom").value = j.padreNombre || "";
+  document.getElementById("eJPadreTel").value = j.padreTel || "";
+  document.getElementById("eJPadreEmail").value = j.padreEmail || "";
+  document.getElementById("eJMadreNom").value = j.madreNombre || "";
+  document.getElementById("eJMadreTel").value = j.madreTel || "";
+  document.getElementById("eJMadreEmail").value = j.madreEmail || "";
+  document.getElementById("eJPago1").value = j.pago1 || "pendiente";
+  document.getElementById("eJPago2").value = j.pago2 || "pendiente";
+  
+  // Mostrar foto actual si existe
+  fotoUrlEditarJugador = j.photoUrl || "";
+  if (j.photoUrl) {
+    document.getElementById("eJFotoPreview").src = j.photoUrl;
+    document.getElementById("eJFotoPreview").style.display = "block";
+    document.getElementById("eJFotoPlaceholder").style.display = "none";
+  } else {
+    document.getElementById("eJFotoPreview").style.display = "none";
+    document.getElementById("eJFotoPlaceholder").style.display = "flex";
+  }
+  document.getElementById("eJFotoProgress").style.display = "none";
+
+  document.getElementById("modalEditar").classList.add("abierto");
+}
+
+document.getElementById("btnCerrarEditar").addEventListener("click", function() {
+  document.getElementById("modalEditar").classList.remove("abierto");
+});
+
+document.getElementById("btnGuardarEditar").addEventListener("click", async function() {
+  if (!jugadorActivo) return;
+  var btn = document.getElementById("btnGuardarEditar");
+  var nombre = document.getElementById("eJNombre").value.trim();
+  var apellidos = document.getElementById("eJApellidos").value.trim();
+  if (!nombre || !apellidos) { toast("Nombre y apellidos son obligatorios", "error"); return; }
+  btn.disabled = true; btn.textContent = "Guardando...";
+  try {
+    var datos = {
+      nombre: nombre,
+      apellidos: apellidos,
+      photoUrl: fotoUrlEditarJugador || jugadorActivo.photoUrl || "",
+      fechaNacimiento: document.getElementById("eJFnac").value || "",
+      grupo: document.getElementById("eJGrupo").value,
+      cuota: parseFloat(document.getElementById("eJCuota").value) || 45,
+      estado: document.getElementById("eJEstado").value,
+      padreNombre: document.getElementById("eJPadreNom").value.trim() || "",
+      padreTel: document.getElementById("eJPadreTel").value.trim() || "",
+      padreEmail: document.getElementById("eJPadreEmail").value.trim() || "",
+      madreNombre: document.getElementById("eJMadreNom").value.trim() || "",
+      madreTel: document.getElementById("eJMadreTel").value.trim() || "",
+      madreEmail: document.getElementById("eJMadreEmail").value.trim() || "",
+      pago1: document.getElementById("eJPago1").value,
+      pago2: document.getElementById("eJPago2").value
+    };
+    await updateDoc(doc(db, "alumnos", jugadorActivo.id), datos);
+    toast("✅ Jugador actualizado correctamente", "ok");
+    document.getElementById("modalEditar").classList.remove("abierto");
+    await cargarJugadores();
+  } catch(e) { toast("❌ Error al guardar: " + e.message, "error"); }
+  btn.disabled = false; btn.textContent = "💾 Guardar cambios";
+});
+
+async function bajaJugador(id) {
+  var j = listaJugadores.find(function(x) { return x.id === id; });
+  if (!j) return;
+  if (!confirm("¿Dar de baja a " + j.nombre + " " + j.apellidos + "?")) return;
+  try {
+    await updateDoc(doc(db, "alumnos", id), { estado: "baja" });
+    toast("Jugador dado de baja");
+    await cargarJugadores();
+  } catch(e) { toast("❌ Error", "error"); }
+}
+
+
+// ═══════════════════════════════════════
+// EDITAR ENTRENADOR
+// ═══════════════════════════════════════
+
+var entrenadorEditando = null;
+var listaEntrenadores = [];
+
+async function editarEntrenador(id) {
+  // Reload to get fresh data
+  try {
+    var snap = await getDocs(collection(db, "entrenadores"));
+    listaEntrenadores = [];
+    snap.forEach(function(d) { listaEntrenadores.push(Object.assign({id: d.id}, d.data())); });
+  } catch(e) {}
+  
+  var e = listaEntrenadores.find(function(x) { return x.id === id; });
+  if (!e) return;
+  entrenadorEditando = e;
+
+  document.getElementById("eENombre").value = e.nombre || "";
+  document.getElementById("eEEmail").value = e.email || "";
+  document.getElementById("eETelefono").value = e.telefono || "";
+  document.getElementById("eEGrupo").value = e.grupo || "Escuela";
+  document.getElementById("modalEditarE").classList.add("abierto");
+}
+
+document.getElementById("btnCerrarEditarE").addEventListener("click", function() {
+  document.getElementById("modalEditarE").classList.remove("abierto");
+});
+
+document.getElementById("btnGuardarEditarE").addEventListener("click", async function() {
+  if (!entrenadorEditando) return;
+  var btn = document.getElementById("btnGuardarEditarE");
+  var nombre = document.getElementById("eENombre").value.trim();
+  var email = document.getElementById("eEEmail").value.trim();
+  if (!nombre || !email) { toast("Nombre y email son obligatorios", "error"); return; }
+  btn.disabled = true; btn.textContent = "Guardando...";
+  try {
+    await updateDoc(doc(db, "entrenadores", entrenadorEditando.id), {
+      nombre: nombre,
+      email: email,
+      telefono: document.getElementById("eETelefono").value.trim() || "",
+      grupo: document.getElementById("eEGrupo").value
+    });
+    toast("✅ Entrenador actualizado", "ok");
+    document.getElementById("modalEditarE").classList.remove("abierto");
+    await cargarEntrenadores();
+  } catch(e) { toast("❌ Error: " + e.message, "error"); }
+  btn.disabled = false; btn.textContent = "💾 Guardar cambios";
+});
+
+async function eliminarEntrenador(id) {
+  try {
+    var snap = await getDocs(collection(db, "entrenadores"));
+    var e = null;
+    snap.forEach(function(d) { if (d.id === id) e = d.data(); });
+    var nombre = e ? e.nombre : "este entrenador";
+    if (!confirm("¿Eliminar a " + nombre + "?")) return;
+    await deleteDoc(doc(db, "entrenadores", id));
+    toast("Entrenador eliminado");
+    await cargarEntrenadores();
+  } catch(e) { toast("❌ Error", "error"); }
+}
+
+// ═══════════════════════════════════════
+// FICHA COMPLETA JUGADOR
+// ═══════════════════════════════════════
+
+var jugadorFicha = null;
+
+document.getElementById("listaJugadores").addEventListener("click", function(e) {
+  // Only open ficha if clicking on the card itself (not buttons)
+  var card = e.target.closest(".jugador-card");
+  var esBoton = e.target.closest(".jugador-acciones");
+  if (card && !esBoton) {
+    var id = card.querySelector(".btn-editar-j") ? card.querySelector(".btn-editar-j").dataset.id : null;
+    if (id) verFichaJugador(id);
+  }
+});
+
+async function verFichaJugador(id) {
+  var j = listaJugadores.find(function(x) { return x.id === id; });
+  if (!j) return;
+  jugadorFicha = j;
+
+  document.getElementById("fichaTitulo").textContent = j.nombre + " " + j.apellidos;
+
+  // Datos personales
+  var filas = [
+    ["Equipo", j.grupo || "-"],
+    ["Fecha nac.", j.fechaNacimiento || "-"],
+    ["Cuota", (j.cuota || 45) + "€/mes"],
+    ["Estado", j.estado || "-"],
+    ["── Padre ──", ""],
+    ["Nombre", j.padreNombre || "-"],
+    ["Teléfono", j.padreTel || "-"],
+    ["Email", j.padreEmail || "-"],
+    ["── Madre ──", ""],
+    ["Nombre", j.madreNombre || "-"],
+    ["Teléfono", j.madreTel || "-"],
+    ["Email", j.madreEmail || "-"]
+  ];
+  document.getElementById("fichaDatos").innerHTML = filas.map(function(f) {
+    return '<div class="modal-fila"><span class="modal-label">' + f[0] + '</span><span class="modal-valor">' + f[1] + '</span></div>';
+  }).join("");
+
+  // Pagos
+  var p1 = j.pago1 === "pagado", p2 = j.pago2 === "pagado";
+  document.getElementById("fichaPago1").className = "pago-btn " + (p1 ? "pago-pagado" : "pago-pendiente");
+  document.getElementById("fichaPago2").className = "pago-btn " + (p2 ? "pago-pagado" : "pago-pendiente");
+  document.getElementById("fichaPago1txt").textContent = p1 ? "✅ Pagado" : "❌ Pendiente";
+  document.getElementById("fichaPago2txt").textContent = p2 ? "✅ Pagado" : "❌ Pendiente";
+
+  document.getElementById("fichaPago1").onclick = function() { togglePagoFicha(1); };
+  document.getElementById("fichaPago2").onclick = function() { togglePagoFicha(2); };
+
+  // Reset historial y notas
+  document.getElementById("fichaHistorial").innerHTML = '<div class="cargando">Cargando historial...</div>';
+  document.getElementById("fichaNotas").innerHTML = '<div class="cargando">Cargando notas...</div>';
+  document.getElementById("fichaAsiContador").textContent = "-/-";
+  document.getElementById("fichaAsiPct").textContent = "-%";
+
+  document.getElementById("modalFicha").classList.add("abierto");
+
+  // Load asistencia
+  try {
+    var snapAsi = await getDocs(query(collection(db, "asistencia"), where("alumnoId", "==", id), orderBy("fecha", "desc")));
+    var registros = [];
+    snapAsi.forEach(function(d) { registros.push(d.data()); });
+    var presentes = registros.filter(function(r) { return r.presente; }).length;
+    var total = registros.length;
+    var pct = total > 0 ? Math.round((presentes / total) * 100) : 0;
+
+    document.getElementById("fichaAsiContador").textContent = presentes + "/" + total;
+    document.getElementById("fichaAsiPct").textContent = pct + "%";
+    document.getElementById("fichaAsiPct").style.color = pct >= 80 ? "var(--v)" : pct >= 60 ? "var(--y)" : "var(--r)";
+
+    if (!registros.length) {
+      document.getElementById("fichaHistorial").innerHTML = '<div class="vacio">Sin registros de asistencia</div>';
+    } else {
+      document.getElementById("fichaHistorial").innerHTML = registros.map(function(r) {
+        var meses = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+        var partes = r.fecha ? r.fecha.split("-") : ["","",""];
+        var fechaFmt = partes[2] + " " + (meses[parseInt(partes[1])-1]||"") + " " + partes[0];
+        return '<div class="asi-fila" style="margin-bottom:6px"><div class="asi-nombre">' + fechaFmt + '</div>' +
+          '<span class="' + (r.presente ? "tbtn tbtn-p marcado" : "tbtn tbtn-a marcado") + '" style="pointer-events:none;padding:5px 12px">' +
+          (r.presente ? "✓ Presente" : "✗ Ausente") + '</span></div>';
+      }).join("");
+    }
+  } catch(e) {
+    document.getElementById("fichaHistorial").innerHTML = '<div class="vacio">Error al cargar</div>';
+  }
+
+  // Load notas
+  try {
+    var snapN = await getDocs(query(collection(db, "notas"), where("alumnoId", "==", id), orderBy("creadoEn", "desc")));
+    if (snapN.empty) {
+      document.getElementById("fichaNotas").innerHTML = '<div class="vacio">Sin notas registradas</div>';
+    } else {
+      var icoN = { nota: "📝", incidencia: "⚠️", progreso: "📈", medico: "🏥" };
+      var html = "";
+      snapN.forEach(function(d) {
+        var n = d.data();
+        html += '<div class="nota-card" style="margin-bottom:8px">';
+        html += '<div class="nota-head"><div class="nota-quien">' + (icoN[n.tipo]||"📝") + " " + (n.tipo||"nota") + '</div>';
+        html += '<span class="nota-fecha">' + (n.fecha||"") + '</span></div>';
+        html += '<div class="nota-texto">' + (n.texto||"") + '</div></div>';
+      });
+      document.getElementById("fichaNotas").innerHTML = html;
+    }
+  } catch(e) {
+    document.getElementById("fichaNotas").innerHTML = '<div class="vacio">Error al cargar</div>';
+  }
+}
+
+async function togglePagoFicha(num) {
+  if (!jugadorFicha) return;
+  var campo = "pago" + num;
+  var nuevo = jugadorFicha[campo] === "pagado" ? "pendiente" : "pagado";
+  jugadorFicha[campo] = nuevo;
+  try {
+    var datos = {};
+    datos[campo] = nuevo;
+    await updateDoc(doc(db, "alumnos", jugadorFicha.id), datos);
+    var p1 = jugadorFicha.pago1 === "pagado", p2 = jugadorFicha.pago2 === "pagado";
+    document.getElementById("fichaPago1").className = "pago-btn " + (p1 ? "pago-pagado" : "pago-pendiente");
+    document.getElementById("fichaPago2").className = "pago-btn " + (p2 ? "pago-pagado" : "pago-pendiente");
+    document.getElementById("fichaPago1txt").textContent = p1 ? "✅ Pagado" : "❌ Pendiente";
+    document.getElementById("fichaPago2txt").textContent = p2 ? "✅ Pagado" : "❌ Pendiente";
+    var j = listaJugadores.find(function(x) { return x.id === jugadorFicha.id; });
+    if (j) j[campo] = nuevo;
+    pintarJugadores();
+    toast(nuevo === "pagado" ? "✅ Marcado como pagado" : "❌ Marcado como pendiente", nuevo === "pagado" ? "ok" : "error");
+  } catch(e) { toast("Error", "error"); }
+}
+
+document.getElementById("btnCerrarFicha").addEventListener("click", function() {
+  document.getElementById("modalFicha").classList.remove("abierto");
+});
+
+document.getElementById("btnEditarDesdeFicha").addEventListener("click", function() {
+  document.getElementById("modalFicha").classList.remove("abierto");
+  if (jugadorFicha) editarJugador(jugadorFicha.id);
+});
+
+
+// ═══════════════════════════════════════
+// MULTIMEDIA (ADMIN)
+// ═══════════════════════════════════════
+
+document.getElementById("btnGuardarMul").addEventListener("click", async function() {
+  var titulo = document.getElementById("mulTitulo").value.trim();
+  if (!titulo) { toast("El nombre del evento es obligatorio", "error"); return; }
+  var btn = document.getElementById("btnGuardarMul");
+  btn.disabled = true; btn.textContent = "Guardando...";
+  try {
+    await addDoc(collection(db, "multimedia"), {
+      titulo: titulo,
+      fecha: document.getElementById("mulFecha").value || "",
+      equipo: document.getElementById("mulEquipo").value,
+      fotoUrl: document.getElementById("mulFotoUrl").value.trim() || "",
+      videoUrl: document.getElementById("mulVideoUrl").value.trim() || "",
+      descripcion: document.getElementById("mulDesc").value.trim() || "",
+      creadoEn: Timestamp.now()
+    });
+    toast("✅ Evento guardado", "ok");
+    ["mulTitulo","mulFotoUrl","mulVideoUrl","mulDesc"].forEach(function(id) {
+      document.getElementById(id).value = "";
+    });
+    cargarMultimediaAdmin();
+  } catch(e) { toast("❌ Error: " + e.message, "error"); }
+  btn.disabled = false; btn.textContent = "💾 Guardar evento";
+});
+
+async function cargarMultimediaAdmin() {
+  try {
+    var snap = await getDocs(query(collection(db, "multimedia"), orderBy("fecha", "desc")));
+    var el = document.getElementById("listaMultimediaAdmin");
+    var items = [];
+    snap.forEach(function(d) { items.push(Object.assign({id: d.id}, d.data())); });
+
+    if (!items.length) {
+      el.innerHTML = '<div class="vacio">No hay eventos todavía. ¡Añade el primero!</div>';
+      return;
+    }
+
+    var html = '<table class="mul-tabla"><thead><tr><th>Evento</th><th>Equipo</th><th style="text-align:center">Fotos</th><th style="text-align:center">Vídeo</th><th></th></tr></thead><tbody>';
+    items.forEach(function(m) {
+      var tF = m.fotoUrl && m.fotoUrl.trim() !== "";
+      var tV = m.videoUrl && m.videoUrl.trim() !== "";
+      html += '<tr>';
+      html += '<td><div class="mul-evento">' + m.titulo + '</div>';
+      if (m.fecha) html += '<div class="mul-meta">' + m.fecha + '</div>';
+      if (m.descripcion) html += '<div class="mul-meta" style="color:#666">' + m.descripcion + '</div>';
+      html += '</td>';
+      html += '<td><span class="badge badge-a">' + (m.equipo || "Todos") + '</span></td>';
+      html += '<td style="text-align:center"><a class="mul-btn mul-btn-f' + (tF ? "" : " mul-btn-off") + '" ' + (tF ? 'href="' + m.fotoUrl + '" target="_blank"' : "") + ' title="' + (tF ? "Ver fotos" : "Sin enlace") + '">📷</a></td>';
+      html += '<td style="text-align:center"><a class="mul-btn mul-btn-v' + (tV ? "" : " mul-btn-off") + '" ' + (tV ? 'href="' + m.videoUrl + '" target="_blank"' : "") + ' title="' + (tV ? "Ver vídeo" : "Sin enlace") + '">🎬</a></td>';
+      html += '<td><button class="mul-btn mul-btn-del" data-mulid="' + m.id + '" title="Eliminar">🗑</button></td>';
+      html += '</tr>';
+    });
+    html += '</tbody></table>';
+    el.innerHTML = html;
+
+    el.querySelectorAll("[data-mulid]").forEach(function(btn) {
+      btn.addEventListener("click", async function() {
+        if (!confirm("¿Eliminar este evento multimedia?")) return;
+        await deleteDoc(doc(db, "multimedia", btn.dataset.mulid));
+        toast("Evento eliminado");
+        cargarMultimediaAdmin();
+      });
+    });
+  } catch(e) {
+    document.getElementById("listaMultimediaAdmin").innerHTML = '<div class="vacio">Error al cargar</div>';
+  }
+}
+
+
+// ═══════════════════════════════════════
+// CLOUDINARY — Subida de fotos
+// ═══════════════════════════════════════
+var CLOUD_NAME = "dnb4eehqo";
+var UPLOAD_PRESET = "racing_escuela";
+var fotoUrlNuevoJugador = "";
+var fotoUrlEditarJugador = "";
+
+async function subirFotoCloudinary(file, progressId, previewId, placeholderId) {
+  document.getElementById(progressId).style.display = "block";
+  document.getElementById(progressId).textContent = "Subiendo...";
+  var formData = new FormData();
+  formData.append("file", file);
+  formData.append("upload_preset", UPLOAD_PRESET);
+  formData.append("folder", "racing_escuela_jugadores");
+  try {
+    var res = await fetch("https://api.cloudinary.com/v1_1/" + CLOUD_NAME + "/image/upload", {
+      method: "POST",
+      body: formData
+    });
+    var data = await res.json();
+    if (data.secure_url) {
+      document.getElementById(progressId).textContent = "✅ Foto subida";
+      document.getElementById(progressId).style.color = "var(--verde)";
+      if (previewId) {
+        var preview = document.getElementById(previewId);
+        preview.src = data.secure_url;
+        preview.style.display = "block";
+        document.getElementById(placeholderId).style.display = "none";
+      }
+      return data.secure_url;
+    } else {
+      document.getElementById(progressId).textContent = "❌ Error al subir";
+      return null;
+    }
+  } catch(e) {
+    document.getElementById(progressId).textContent = "❌ Error de conexión";
+    return null;
+  }
+}
+
+// File input nuevo jugador
+document.getElementById("jFotoInput").addEventListener("change", async function() {
+  var file = this.files[0];
+  if (!file) return;
+  var url = await subirFotoCloudinary(file, "jFotoProgress", "jFotoPreview", "jFotoPlaceholder");
+  if (url) fotoUrlNuevoJugador = url;
+});
+
+// File input editar jugador
+document.getElementById("eJFotoInput").addEventListener("change", async function() {
+  var file = this.files[0];
+  if (!file) return;
+  var url = await subirFotoCloudinary(file, "eJFotoProgress", "eJFotoPreview", "eJFotoPlaceholder");
+  if (url) fotoUrlEditarJugador = url;
+});
+
+</script>
+</body>
+</html>
