@@ -110,6 +110,24 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
 .cargando{text-align:center;padding:28px;color:#444;font-size:13px;}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--azul);color:#fff;padding:11px 20px;border-radius:8px;font-size:13px;font-weight:600;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;max-width:90vw;text-align:center;}
 .toast.visible{opacity:1;}.toast.ok{background:var(--verde);}.toast.error{background:var(--rojo);}
+
+.cpick{background:var(--gris);border:1px solid var(--borde);border-radius:12px;padding:14px;margin-bottom:14px;}
+.cpick-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.cpick-nav-btn{background:none;border:1px solid var(--borde);color:var(--texto);padding:5px 14px;border-radius:8px;cursor:pointer;font-size:18px;line-height:1;font-family:"DM Sans",sans-serif;}
+.cpick-nav-btn:hover{border-color:var(--azul-c);color:var(--azul-c);}
+.cpick-mes-label{font-family:"Bebas Neue",sans-serif;font-size:20px;color:var(--blanco);letter-spacing:1px;}
+.cpick-cabecera{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:4px;}
+.cpick-cab-dia{text-align:center;font-size:10px;color:#555;padding:3px 0;}
+.cpick-dias{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.cpick-dia{aspect-ratio:1;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;cursor:pointer;border:1px solid transparent;color:var(--texto);transition:background .12s,border .12s;}
+.cpick-dia:hover:not(.cpick-vacio):not(.cpick-futuro){background:rgba(74,144,217,.15);border-color:rgba(74,144,217,.3);}
+.cpick-dia.cpick-hoy{border-color:rgba(74,144,217,.5);color:var(--azul-c);font-weight:700;}
+.cpick-dia.cpick-sel{background:var(--azul-c)!important;color:#fff!important;border-color:var(--azul-c)!important;}
+.cpick-dia.cpick-vacio{cursor:default;}
+.cpick-dia.cpick-futuro{color:#333;cursor:not-allowed;}
+.cpick-footer{display:flex;align-items:center;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:1px solid var(--borde);}
+.cpick-footer-label{font-size:13px;color:var(--azul-c);font-weight:600;}
+.cpick-footer-btn{padding:9px 18px;background:var(--azul);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:"DM Sans",sans-serif;display:none;}
 </style>
 </head>
 <body>
@@ -344,7 +362,16 @@ function iniciarApp() {
   document.getElementById("hoyFecha").textContent = hoy.toLocaleDateString("es-ES", {weekday:"long", day:"numeric", month:"long"});
   document.getElementById("hoyTitulo").textContent = "Hola, " + coachData.nombre.split(" ")[0];
   document.getElementById("hoyEquipo").textContent = "Equipo: " + (coachData.grupo || "Sin asignar");
-  document.getElementById("asiFecha").value = hoy.toISOString().split("T")[0];
+  // Iniciar calendario picker de asistencia
+  cpick("calAsi", {
+    inputId: "asiFecha",
+    btnId: "btnCargar",
+    soloFuturo: false,
+    onSelect: function(fecha) {
+      var btn = document.getElementById("btnCargar");
+      if (btn) { btn.style.display = "block"; }
+    }
+  });
   cargarJugadores();
   cargarNotasCoach();
   cargarUltimas();
@@ -599,22 +626,97 @@ async function actualizarStats() {
   } catch(e) {}
 }
 
-// Botones fecha rápida
-document.getElementById("btnHoy").addEventListener("click", function() {
+// Botones rápidos eliminados - ahora usa cpick
+
+
+// ════════════════════════════════════════
+// CALENDARIO PICKER VISUAL - Reutilizable
+// ════════════════════════════════════════
+var _MESES = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+var _cpState = {};
+
+function cpick(containerId, opts) {
+  // opts: { inputId, soloFuturo, btnId, onSelect, valorInicial }
   var hoy = new Date();
-  document.getElementById("asiFecha").value = hoy.toISOString().split("T")[0];
-  document.getElementById("btnCargar").click();
-});
-document.getElementById("btnAyer").addEventListener("click", function() {
-  var ayer = new Date(); ayer.setDate(ayer.getDate() - 1);
-  document.getElementById("asiFecha").value = ayer.toISOString().split("T")[0];
-  document.getElementById("btnCargar").click();
-});
-document.getElementById("btnAnteayer").addEventListener("click", function() {
-  var ant = new Date(); ant.setDate(ant.getDate() - 2);
-  document.getElementById("asiFecha").value = ant.toISOString().split("T")[0];
-  document.getElementById("btnCargar").click();
-});
+  _cpState[containerId] = {
+    anio: hoy.getFullYear(),
+    mes: hoy.getMonth(),
+    sel: opts.valorInicial || null,
+    soloFuturo: opts.soloFuturo || false,
+    inputId: opts.inputId || null,
+    btnId: opts.btnId || null,
+    onSelect: opts.onSelect || null
+  };
+  _cpRender(containerId);
+}
+
+function _cpRender(cid) {
+  var el = document.getElementById(cid);
+  if (!el) return;
+  var st = _cpState[cid];
+  var hoy = new Date(); hoy.setHours(0,0,0,0);
+  var hoyStr = hoy.toISOString().split("T")[0];
+  var primerDia = new Date(st.anio, st.mes, 1);
+  var ultimoDia = new Date(st.anio, st.mes + 1, 0);
+  var offset = primerDia.getDay() === 0 ? 6 : primerDia.getDay() - 1;
+
+  var html = '<div class="cpick">';
+  html += '<div class="cpick-nav">';
+  html += '<button class="cpick-nav-btn" onclick="_cpMes(\''+cid+'\', -1)">&#8249;</button>';
+  html += '<span class="cpick-mes-label">'+_MESES[st.mes]+' '+st.anio+'</span>';
+  html += '<button class="cpick-nav-btn" onclick="_cpMes(\''+cid+'\', 1)">&#8250;</button>';
+  html += '</div>';
+  html += '<div class="cpick-cabecera"><div class="cpick-cab-dia">L</div><div class="cpick-cab-dia">M</div><div class="cpick-cab-dia">X</div><div class="cpick-cab-dia">J</div><div class="cpick-cab-dia">V</div><div class="cpick-cab-dia">S</div><div class="cpick-cab-dia">D</div></div>';
+  html += '<div class="cpick-dias">';
+  for (var i = 0; i < offset; i++) html += '<div class="cpick-dia cpick-vacio"></div>';
+  for (var d = 1; d <= ultimoDia.getDate(); d++) {
+    var fStr = st.anio + '-' + String(st.mes+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+    var esFuturo = st.soloFuturo && fStr <= hoyStr;
+    var esHoy = fStr === hoyStr;
+    var esSel = fStr === st.sel;
+    var cls = 'cpick-dia';
+    if (esFuturo) cls += ' cpick-futuro';
+    if (esHoy) cls += ' cpick-hoy';
+    if (esSel) cls += ' cpick-sel';
+    var onclick = esFuturo ? '' : 'onclick=\"_cpSel(\''+cid+'\',\''+fStr+'\')\""';
+    html += '<div class="'+cls+'" '+onclick+'>'+d+'</div>';
+  }
+  html += '</div>';
+  html += '<div class="cpick-footer">';
+  html += '<span class="cpick-footer-label" id="'+cid+'_label">'+(st.sel ? _cpFmtFecha(st.sel) : 'Selecciona un día')+'</span>';
+  if (st.btnId) {
+    html += '<button class="cpick-footer-btn" id="'+st.btnId+'" style="'+(st.sel ? 'display:block' : 'display:none')+'">📋 Cargar</button>';
+  }
+  html += '</div></div>';
+  el.innerHTML = html;
+  if (st.btnId && st.sel) {
+    var btn = document.getElementById(st.btnId);
+    if (btn) btn.style.display = 'block';
+  }
+}
+
+function _cpMes(cid, delta) {
+  var st = _cpState[cid];
+  st.mes += delta;
+  if (st.mes < 0) { st.mes = 11; st.anio--; }
+  if (st.mes > 11) { st.mes = 0; st.anio++; }
+  _cpRender(cid);
+}
+
+function _cpSel(cid, fecha) {
+  var st = _cpState[cid];
+  st.sel = fecha;
+  if (st.inputId) document.getElementById(st.inputId).value = fecha;
+  _cpRender(cid);
+  if (st.onSelect) st.onSelect(fecha);
+}
+
+function _cpFmtFecha(f) {
+  if (!f) return '';
+  var p = f.split('-');
+  var m = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+  return p[2] + ' ' + m[parseInt(p[1])-1] + ' ' + p[0];
+}
 
 </script>
 </body>
