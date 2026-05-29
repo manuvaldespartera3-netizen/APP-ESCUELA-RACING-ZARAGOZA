@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<title>Escuela Racing Club Zaragoza</title>
+<meta name="theme-color" content="#0d2b5e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Racing Zgz">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<link rel="manifest" href="/manifest.json">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+body {
+  min-height:100vh;
+  font-family:"DM Sans",sans-serif;
+  background:#060d1a;
+  color:#f5f5f0;
+  display:flex;
+  flex-direction:column;
+  overflow-x:hidden;
+}
+
+/* ── FONDO ── */
+.bg {
+  position:fixed; inset:0;
+  background:
+    radial-gradient(ellipse at 30% 10%, rgba(26,74,138,.55) 0%, transparent 55%),
+    radial-gradient(ellipse at 75% 85%, rgba(13,43,94,.45) 0%, transparent 50%),
+    #060d1a;
+  z-index:0;
+}
+.bg-grid {
+  position:fixed; inset:0; z-index:0;
+  background-image:
+    repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(74,144,217,.04) 59px, rgba(74,144,217,.04) 60px),
+    repeating-linear-gradient(0deg,  transparent, transparent 59px, rgba(74,144,217,.04) 59px, rgba(74,144,217,.04) 60px);
+}
+
+/* ── PARTÍCULAS ── */
+.particles { position:fixed; inset:0; z-index:0; overflow:hidden; pointer-events:none; }
+.particle {
+  position:absolute;
+  border-radius:50%;
+  background:rgba(74,144,217,.5);
+  animation:subir linear infinite;
+}
+@keyframes subir {
+  0%   { transform:translateY(0) scale(1); opacity:.6; }
+  100% { transform:translateY(-100vh) scale(0); opacity:0; }
+}
+
+/* ── HEADER ── */
+.header {
+  position:relative; z-index:1;
+  display:flex; flex-direction:column; align-items:center;
+  padding:36px 24px 18px;
+}
+
+/* ESCUDO — flotando + resplandor + destello */
+.escudo-wrap {
+  position:relative;
+  width:128px; height:128px;
+  margin-bottom:22px;
+  animation:flotar 4s ease-in-out infinite;
+}
+@keyframes flotar {
+  0%,100% { transform:translateY(0px); }
+  50%      { transform:translateY(-10px); }
+}
+
+.escudo-halo {
+  position:absolute;
+  inset:-18px;
+  border-radius:50%;
+  background:radial-gradient(circle, rgba(74,144,217,.25) 0%, transparent 70%);
+  animation:halo 3s ease-in-out infinite;
+}
+@keyframes halo {
+  0%,100% { transform:scale(1);   opacity:.6; }
+  50%      { transform:scale(1.18); opacity:1; }
+}
+
+.escudo-ring-outer {
+  position:absolute; inset:-10px;
+  border-radius:50%;
+  border:2px solid transparent;
+  background:conic-gradient(from 0deg, #4a90d9 0deg, transparent 120deg, #1a4a8a 240deg, transparent 360deg) border-box;
+  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: destination-out;
+  mask-composite: exclude;
+  animation:girar1 6s linear infinite;
+}
+.escudo-ring-inner {
+  position:absolute; inset:-5px;
+  border-radius:50%;
+  border:1.5px solid transparent;
+  background:conic-gradient(from 180deg, rgba(74,144,217,.6) 0deg, transparent 90deg, rgba(26,74,138,.8) 180deg, transparent 270deg) border-box;
+  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: destination-out;
+  mask-composite: exclude;
+  animation:girar2 4s linear infinite reverse;
+}
+@keyframes girar1 { to { transform:rotate(360deg); } }
+@keyframes girar2 { to { transform:rotate(360deg); } }
+
+.destello {
+  position:absolute;
+  width:5px; height:5px;
+  border-radius:50%;
+  background:#fff;
+  animation:destello 3s ease-in-out infinite;
+}
+.destello:nth-child(1) { top:10%; left:15%; animation-delay:0s; }
+.destello:nth-child(2) { top:20%; right:10%; animation-delay:.8s; }
+.destello:nth-child(3) { bottom:15%; left:10%; animation-delay:1.6s; }
+.destello:nth-child(4) { bottom:10%; right:20%; animation-delay:2.4s; }
+@keyframes destello {
+  0%,100% { opacity:0; transform:scale(0); }
+  50%      { opacity:1; transform:scale(1); box-shadow:0 0 6px 2px rgba(255,255,255,.6); }
+}
+
+.escudo-img {
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  object-fit:contain;
+  border-radius:50%;
+  z-index:2;
+  filter:drop-shadow(0 0 14px rgba(74,144,217,.4));
+}
+
+/* ── NOMBRE ── */
+.club-nombre { text-align:center; margin-bottom:8px; }
+.club-escuela {
+  display:block;
+  font-family:"Bebas Neue",sans-serif;
+  font-size:38px;
+  letter-spacing:5px;
+  color:#ffffff;
+  line-height:1;
+  text-shadow:0 0 26px rgba(74,144,217,.5), 0 2px 4px rgba(0,0,0,.5);
+}
+.club-racing {
+  display:block;
+  font-family:"Bebas Neue",sans-serif;
+  font-size:24px;
+  letter-spacing:7px;
+  background:linear-gradient(90deg, #4a90d9, #7ab5e8, #4a90d9);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  line-height:1.3;
+}
+.club-zaragoza {
+  display:block;
+  font-family:"Bebas Neue",sans-serif;
+  font-size:18px;
+  letter-spacing:8px;
+  color:rgba(122,181,232,.6);
+  line-height:1.4;
+}
+
+.temporada {
+  display:inline-flex; align-items:center; gap:8px;
+  margin-top:10px; padding:5px 14px;
+  border:1px solid rgba(74,144,217,.3);
+  border-radius:20px;
+  background:rgba(74,144,217,.07);
+  font-size:10px; color:#4a90d9;
+  letter-spacing:2px; text-transform:uppercase;
+}
+.temporada::before,.temporada::after {
+  content:""; width:14px; height:1px;
+  background:rgba(74,144,217,.4);
+}
+
+/* ── LOGIN BOX ── */
+.login-wrap {
+  position:relative; z-index:1;
+  padding:0 20px 24px;
+  max-width:420px; width:100%; margin:0 auto;
+}
+.login-box {
+  background:linear-gradient(135deg, rgba(20,30,55,.7), rgba(13,21,40,.85));
+  border:1px solid rgba(74,144,217,.25);
+  border-radius:18px;
+  padding:26px 22px;
+  backdrop-filter:blur(8px);
+  box-shadow:0 12px 40px rgba(0,0,0,.4);
+}
+.login-titulo {
+  font-family:"Bebas Neue",sans-serif;
+  font-size:24px;
+  letter-spacing:3px;
+  color:#fff;
+  text-align:center;
+  margin-bottom:4px;
+}
+.login-sub {
+  font-size:11px;
+  color:#888;
+  text-align:center;
+  margin-bottom:22px;
+  text-transform:uppercase;
+  letter-spacing:1.5px;
+}
+.campo { margin-bottom:14px; }
+.campo label {
+  display:block;
+  font-size:10px;
+  color:#888;
+  margin-bottom:6px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  font-weight:600;
+}
+.campo input {
+  width:100%;
+  padding:13px 14px;
+  background:rgba(6,13,26,.6);
+  border:1px solid rgba(74,144,217,.18);
+  border-radius:10px;
+  color:#fff;
+  font-size:15px;
+  font-family:"DM Sans",sans-serif;
+  transition:border .15s;
+}
+.campo input:focus {
+  outline:none;
+  border-color:#4a90d9;
+  background:rgba(6,13,26,.85);
+}
+.btn-entrar {
+  width:100%;
+  padding:14px;
+  background:linear-gradient(135deg, #1a4a8a, #2d6ec0);
+  color:#fff;
+  border:none;
+  border-radius:10px;
+  font-size:15px;
+  font-weight:700;
+  cursor:pointer;
+  font-family:"DM Sans",sans-serif;
+  margin-top:6px;
+  letter-spacing:.5px;
+  box-shadow:0 4px 16px rgba(74,144,217,.3);
+  transition:transform .1s;
+}
+.btn-entrar:active { transform:scale(.98); }
+.btn-entrar:disabled { opacity:.6; cursor:not-allowed; }
+.msg-error {
+  color:#e03c3c;
+  font-size:12px;
+  margin-top:10px;
+  text-align:center;
+  display:none;
+  padding:8px 10px;
+  background:rgba(224,60,60,.08);
+  border:1px solid rgba(224,60,60,.2);
+  border-radius:8px;
+}
+.recovery {
+  text-align:center;
+  margin-top:14px;
+}
+.recovery a {
+  font-size:12px;
+  color:#4a90d9;
+  text-decoration:none;
+}
+.recovery-ok {
+  display:none;
+  text-align:center;
+  margin-top:10px;
+  font-size:12px;
+  color:#25a352;
+  padding:8px;
+  background:rgba(37,163,82,.08);
+  border:1px solid rgba(37,163,82,.2);
+  border-radius:8px;
+}
+
+/* ── FOOTER ── */
+.footer {
+  position:relative; z-index:1;
+  text-align:center; padding:18px 24px 28px; margin-top:auto;
+}
+.footer-text { font-size:10px; color:#333; letter-spacing:2px; text-transform:uppercase; }
+
+/* ── INSTALL BANNERS (preservados) ── */
+#iosBanner {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: #1a1a2e;
+  border-top: 1px solid rgba(74,144,217,.3);
+  border-radius: 20px 20px 0 0;
+  padding: 20px 20px 36px;
+  z-index: 9999;
+  box-shadow: 0 -8px 40px rgba(0,0,0,.6);
+  animation: slideUp .35s ease;
+}
+@keyframes slideUp {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+#iosBanner.visible { display: block; }
+.ios-banner-header {
+  display: flex; align-items: center; gap: 12px; margin-bottom: 16px;
+}
+.ios-banner-logo {
+  width: 52px; height: 52px; border-radius: 12px; object-fit: cover;
+  border: 1px solid rgba(74,144,217,.3);
+}
+.ios-banner-titulo { font-family: 'Bebas Neue', sans-serif; font-size: 20px; color: #f5f5f0; letter-spacing: 1px; }
+.ios-banner-sub { font-size: 12px; color: #888; margin-top: 2px; }
+.ios-banner-close {
+  margin-left: auto; background: none; border: none; color: #555;
+  font-size: 22px; cursor: pointer; padding: 4px 8px; line-height: 1;
+}
+.ios-pasos { display: flex; flex-direction: column; gap: 12px; margin-bottom: 4px; }
+.ios-paso {
+  display: flex; align-items: center; gap: 12px;
+  background: rgba(74,144,217,.07); border: 1px solid rgba(74,144,217,.15);
+  border-radius: 12px; padding: 12px 14px;
+}
+.ios-paso-num {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: #1a4a8a; color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 700; flex-shrink: 0;
+}
+.ios-paso-texto { font-size: 13px; color: #d0d0c8; line-height: 1.4; }
+.ios-paso-ico { font-size: 20px; flex-shrink: 0; }
+
+#androidBanner {
+  display: none;
+  position: fixed;
+  bottom: 20px; left: 16px; right: 16px;
+  background: linear-gradient(135deg, #1a4a8a, #0d2b5e);
+  border: 1px solid rgba(74,144,217,.35);
+  border-radius: 14px;
+  padding: 16px 18px;
+  z-index: 9999;
+  box-shadow: 0 8px 32px rgba(0,0,0,.5);
+  align-items: center;
+  gap: 14px;
+  animation: slideUp .35s ease;
+}
+#androidBanner.visible { display: flex; }
+.android-banner-texto { flex: 1; }
+.android-banner-titulo { font-size: 14px; font-weight: 600; color: #f5f5f0; margin-bottom: 2px; }
+.android-banner-sub { font-size: 12px; color: rgba(255,255,255,.6); }
+.android-instalar {
+  padding: 10px 18px; background: #4a90d9; color: #fff;
+  border: none; border-radius: 10px; font-size: 13px; font-weight: 700;
+  cursor: pointer; font-family: 'DM Sans', sans-serif; white-space: nowrap;
+}
+.android-close {
+  background: none; border: none; color: rgba(255,255,255,.4);
+  font-size: 20px; cursor: pointer; padding: 2px 6px;
+}
+</style>
+</head>
+<body>
+
+<div class="bg"></div>
+<div class="bg-grid"></div>
+<div class="particles" id="particles"></div>
+
+<div class="header">
+  <div class="escudo-wrap">
+    <div class="escudo-halo"></div>
+    <div class="escudo-ring-outer"></div>
+    <div class="escudo-ring-inner"></div>
+    <div class="destello"></div>
+    <div class="destello"></div>
+    <div class="destello"></div>
+    <div class="destello"></div>
+    <img src="/icons/icon-192.png" alt="Escuela Racing Club Zaragoza" class="escudo-img">
+  </div>
+
+  <div class="club-nombre">
+    <span class="club-escuela">Escuela</span>
+    <span class="club-racing">Racing Club</span>
+    <span class="club-zaragoza">Zaragoza</span>
+  </div>
+  <div class="temporada">2ª Temporada · 2025 · 2026</div>
+</div>
+
+<div class="login-wrap">
+  <div class="login-box">
+    <div class="login-titulo">Acceso</div>
+    <div class="login-sub">Identifícate con tu email</div>
+
+    <div class="campo">
+      <label>Email</label>
+      <input type="email" id="inputEmail" placeholder="tu@email.com" autocomplete="email" inputmode="email">
+    </div>
+    <div class="campo">
+      <label>Contraseña</label>
+      <input type="password" id="inputPass" placeholder="••••••••" autocomplete="current-password">
+    </div>
+
+    <button class="btn-entrar" id="btnEntrar">
+      <span id="btnEntrarText">Entrar</span>
+    </button>
+
+    <div class="msg-error" id="msgError"></div>
+    <div class="recovery"><a href="#" id="linkRecuperar">¿Olvidaste tu contraseña?</a></div>
+    <div class="recovery-ok" id="msgRecuperar">✅ Email de recuperación enviado.</div>
+  </div>
+</div>
+
+<div class="footer">
+  <div class="footer-text">Racing Club Zaragoza · Escuela de Fútbol</div>
+</div>
+
+<!-- ANDROID INSTALL BANNER -->
+<div id="androidBanner">
+  <img src="/icons/icon-192.png" style="width:44px;height:44px;border-radius:10px;flex-shrink:0;">
+  <div class="android-banner-texto">
+    <div class="android-banner-titulo">Instalar Racing Zaragoza</div>
+    <div class="android-banner-sub">Añadir a la pantalla de inicio</div>
+  </div>
+  <button class="android-instalar" id="btnInstalarAndroid">Instalar</button>
+  <button class="android-close" id="btnCerrarAndroid">✕</button>
+</div>
+
+<!-- iOS INSTALL BANNER -->
+<div id="iosBanner">
+  <div class="ios-banner-header">
+    <img class="ios-banner-logo" src="/icons/icon-192.png" alt="Racing Club Zaragoza">
+    <div>
+      <div class="ios-banner-titulo">Instalar la app</div>
+      <div class="ios-banner-sub">Racing Club Zaragoza · Escuela</div>
+    </div>
+    <button class="ios-banner-close" id="btnCerrarIos">✕</button>
+  </div>
+  <div class="ios-pasos">
+    <div class="ios-paso">
+      <div class="ios-paso-num">1</div>
+      <div class="ios-paso-texto">Pulsa el botón <strong style="color:#4a90d9">Compartir</strong> en la barra inferior de Safari</div>
+      <div class="ios-paso-ico">⬆️</div>
+    </div>
+    <div class="ios-paso">
+      <div class="ios-paso-num">2</div>
+      <div class="ios-paso-texto">Desplázate y pulsa <strong style="color:#4a90d9">"Añadir a pantalla de inicio"</strong></div>
+      <div class="ios-paso-ico">➕</div>
+    </div>
+    <div class="ios-paso">
+      <div class="ios-paso-num">3</div>
+      <div class="ios-paso-texto">Pulsa <strong style="color:#4a90d9">"Añadir"</strong> y la app aparecerá en tu pantalla</div>
+      <div class="ios-paso-ico">✅</div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════════
+     LÓGICA: LOGIN + DETECCIÓN DE ROL
+     ════════════════════════════════════════ -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-auth.js";
+import { getFirestore, collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.14.0/firebase-firestore.js";
+
+const firebaseApp = initializeApp({
+  apiKey: "AIzaSyAKHHJ-7fT-KS0F0CTvtVgssxCQcAhBIs8",
+  authDomain: "escuela-racing-zaragoza.firebaseapp.com",
+  projectId: "escuela-racing-zaragoza",
+  storageBucket: "escuela-racing-zaragoza.firebasestorage.app",
+  messagingSenderId: "862620560075",
+  appId: "1:862620560075:web:51c178f8893bbd5fb1494e"
+});
+const auth = getAuth(firebaseApp);
+const db = getFirestore(firebaseApp);
+
+// ✅ EDITA AQUÍ LOS EMAILS DE ADMINISTRADORES (en minúscula)
+const ADMIN_EMAILS = ["manuvaldespartera3@gmail.com"];
+
+// ── DETECCIÓN DE ROL ──
+async function detectarRol(email) {
+  email = email.toLowerCase();
+
+  // 1) Admin
+  if (ADMIN_EMAILS.indexOf(email) !== -1) return "admin";
+
+  // 2) Entrenador
+  try {
+    var snapE = await getDocs(query(collection(db, "entrenadores"), where("email", "==", email)));
+    if (!snapE.empty) return "coach";
+  } catch(e) { console.warn("Error consultando entrenadores:", e); }
+
+  // 3) Familia (padre o madre, al menos un hijo no de baja)
+  try {
+    var snapP = await getDocs(query(collection(db, "alumnos"), where("padreEmail", "==", email)));
+    var tieneHijoActivo = false;
+    snapP.forEach(function(d) { if (d.data().estado !== "baja") tieneHijoActivo = true; });
+    if (tieneHijoActivo) return "family";
+
+    var snapM = await getDocs(query(collection(db, "alumnos"), where("madreEmail", "==", email)));
+    snapM.forEach(function(d) { if (d.data().estado !== "baja") tieneHijoActivo = true; });
+    if (tieneHijoActivo) return "family";
+  } catch(e) { console.warn("Error consultando alumnos:", e); }
+
+  return null;
+}
+
+function redirigir(rol) {
+  var destino = rol === "admin" ? "admin.html"
+              : rol === "coach" ? "coach.html"
+              :                   "family.html";
+  window.location.replace(destino);
+}
+
+function mostrarError(msg) {
+  var err = document.getElementById("msgError");
+  err.style.display = "block";
+  err.textContent = msg;
+  document.getElementById("msgRecuperar").style.display = "none";
+}
+
+function setBoton(texto, deshabilitado) {
+  document.getElementById("btnEntrarText").textContent = texto;
+  document.getElementById("btnEntrar").disabled = !!deshabilitado;
+}
+
+// ── Si ya está logueado (sesión persistente), redirigir directamente ──
+onAuthStateChanged(auth, async function(u) {
+  if (!u) return;
+  setBoton("Identificando...", true);
+  var rol = await detectarRol(u.email);
+  if (rol) {
+    redirigir(rol);
+  } else {
+    // Email logueado pero sin permisos en ninguna parte → cerrar sesión
+    await signOut(auth);
+    setBoton("Entrar", false);
+    mostrarError("Tu email no está autorizado. Contacta con el club.");
+  }
+});
+
+// ── Login manual ──
+document.getElementById("btnEntrar").addEventListener("click", async function() {
+  var email = document.getElementById("inputEmail").value.trim();
+  var pass = document.getElementById("inputPass").value;
+  document.getElementById("msgError").style.display = "none";
+  document.getElementById("msgRecuperar").style.display = "none";
+
+  if (!email || !pass) { mostrarError("Completa email y contraseña"); return; }
+
+  setBoton("Entrando...", true);
+  try {
+    await signInWithEmailAndPassword(auth, email, pass);
+    // onAuthStateChanged se encarga del redirect
+  } catch(e) {
+    setBoton("Entrar", false);
+    var code = e && e.code ? e.code : "";
+    if (code === "auth/invalid-email") mostrarError("Email no válido");
+    else if (code === "auth/user-disabled") mostrarError("Cuenta deshabilitada");
+    else if (code === "auth/too-many-requests") mostrarError("Demasiados intentos. Espera unos minutos.");
+    else mostrarError("Email o contraseña incorrectos");
+  }
+});
+
+document.getElementById("inputPass").addEventListener("keydown", function(e) {
+  if (e.key === "Enter") document.getElementById("btnEntrar").click();
+});
+document.getElementById("inputEmail").addEventListener("keydown", function(e) {
+  if (e.key === "Enter") document.getElementById("inputPass").focus();
+});
+
+// ── Recuperar contraseña ──
+document.getElementById("linkRecuperar").addEventListener("click", function(e) {
+  e.preventDefault();
+  var email = document.getElementById("inputEmail").value.trim();
+  if (!email) { mostrarError("Escribe tu email primero"); return; }
+  sendPasswordResetEmail(auth, email)
+    .then(function() {
+      document.getElementById("msgError").style.display = "none";
+      document.getElementById("msgRecuperar").style.display = "block";
+    })
+    .catch(function() { mostrarError("No se encontró ese email"); });
+});
+</script>
+
+<!-- ════════════════════════════════════════
+     PWA + PARTÍCULAS + INSTALL BANNERS
+     ════════════════════════════════════════ -->
+<script>
+// Partículas flotantes
+(function() {
+  var container = document.getElementById('particles');
+  for (var i = 0; i < 18; i++) {
+    var p = document.createElement('div');
+    p.className = 'particle';
+    var size = Math.random() * 4 + 2;
+    p.style.cssText = [
+      'width:' + size + 'px',
+      'height:' + size + 'px',
+      'left:' + Math.random() * 100 + '%',
+      'bottom:' + Math.random() * 100 + '%',
+      'animation-duration:' + (Math.random() * 12 + 8) + 's',
+      'animation-delay:' + Math.random() * 8 + 's',
+      'opacity:' + (Math.random() * 0.4 + 0.1)
+    ].join(';');
+    container.appendChild(p);
+  }
+})();
+
+// Service Worker
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(function(reg) { reg.update(); })
+      .catch(function(e) { console.log('SW:', e); });
+  });
+}
+
+// Install banners
+(function() {
+  var isIos = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  var isStandalone = window.matchMedia('(display-mode: standalone)').matches
+    || window.navigator.standalone === true;
+  if (isStandalone) return;
+
+  var KEY = 'install_dismissed';
+  var dismissed = localStorage.getItem(KEY);
+  if (dismissed && (Date.now() - parseInt(dismissed)) < 7 * 24 * 3600 * 1000) return;
+
+  function dismiss() { localStorage.setItem(KEY, Date.now().toString()); }
+
+  if (isIos) {
+    setTimeout(function() { document.getElementById('iosBanner').classList.add('visible'); }, 2500);
+    document.getElementById('btnCerrarIos').addEventListener('click', function() {
+      document.getElementById('iosBanner').classList.remove('visible');
+      dismiss();
+    });
+    return;
+  }
+
+  var deferredPrompt = null;
+  window.addEventListener('beforeinstallprompt', function(e) {
+    e.preventDefault();
+    deferredPrompt = e;
+    setTimeout(function() { document.getElementById('androidBanner').classList.add('visible'); }, 2500);
+  });
+
+  document.getElementById('btnInstalarAndroid').addEventListener('click', function() {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(function() {
+      document.getElementById('androidBanner').classList.remove('visible');
+      deferredPrompt = null;
+      dismiss();
+    });
+  });
+  document.getElementById('btnCerrarAndroid').addEventListener('click', function() {
+    document.getElementById('androidBanner').classList.remove('visible');
+    dismiss();
+  });
+
+  window.addEventListener('appinstalled', function() {
+    document.getElementById('androidBanner').classList.remove('visible');
+    deferredPrompt = null;
+  });
+})();
+</script>
+
+</body>
+</html>
