@@ -346,6 +346,34 @@ body{background:var(--n);color:var(--t);font-family:"DM Sans",sans-serif;min-hei
 .eq-check::before { content:""; width:14px; height:14px; border:1.5px solid var(--b); border-radius:3px; flex-shrink:0; transition:all .12s; }
 .eq-check.activo::before { background:#fff; border-color:#fff; content:"✓"; color:var(--ad); font-weight:bold; font-size:11px; text-align:center; line-height:11px; }
 
+
+/* ── RESPONSIVE ADMIN ── */
+@media (max-width: 420px) {
+  .tabs { font-size:11px; }
+  .tab { padding:10px 8px; font-size:11px; }
+  .form-grid { grid-template-columns:1fr; }
+  .form-campo.ancho { grid-column:1; }
+  .acceso-grid { grid-template-columns:repeat(3,1fr); }
+  .sec-titulo { font-size:24px; }
+  .modal { padding:16px 14px; }
+  .overlay .modal { max-height:92vh; overflow-y:auto; }
+  .cal-mes-grid { grid-template-columns:repeat(7, minmax(0,1fr)); }
+  .cal-mes-dia { padding:3px 1px; min-height:40px; }
+  .cal-mes-dia-num { font-size:12px; }
+  .cal-mes-dia-evt { font-size:8px; padding:1px 2px; }
+  .cal-mes-cab { font-size:9px; }
+  .dias-semana-selector { gap:4px; }
+  .dia-sem-btn { padding:10px 2px; font-size:12px; }
+  .eq-selector-wrap select { font-size:14px; padding:10px 12px; }
+  .jugador-card { flex-wrap:wrap; }
+  .jugador-acciones { width:100%; justify-content:flex-end; margin-top:6px; }
+}
+@media (max-width: 340px) {
+  .acceso-grid { grid-template-columns:repeat(2,1fr); }
+  .cal-mes-dia { min-height:34px; }
+  .tab { padding:9px 6px; font-size:10px; }
+}
+
 </style>
 </head>
 <body>
@@ -393,10 +421,6 @@ body{background:var(--n);color:var(--t);font-family:"DM Sans",sans-serif;min-hei
     <!-- INICIO -->
     <div class="sec activo" id="sec-inicio">
       <div class="sec-titulo">Panel de control</div>
-      <div class="stats-grid">
-        <div class="stat-card"><div class="stat-num" id="statJug">-</div><div class="stat-lbl">Jugadores activos</div></div>
-        <div class="stat-card"><div class="stat-num" id="statEnt">-</div><div class="stat-lbl">Entrenadores</div></div>
-      </div>
       <div class="acceso-grid">
         <button class="acceso-btn" id="acIniJug"><span class="acceso-ico">⚽</span><span class="acceso-lbl">Jugadores</span></button>
         <button class="acceso-btn" id="acIniEnt"><span class="acceso-ico">👨‍🏫</span><span class="acceso-lbl">Entrenadores</span></button>
@@ -404,9 +428,15 @@ body{background:var(--n);color:var(--t);font-family:"DM Sans",sans-serif;min-hei
         <button class="acceso-btn" id="acIniCal"><span class="acceso-ico">📅</span><span class="acceso-lbl">Calendario</span></button>
         <button class="acceso-btn" id="acIniAvi"><span class="acceso-ico">🔔</span><span class="acceso-lbl">Avisos</span></button>
         <button class="acceso-btn" id="acIniExp"><span class="acceso-ico">📊</span><span class="acceso-lbl">Exportar</span></button>
+        <button class="acceso-btn" id="acIniCuotas" style="grid-column:1/-1;background:linear-gradient(135deg,rgba(240,180,41,.12),rgba(180,130,30,.2));border-color:rgba(240,180,41,.35);"><span class="acceso-ico">💰</span><span class="acceso-lbl">Cuotas pendientes</span></button>
       </div>
-      <div class="sec-titulo" style="font-size:18px">Jugadores activos</div>
-      <div id="inicioJugadores"><div class="cargando">Cargando...</div></div>
+
+      <!-- Panel cuotas pendientes (colapsable) -->
+      <div id="panelCuotas" style="display:none;margin-top:10px;"></div>
+
+      <!-- Próximos partidos y eventos (no entrenamientos) -->
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--bl);letter-spacing:.5px;margin:16px 0 10px;">📅 Próximos partidos y eventos</div>
+      <div id="inicioProxEventos"><div class="cargando">Cargando...</div></div>
     </div>
 
     <!-- JUGADORES -->
@@ -540,6 +570,10 @@ body{background:var(--n);color:var(--t);font-family:"DM Sans",sans-serif;min-hei
     <!-- ASISTENCIA -->
     <div class="sec" id="sec-asistencia">
       <div class="sec-titulo">Asistencia</div>
+      <div class="eq-selector-wrap" style="margin-bottom:10px;">
+        <label>Equipo</label>
+        <select id="asiEquipoSelect"></select>
+      </div>
       <div style="font-size:12px;color:#666;margin-bottom:10px;">Toca el día para marcar la asistencia</div>
       <div id="diasRapidosAdmin" class="dias-rapidos-grid-admin"><div class="cargando">Cargando días...</div></div>
       <div style="text-align:center;margin:8px 0 14px;">
@@ -558,11 +592,33 @@ body{background:var(--n);color:var(--t);font-family:"DM Sans",sans-serif;min-hei
 
     <!-- NOTAS -->
     <div class="sec" id="sec-notas">
-      <div class="sec-titulo">Notas e incidencias</div>
-      <div class="form-card">
+      <div class="sec-titulo">📝 Notas del Mister</div>
+
+      <!-- Filtros para VER notas (equipo + categoría) -->
+      <div style="background:rgba(74,144,217,.06);border:1px solid rgba(74,144,217,.2);border-radius:12px;padding:12px 14px;margin-bottom:14px;">
+        <div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.8px;font-weight:600;margin-bottom:8px;">Filtrar notas por:</div>
+        <div class="eq-selector-wrap" style="margin-bottom:8px;">
+          <label>Equipo</label>
+          <select id="notaFiltroEquipo"></select>
+        </div>
+        <div style="font-size:11px;color:#888;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;font-weight:600;">Tipo de nota:</div>
+        <div class="filtros" style="flex-wrap:wrap;">
+          <button class="filtro-btn" data-fn="nota">📝 Notas</button>
+          <button class="filtro-btn" data-fn="incidencia">⚠️ Incidencias</button>
+          <button class="filtro-btn" data-fn="progreso">📈 Progreso</button>
+          <button class="filtro-btn" data-fn="medico">🏥 Médico</button>
+          <button class="filtro-btn" data-fn="todas">📋 Todas</button>
+        </div>
+        <div id="listaNotas" style="margin-top:12px;"><div style="font-size:12px;color:#666;text-align:center;padding:16px;font-style:italic;">Selecciona equipo y tipo de nota para ver los registros.</div></div>
+      </div>
+
+      <!-- Nueva nota -->
+      <button class="collap-btn" data-target="formNuevaNota"><span>➕</span><span>Añadir nota a un jugador</span><span class="arrow">▶</span></button>
+      <div class="form-card collap-content" id="formNuevaNota">
         <div class="form-titulo">➕ Nueva nota</div>
         <div class="form-grid">
-          <div class="form-campo"><label>Jugador *</label><select id="notaJugador"><option value="">Seleccionar...</option></select></div>
+          <div class="form-campo"><label>Equipo</label><select id="notaEquipo"></select></div>
+          <div class="form-campo"><label>Jugador *</label><select id="notaJugador"><option value="">Seleccionar jugador...</option></select></div>
           <div class="form-campo"><label>Tipo</label>
             <select id="notaTipo">
               <option value="nota">📝 Nota general</option>
@@ -571,19 +627,11 @@ body{background:var(--n);color:var(--t);font-family:"DM Sans",sans-serif;min-hei
               <option value="medico">🏥 Médico</option>
             </select>
           </div>
-          <div class="form-campo ancho"><label>Fecha de la nota</label><input type="date" id="notaFecha"></div>
+          <div class="form-campo"><label>Fecha</label><input type="date" id="notaFecha"></div>
           <div class="form-campo ancho"><label>Descripción *</label><textarea id="notaTexto" placeholder="Escribe la nota..."></textarea></div>
         </div>
         <button class="btn-guardar" id="btnGuardarNota">💾 Guardar nota</button>
       </div>
-      <div class="filtros">
-        <button class="filtro-btn activo" data-fn="todas">Todas</button>
-        <button class="filtro-btn" data-fn="nota">📝 Notas</button>
-        <button class="filtro-btn" data-fn="incidencia">⚠️ Incidencias</button>
-        <button class="filtro-btn" data-fn="progreso">📈 Progresos</button>
-        <button class="filtro-btn" data-fn="medico">🏥 Médico</button>
-      </div>
-      <div id="listaNotas"><div class="cargando">Cargando...</div></div>
     </div>
 
     <!-- CALENDARIO -->
@@ -677,6 +725,7 @@ body{background:var(--n);color:var(--t);font-family:"DM Sans",sans-serif;min-hei
           <button class="cal-btn-hoy" id="btnHoyCal">📍 Hoy</button>
           <button class="cal-nav-btn" id="calSig">›</button>
         </div>
+        <div style="font-size:11px;color:#888;text-align:center;padding:6px 0;font-style:italic;">Toca cualquier día para ver o crear eventos</div>
         <div class="cal-grid" id="calCab"></div>
         <div class="cal-grid" id="calDias"></div>
       </div>
@@ -684,8 +733,13 @@ body{background:var(--n);color:var(--t);font-family:"DM Sans",sans-serif;min-hei
 
     <!-- AVISOS -->
     <div class="sec" id="sec-avisos">
-      <div class="sec-titulo">Avisos</div>
-      <div class="hub-acciones"><button class="hub-btn" onclick="irA('push')">🔔 Notificaciones push</button></div>
+      <div class="sec-titulo">Avisos y notificaciones</div>
+      <div style="font-size:13px;color:#888;margin-bottom:14px;line-height:1.5;">Gestiona dos tipos de comunicación con las familias y entrenadores.</div>
+
+      <!-- BLOQUE 1: AVISOS AL DASHBOARD -->
+      <div style="background:linear-gradient(135deg,rgba(74,144,217,.06),rgba(13,43,94,.1));border:1px solid rgba(74,144,217,.2);border-radius:12px;padding:14px;margin-bottom:14px;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--bl);letter-spacing:.5px;margin-bottom:4px;">📌 Avisos al dashboard</div>
+        <div style="font-size:11px;color:#888;margin-bottom:14px;">Aparecen en el panel de la familia. Los urgentes parpadean en rojo. Puedes dirigirlos a un equipo completo o a todas las familias.</div>
       <div class="form-card">
         <div class="form-titulo">➕ Nuevo aviso</div>
         <div class="form-grid">
@@ -704,11 +758,20 @@ body{background:var(--n);color:var(--t);font-family:"DM Sans",sans-serif;min-hei
         <button class="btn-guardar" id="btnGuardarAviso">💾 Publicar aviso</button>
       </div>
       <div id="listaAvisos"><div class="cargando">Cargando...</div></div>
+      </div>
+
+      <!-- BLOQUE 2: NOTIFICACIONES PUSH -->
+      <div style="background:linear-gradient(135deg,rgba(240,180,41,.06),rgba(180,130,30,.1));border:1px solid rgba(240,180,41,.25);border-radius:12px;padding:14px;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--am);letter-spacing:.5px;margin-bottom:4px;">🔔 Notificaciones PUSH</div>
+        <div style="font-size:11px;color:#888;margin-bottom:14px;">Aparecen como una notificación flotante en el móvil (como WhatsApp). Las recibirán aunque la app esté cerrada. Envía a grupos o familias concretas.</div>
+        <div id="seccionPush"><div class="cargando">Cargando...</div></div>
+      </div>
     </div>
 
     <!-- MULTIMEDIA -->
     <div class="sec" id="sec-multimedia">
       <div class="sec-titulo">Multimedia</div>
+      <div class="eq-selector-wrap" style="margin-bottom:12px;"><label>Equipo</label><select id="multimediaEquipoSelect"><option value="">Todos los equipos</option></select></div>
       <div class="form-card">
         <div class="form-titulo">➕ Nuevo evento multimedia</div>
         <div class="form-grid">
@@ -729,6 +792,7 @@ body{background:var(--n);color:var(--t);font-family:"DM Sans",sans-serif;min-hei
     <!-- FINANZAS -->
     <div class="sec" id="sec-finanzas">
       <div class="sec-titulo">Finanzas</div>
+      <div class="eq-selector-wrap" style="margin-bottom:12px;"><label>Equipo</label><select id="finanzasEquipoSelect"></select></div>
       <div class="fin-res" id="finResumen">
         <div class="fin-res-card"><div class="fin-num ing" id="finTotalIng">0€</div><div class="fin-lbl">Ingresos</div></div>
         <div class="fin-res-card"><div class="fin-num gas" id="finTotalGas">0€</div><div class="fin-lbl">Gastos</div></div>
@@ -774,6 +838,24 @@ body{background:var(--n);color:var(--t);font-family:"DM Sans",sans-serif;min-hei
     <!-- DECÁLOGO -->
     <div class="sec" id="sec-decalogo">
       <div class="sec-titulo">📋 Normativa</div>
+      <div style="font-size:13px;color:#888;margin-bottom:14px;line-height:1.5;">Gestiona dos zonas distintas: la imagen de bienvenida que ven las familias al hacer login, y la normativa real del club que aparece en su pestaña 📋 Normativa.</div>
+
+      <!-- ZONA 1: BIENVENIDA/PUBLICIDAD AL LOGIN -->
+      <div style="background:linear-gradient(135deg,rgba(37,163,82,.06),rgba(29,138,69,.1));border:1px solid rgba(37,163,82,.25);border-radius:12px;padding:14px;margin-bottom:14px;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--v);letter-spacing:.5px;margin-bottom:4px;">🖼️ Imagen de bienvenida (login)</div>
+        <div style="font-size:11px;color:#888;margin-bottom:12px;">Esta imagen aparece a las familias cuando acceden a la app. Súbela con información del club, próximos eventos o publicidad. Al tocarla se amplía.</div>
+        <div id="vistaImagenBienvenida" style="margin-bottom:10px;"></div>
+        <input type="file" id="inputImagenBienvenida" accept="image/*" style="display:none;">
+        <div style="display:flex;gap:8px;">
+          <button id="btnSubirBienvenida" style="flex:1;padding:11px;background:linear-gradient(135deg,var(--v),#1d8a45);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">📤 Subir nueva imagen</button>
+          <button id="btnBorrarBienvenida" style="padding:11px 14px;background:rgba(224,60,60,.1);border:1px solid rgba(224,60,60,.3);color:var(--r);border-radius:8px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;">🗑️</button>
+        </div>
+      </div>
+
+      <!-- ZONA 2: NORMATIVA REAL -->
+      <div style="background:rgba(74,144,217,.04);border:1px solid rgba(74,144,217,.2);border-radius:12px;padding:14px;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:17px;color:var(--ac);letter-spacing:.5px;margin-bottom:4px;">📋 Normativa del club</div>
+        <div style="font-size:11px;color:#888;margin-bottom:12px;">Aparece en la pestaña 📋 Normativa de las familias. Documenta las reglas, horarios y valores del club.</div>
       <div class="hub-acciones"><button class="hub-btn" onclick="irA('normativa-admin')">📝 Texto</button><button class="hub-btn" onclick="irA('infografias')">🖼️ Infografías</button></div>
       <div class="sec-titulo" style="font-size:16px;margin-top:6px;">Banners</div>
       <div style="font-size:13px;color:#666;margin-bottom:16px">Crea y gestiona banners. El activo aparece al entrar en la app. Los anteriores quedan guardados.</div>
@@ -3501,9 +3583,11 @@ async function cargarScoutingAdmin() {
     scoutingTodas = [];
     snap.forEach(function(d) { scoutingTodas.push(Object.assign({id:d.id}, d.data())); });
     scoutingTodas.sort(function(a, b) {
-      var ta = a.actualizadoEn && a.actualizadoEn.toMillis ? a.actualizadoEn.toMillis() : 0;
-      var tb = b.actualizadoEn && b.actualizadoEn.toMillis ? b.actualizadoEn.toMillis() : 0;
-      return tb - ta;
+      // Primero por año de nacimiento (quintas), luego por nombre
+      var ya = parseInt(a.anioNacimiento) || 9999;
+      var yb = parseInt(b.anioNacimiento) || 9999;
+      if (ya !== yb) return ya - yb;
+      return (a.nombre || "").localeCompare(b.nombre || "");
     });
     // Rellenar filtro de registradores
     var registradores = {};
@@ -3846,8 +3930,621 @@ setTimeout(function() {
   }
 }, 500);
 
+
+
+// ══════════════════════════════════════════════════════
+// PANEL CONTROL — próximos partidos + cuotas pendientes
+// ══════════════════════════════════════════════════════
+async function cargarInicioPanelControl() {
+  // Próximos partidos y otros (no entrenamientos)
+  var el = document.getElementById("inicioProxEventos");
+  if (el) {
+    try {
+      var hoy = new Date(); hoy.setHours(0,0,0,0);
+      var hoyStr = hoy.getFullYear()+"-"+String(hoy.getMonth()+1).padStart(2,"0")+"-"+String(hoy.getDate()).padStart(2,"0");
+      var en14 = new Date(hoy); en14.setDate(en14.getDate() + 14);
+      var en14Str = en14.getFullYear()+"-"+String(en14.getMonth()+1).padStart(2,"0")+"-"+String(en14.getDate()).padStart(2,"0");
+      var snap = await getDocs(query(collection(db, "eventos"), orderBy("fecha"), orderBy("hora")));
+      var proximos = [];
+      snap.forEach(function(d) {
+        var e = Object.assign({id:d.id}, d.data());
+        if (e.tipo === "entrenamiento") return;
+        if (e.fecha >= hoyStr && e.fecha <= en14Str) proximos.push(e);
+      });
+      var MESES_C = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+      var DOWS_C = ["dom","lun","mar","mié","jue","vie","sáb"];
+      if (!proximos.length) {
+        el.innerHTML = '<div style="font-size:12px;color:#666;font-style:italic;padding:10px 0;">No hay partidos ni eventos en los próximos 14 días.</div>';
+      } else {
+        el.innerHTML = proximos.map(function(e) {
+          var fd = e.fecha ? new Date(e.fecha + "T00:00:00") : null;
+          var fechaTxt = fd ? (DOWS_C[fd.getDay()] + " " + fd.getDate() + " " + MESES_C[fd.getMonth()]) : "";
+          var ico = e.tipo === "partido" ? "🏆" : "📌";
+          return '<div style="background:var(--g);border:1px solid var(--b);border-radius:10px;padding:10px 12px;margin-bottom:8px;display:flex;align-items:center;gap:10px;">' +
+            '<div style="font-size:20px;">' + ico + '</div>' +
+            '<div style="flex:1;min-width:0;">' +
+              '<div style="font-weight:600;color:var(--bl);font-size:13px;">' + (e.titulo||"—") + '</div>' +
+              '<div style="font-size:11px;color:#888;">' + fechaTxt + (e.hora ? " · " + e.hora : "") + (e.equipo ? " · " + e.equipo : "") + '</div>' +
+            '</div>' +
+          '</div>';
+        }).join("");
+      }
+    } catch(err) { console.error(err); }
+  }
+}
+
+// Cuotas pendientes
+document.getElementById("acIniCuotas").addEventListener("click", async function() {
+  var panel = document.getElementById("panelCuotas");
+  if (panel.style.display === "block") { panel.style.display = "none"; return; }
+  panel.style.display = "block";
+  panel.innerHTML = '<div class="cargando">Calculando cuotas...</div>';
+  try {
+    var pendientes = [];
+    listaJugadores.forEach(function(j) {
+      if (j.estado === "baja") return;
+      var p1 = j.pago1 !== "pagado", p2 = j.pago2 !== "pagado";
+      if (p1 || p2) pendientes.push(Object.assign({p1:p1, p2:p2}, j));
+    });
+    if (!pendientes.length) {
+      panel.innerHTML = '<div style="text-align:center;padding:20px;color:var(--v);font-size:13px;font-weight:600;">✅ Todas las cuotas están al día</div>';
+      return;
+    }
+    // Agrupar por equipo
+    var porEquipo = {};
+    pendientes.forEach(function(j) {
+      var eq = j.grupo || "Sin asignar";
+      if (!porEquipo[eq]) porEquipo[eq] = [];
+      porEquipo[eq].push(j);
+    });
+    var html = '<div style="background:rgba(240,180,41,.08);border:1px solid rgba(240,180,41,.25);border-radius:10px;padding:12px;margin-bottom:4px;">';
+    html += '<div style="font-size:11px;color:var(--am);font-weight:700;margin-bottom:10px;">' + pendientes.length + ' familia' + (pendientes.length===1?"":"s") + ' con cuotas pendientes</div>';
+    Object.keys(porEquipo).sort().forEach(function(eq) {
+      html += '<div style="font-size:11px;color:#888;text-transform:uppercase;font-weight:600;letter-spacing:.5px;margin:8px 0 4px;">' + eq + ' (' + porEquipo[eq].length + ')</div>';
+      porEquipo[eq].forEach(function(j) {
+        var tags = [];
+        if (j.p1) tags.push('<span style="background:rgba(224,60,60,.15);color:var(--r);padding:2px 6px;border-radius:5px;font-size:9px;font-weight:700;">1T ✗</span>');
+        if (j.p2) tags.push('<span style="background:rgba(224,60,60,.15);color:var(--r);padding:2px 6px;border-radius:5px;font-size:9px;font-weight:700;">2T ✗</span>');
+        html += '<div style="display:flex;align-items:center;gap:8px;padding:5px 0;border-bottom:1px dashed rgba(255,255,255,.06);">' +
+          '<div style="flex:1;font-size:12px;color:var(--bl);">' + j.nombre + ' ' + j.apellidos + '</div>' +
+          tags.join("") + '</div>';
+      });
+    });
+    html += '</div>';
+    panel.innerHTML = html;
+  } catch(e) { panel.innerHTML = '<div style="color:var(--r);font-size:12px;">Error: ' + e.message + '</div>'; }
+});
+
+// ══════════════════════════════════════════════════════
+// ASISTENCIA — equipo + 6 días
+// ══════════════════════════════════════════════════════
+var asiEquipoActual = "";
+
+function rellenarAsiEquipoSelect() {
+  var sel = document.getElementById("asiEquipoSelect");
+  if (!sel || typeof equiposGlobales === "undefined") return;
+  var valActual = sel.value;
+  sel.innerHTML = equiposGlobales.map(function(eq) {
+    return '<option value="' + eq.nombre + '">' + eq.nombre + '</option>';
+  }).join("");
+  if (valActual) sel.value = valActual;
+  else if (equiposGlobales.length) sel.value = equiposGlobales[0].nombre;
+  asiEquipoActual = sel.value;
+}
+
+var _asiEquipoSel = document.getElementById("asiEquipoSelect");
+if (_asiEquipoSel) {
+  _asiEquipoSel.addEventListener("change", function() {
+    asiEquipoActual = this.value;
+    cargarDiasRapidosAdmin();
+  });
+}
+
+// Sobreescribir cargarDiasRapidosAdmin para filtrar por equipo y hacer 6 días
+var _origCargarDiasAdmin = cargarDiasRapidosAdmin;
+cargarDiasRapidosAdmin = async function() {
+  var el = document.getElementById("diasRapidosAdmin");
+  if (!el) return;
+  el.innerHTML = '<div class="cargando">Cargando días...</div>';
+  if (!asiEquipoActual && equiposGlobales && equiposGlobales.length) asiEquipoActual = equiposGlobales[0].nombre;
+
+  var hoyD = new Date(); hoyD.setHours(0,0,0,0);
+  function fmt(d) { return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0"); }
+  var hoyStr = fmt(hoyD);
+  var en2 = new Date(hoyD); en2.setDate(en2.getDate() + 2);
+  var en2Str = fmt(en2);
+  var hace90 = new Date(hoyD); hace90.setDate(hace90.getDate() - 90);
+  var hace90Str = fmt(hace90);
+
+  var eventosDias = [];
+  try {
+    var snap = await getDocs(query(collection(db, "eventos"), orderBy("fecha", "desc")));
+    snap.forEach(function(d) {
+      var e = d.data();
+      if (!e.fecha || e.fecha < hace90Str || e.fecha > en2Str) return;
+      if (asiEquipoActual && e.equipo !== asiEquipoActual && e.equipo !== "Todos") return;
+      eventosDias.push({ fecha: e.fecha, tipo: e.tipo || "entrenamiento" });
+    });
+  } catch(err) { console.error(err); }
+
+  var vistos = {};
+  eventosDias = eventosDias.filter(function(ev) {
+    if (vistos[ev.fecha]) return false; vistos[ev.fecha] = true; return true;
+  });
+
+  // 2 futuros + 4 pasados
+  var futuros = eventosDias.filter(function(e) { return e.fecha >= hoyStr; }).sort(function(a,b) { return a.fecha.localeCompare(b.fecha); });
+  var pasados = eventosDias.filter(function(e) { return e.fecha < hoyStr; }).sort(function(a,b) { return b.fecha.localeCompare(a.fecha); });
+  eventosDias = futuros.slice(0,2).concat(pasados.slice(0,4));
+
+  if (!eventosDias.length) {
+    el.innerHTML = '<div class="vacio">No hay días registrados para este equipo.</div>';
+    return;
+  }
+  var DOWS = ["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
+  var MESES_C = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+  el.innerHTML = "";
+  eventosDias.forEach(function(ev) {
+    var d = new Date(ev.fecha + "T00:00:00");
+    var btn = document.createElement("button");
+    var esHoy = ev.fecha === hoyStr;
+    btn.className = "dia-rapido-admin" + (esHoy ? " hoy" : "") + (ev.tipo === "partido" ? " partido" : "");
+    btn.innerHTML =
+      '<div class="dia-rapido-admin-dow">' + (esHoy ? "HOY · " + DOWS[d.getDay()] : DOWS[d.getDay()]) + '</div>' +
+      '<div class="dia-rapido-admin-num">' + d.getDate() + '</div>' +
+      '<div class="dia-rapido-admin-mes">' + MESES_C[d.getMonth()] + '</div>' +
+      '<div class="dia-rapido-admin-ico">' + (ev.tipo === "partido" ? "🏆" : "⚽") + '</div>';
+    btn.addEventListener("click", (function(f) { return function() { seleccionarDiaAsiAdmin(f); }; })(ev.fecha));
+    el.appendChild(btn);
+  });
+
+  // También filtrar listaAsi por equipo al seleccionar día
+  var _origSelDia = seleccionarDiaAsiAdmin;
+  window._asiEquipoFiltro = asiEquipoActual;
+};
+
+// ══════════════════════════════════════════════════════
+// NOTAS — equipo + jugador + categoría
+// ══════════════════════════════════════════════════════
+function rellenarNotaEquipoSelects() {
+  var selFiltro = document.getElementById("notaFiltroEquipo");
+  var selForm = document.getElementById("notaEquipo");
+  if (!selFiltro || typeof equiposGlobales === "undefined") return;
+  var opts = '<option value="">Todos</option>' + equiposGlobales.map(function(eq) {
+    return '<option value="' + eq.nombre + '">' + eq.nombre + '</option>';
+  }).join("");
+  selFiltro.innerHTML = opts;
+  if (selForm) selForm.innerHTML = '<option value="">Seleccionar equipo...</option>' + equiposGlobales.map(function(eq) {
+    return '<option value="' + eq.nombre + '">' + eq.nombre + '</option>';
+  }).join("");
+}
+
+// Al cambiar equipo en el form de nueva nota, filtrar el select de jugadores
+var _notaEquipoFormSel = document.getElementById("notaEquipo");
+if (_notaEquipoFormSel) {
+  _notaEquipoFormSel.addEventListener("change", function() {
+    var eq = this.value;
+    var selJ = document.getElementById("notaJugador");
+    if (!selJ) return;
+    var jugadoresEq = listaJugadores.filter(function(j) { return j.estado !== "baja" && (!eq || j.grupo === eq); });
+    selJ.innerHTML = '<option value="">Seleccionar jugador...</option>' + jugadoresEq.map(function(j) {
+      return '<option value="' + j.id + '">' + j.nombre + ' ' + j.apellidos + '</option>';
+    }).join("");
+  });
+}
+
+// Filtros de categoría de notas (oculto por defecto, cargar al pulsar)
+document.querySelectorAll('[data-fn]').forEach(function(btn) {
+  btn.addEventListener("click", async function() {
+    document.querySelectorAll('[data-fn]').forEach(function(b) { b.classList.remove("activo"); });
+    btn.classList.add("activo");
+    var tipo = btn.dataset.fn;
+    var equipo = (document.getElementById("notaFiltroEquipo") || {}).value || "";
+    await cargarNotasFiltradas(equipo, tipo);
+  });
+});
+
+var _notaFiltroEqSel = document.getElementById("notaFiltroEquipo");
+if (_notaFiltroEqSel) {
+  _notaFiltroEqSel.addEventListener("change", function() {
+    var activo = document.querySelector('[data-fn].activo');
+    if (activo) activo.click();
+  });
+}
+
+async function cargarNotasFiltradas(equipo, tipo) {
+  var el = document.getElementById("listaNotas");
+  if (!el) return;
+  el.innerHTML = '<div class="cargando">Cargando notas...</div>';
+  try {
+    var jugIds = listaJugadores
+      .filter(function(j) { return j.estado !== "baja" && (!equipo || j.grupo === equipo); })
+      .map(function(j) { return j.id; });
+    if (!jugIds.length) { el.innerHTML = '<div class="vacio">No hay jugadores en este equipo.</div>'; return; }
+    var snap = await getDocs(query(collection(db, "notas"), orderBy("creadoEn", "desc")));
+    var notas = [];
+    snap.forEach(function(d) {
+      var n = Object.assign({id:d.id}, d.data());
+      if (jugIds.indexOf(n.alumnoId) === -1) return;
+      if (tipo !== "todas" && n.tipo !== tipo) return;
+      notas.push(n);
+    });
+    if (!notas.length) { el.innerHTML = '<div class="vacio">No hay notas de este tipo para el equipo.</div>'; return; }
+    var jugMap = {};
+    listaJugadores.forEach(function(j) { jugMap[j.id] = j.nombre + " " + j.apellidos; });
+    var NOTA_ICO = {nota:"📝",incidencia:"⚠️",progreso:"📈",medico:"🏥"};
+    el.innerHTML = notas.map(function(n) {
+      return '<div class="nota-card">' +
+        '<div class="nota-head">' +
+          '<div class="nota-quien"><b>' + (jugMap[n.alumnoId] || "?") + '</b></div>' +
+          '<div style="display:flex;align-items:center;gap:6px;">' +
+            '<span style="font-size:11px;color:#888;">' + (n.fecha||"") + '</span>' +
+            '<span>' + (NOTA_ICO[n.tipo]||"📝") + '</span>' +
+          '</div>' +
+        '</div>' +
+        '<div class="nota-texto">' + (n.texto||"") + '</div>' +
+      '</div>';
+    }).join("");
+  } catch(e) { el.innerHTML = '<div class="vacio">Error: ' + e.message + '</div>'; }
+}
+
+// ══════════════════════════════════════════════════════
+// CALENDARIO ADMIN — modal de día interactivo
+// ══════════════════════════════════════════════════════
+var adminModalDiaFecha = null;
+
+document.getElementById("btnCerrarModalDiaAdmin").addEventListener("click", function() {
+  document.getElementById("modalDiaAdmin").style.display = "none";
+});
+document.getElementById("modalDiaAdmin").addEventListener("click", function(e) {
+  if (e.target === this) this.style.display = "none";
+});
+
+function abrirModalDiaAdmin(fechaStr, evsDia) {
+  adminModalDiaFecha = fechaStr;
+  var DOWS = ["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
+  var MESES = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+  var fd = new Date(fechaStr + "T00:00:00");
+  document.getElementById("adminModalDiaTitulo").textContent = DOWS[fd.getDay()] + " " + fd.getDate() + " de " + MESES[fd.getMonth()];
+
+  // Rellenar select equipo del modal
+  var selEq = document.getElementById("adminMdEquipo");
+  if (selEq && typeof equiposGlobales !== "undefined") {
+    selEq.innerHTML = equiposGlobales.map(function(eq) {
+      return '<option value="' + eq.nombre + '">' + eq.nombre + '</option>';
+    }).join("");
+  }
+
+  document.getElementById("adminModalDiaForm").style.display = "none";
+  document.getElementById("adminMdBtnNuevo").style.display = "";
+  document.getElementById("adminMdStatus").textContent = "";
+  renderEventosDiaAdmin(evsDia);
+  document.getElementById("modalDiaAdmin").style.display = "flex";
+}
+
+function renderEventosDiaAdmin(evsDia) {
+  var el = document.getElementById("adminModalDiaEventos");
+  if (!evsDia || !evsDia.length) {
+    el.innerHTML = '<div style="text-align:center;padding:20px 0;color:#888;font-size:13px;font-style:italic;">No hay eventos. Pulsa el botón para crear uno.</div>';
+    return;
+  }
+  el.innerHTML = "";
+  evsDia.forEach(function(ev) {
+    var ico = ev.tipo === "partido" ? "🏆" : (ev.tipo === "otro" ? "📌" : "⚽");
+    var item = document.createElement("div");
+    item.style.cssText = "background:#0d0d0d;border:1px solid var(--b);border-radius:9px;padding:10px 12px;margin-bottom:8px;";
+    var meta = [ev.hora, ev.lugar, ev.equipo].filter(Boolean).join(" · ");
+    item.innerHTML =
+      '<div style="display:flex;align-items:center;gap:8px;">' +
+        '<div style="font-size:16px;">' + ico + '</div>' +
+        '<div style="flex:1;min-width:0;">' +
+          '<div style="font-weight:600;color:var(--bl);font-size:13px;">' + (ev.titulo||"Evento") + '</div>' +
+          (meta ? '<div style="font-size:11px;color:#888;margin-top:2px;">' + meta + '</div>' : '') +
+        '</div>' +
+        '<button class="adm-md-edit" data-id="' + ev.id + '" style="padding:5px 10px;background:rgba(74,144,217,.12);border:1px solid rgba(74,144,217,.3);color:var(--ac);border-radius:6px;font-size:11px;cursor:pointer;font-family:DM Sans,sans-serif;font-weight:600;">✏️</button>' +
+        '<button class="adm-md-del" data-id="' + ev.id + '" style="padding:5px 10px;background:rgba(224,60,60,.1);border:1px solid rgba(224,60,60,.3);color:var(--r);border-radius:6px;font-size:11px;cursor:pointer;font-family:DM Sans,sans-serif;font-weight:600;margin-left:4px;">🗑️</button>' +
+      '</div>';
+    el.appendChild(item);
+  });
+  el.querySelectorAll(".adm-md-edit").forEach(function(b) {
+    b.addEventListener("click", function() { abrirFormDiaAdmin(b.dataset.id); });
+  });
+  el.querySelectorAll(".adm-md-del").forEach(function(b) {
+    b.addEventListener("click", function() {
+      if (confirm("¿Borrar este evento?")) borrarEventoDiaAdmin(b.dataset.id);
+    });
+  });
+}
+
+function abrirFormDiaAdmin(editId) {
+  document.getElementById("adminModalDiaForm").style.display = "block";
+  document.getElementById("adminMdBtnNuevo").style.display = "none";
+  document.getElementById("adminMdEditId").value = editId || "";
+  document.getElementById("adminMdFormTitulo").textContent = editId ? "✏️ Editar evento" : "➕ Nuevo evento";
+  if (editId && typeof todosEventos !== "undefined") {
+    var ev = todosEventos.find(function(x) { return x.id === editId; });
+    if (ev) {
+      document.getElementById("adminMdEquipo").value = ev.equipo || "";
+      document.getElementById("adminMdTipo").value = ev.tipo || "entrenamiento";
+      document.getElementById("adminMdHoraIni").value = ev.hora || "";
+      document.getElementById("adminMdHoraFin").value = ev.horaFin || "";
+      document.getElementById("adminMdLugar").value = ev.lugar || "";
+      document.getElementById("adminMdTitulo").value = ev.titulo || "";
+    }
+  } else {
+    document.getElementById("adminMdTipo").value = "entrenamiento";
+    document.getElementById("adminMdHoraIni").value = "";
+    document.getElementById("adminMdHoraFin").value = "";
+    document.getElementById("adminMdLugar").value = "Ciudad Deportiva";
+    document.getElementById("adminMdTitulo").value = "";
+  }
+}
+
+document.getElementById("adminMdBtnNuevo").addEventListener("click", function() { abrirFormDiaAdmin(null); });
+document.getElementById("adminMdBtnCancelar").addEventListener("click", function() {
+  document.getElementById("adminModalDiaForm").style.display = "none";
+  document.getElementById("adminMdBtnNuevo").style.display = "";
+});
+
+document.getElementById("adminMdBtnGuardar").addEventListener("click", async function() {
+  var btn = this; btn.disabled = true; btn.textContent = "⏳...";
+  var editId = document.getElementById("adminMdEditId").value;
+  var tipo = document.getElementById("adminMdTipo").value;
+  var equipo = document.getElementById("adminMdEquipo").value;
+  var titulo = document.getElementById("adminMdTitulo").value.trim();
+  if (!titulo) titulo = (tipo === "entrenamiento" ? "Entrenamiento" : tipo === "partido" ? "Partido" : "Evento") + (equipo ? " " + equipo : "");
+  var datos = {
+    titulo: titulo, tipo: tipo, equipo: equipo,
+    fecha: adminModalDiaFecha,
+    hora: document.getElementById("adminMdHoraIni").value,
+    horaFin: document.getElementById("adminMdHoraFin").value,
+    lugar: document.getElementById("adminMdLugar").value.trim(),
+    actualizadoEn: Timestamp.now()
+  };
+  try {
+    if (editId) {
+      await updateDoc(doc(db, "eventos", editId), datos);
+    } else {
+      datos.creadoEn = Timestamp.now();
+      await addDoc(collection(db, "eventos"), datos);
+    }
+    toast("Guardado", "ok");
+    await cargarEventos();
+    if (typeof cargarProximosEventos === "function") cargarProximosEventos();
+    var evsDia = todosEventos.filter(function(e) { return e.fecha === adminModalDiaFecha; });
+    renderEventosDiaAdmin(evsDia);
+    document.getElementById("adminModalDiaForm").style.display = "none";
+    document.getElementById("adminMdBtnNuevo").style.display = "";
+  } catch(e) {
+    document.getElementById("adminMdStatus").textContent = "Error: " + e.message;
+    document.getElementById("adminMdStatus").style.color = "var(--r)";
+  }
+  btn.disabled = false; btn.textContent = "💾 Guardar";
+});
+
+async function borrarEventoDiaAdmin(id) {
+  try {
+    await deleteDoc(doc(db, "eventos", id));
+    toast("Borrado", "ok");
+    await cargarEventos();
+    if (typeof cargarProximosEventos === "function") cargarProximosEventos();
+    var evsDia = todosEventos.filter(function(e) { return e.fecha === adminModalDiaFecha; });
+    renderEventosDiaAdmin(evsDia);
+  } catch(e) { toast("Error: " + e.message, "error"); }
+}
+
+// Hacer días del calendario admin clicables
+var _origRenderCal = renderCalendario;
+renderCalendario = function() {
+  _origRenderCal();
+  // Añadir listeners a los días del calendario
+  var diasEl = document.getElementById("calDias");
+  if (!diasEl) return;
+  diasEl.querySelectorAll(".cal-mes-dia:not(.otro-mes)").forEach(function(dEl) {
+    if (!dEl.dataset.fecha) return;
+    var fStr = dEl.dataset.fecha;
+    dEl.style.cursor = "pointer";
+    dEl.addEventListener("click", function(e) {
+      if (e.target.closest(".cal-mes-dia-evt")) return;
+      var evsDia = (typeof todosEventos !== "undefined" ? todosEventos : []).filter(function(ev) { return ev.fecha === fStr; });
+      abrirModalDiaAdmin(fStr, evsDia);
+    });
+  });
+};
+
+// ══════════════════════════════════════════════════════
+// MULTIMEDIA — filtro de equipo
+// ══════════════════════════════════════════════════════
+function rellenarMultimediaEquipoSelect() {
+  var sel = document.getElementById("multimediaEquipoSelect");
+  if (!sel || typeof equiposGlobales === "undefined") return;
+  sel.innerHTML = '<option value="">Todos los equipos</option>' + equiposGlobales.map(function(eq) {
+    return '<option value="' + eq.nombre + '">' + eq.nombre + '</option>';
+  }).join("");
+}
+var _multimediaSel = document.getElementById("multimediaEquipoSelect");
+if (_multimediaSel) {
+  _multimediaSel.addEventListener("change", function() {
+    if (typeof cargarMultimedia === "function") cargarMultimedia(this.value);
+    else if (typeof renderMultimedia === "function") renderMultimedia();
+  });
+}
+
+// ══════════════════════════════════════════════════════
+// FINANZAS — filtro de equipo
+// ══════════════════════════════════════════════════════
+function rellenarFinanzasEquipoSelect() {
+  var sel = document.getElementById("finanzasEquipoSelect");
+  if (!sel || typeof equiposGlobales === "undefined") return;
+  sel.innerHTML = equiposGlobales.map(function(eq) {
+    return '<option value="' + eq.nombre + '">' + eq.nombre + '</option>';
+  }).join("");
+}
+var _finanzasSel = document.getElementById("finanzasEquipoSelect");
+if (_finanzasSel) {
+  _finanzasSel.addEventListener("change", function() {
+    if (typeof cargarFinanzas === "function") cargarFinanzas();
+    else if (typeof renderFinanzas === "function") renderFinanzas();
+  });
+}
+
+// ══════════════════════════════════════════════════════
+// NORMATIVA — imagen de bienvenida
+// ══════════════════════════════════════════════════════
+async function cargarImagenBienvenida() {
+  var el = document.getElementById("vistaImagenBienvenida");
+  if (!el) return;
+  try {
+    var snap = await getDocs(query(collection(db, "configuracion"), where("tipo", "==", "bienvenida")));
+    if (snap.empty) { el.innerHTML = '<div style="text-align:center;padding:20px;color:#666;font-size:12px;font-style:italic;">No hay imagen de bienvenida configurada.</div>'; return; }
+    var data = snap.docs[0].data();
+    if (data.url) {
+      el.innerHTML = '<img src="' + data.url + '" alt="Bienvenida" style="width:100%;border-radius:10px;cursor:zoom-in;" id="imgBienvenidaPreview" data-url="' + data.url.replace(/"/g,"&quot;") + '">' +
+        '<div style="font-size:10px;color:#666;text-align:center;margin-top:4px;font-style:italic;">Toca la imagen para ampliarla</div>';
+      var imgPrev = el.querySelector("#imgBienvenidaPreview");
+      if (imgPrev) imgPrev.addEventListener("click", function() { abrirLightboxAdmin(this.dataset.url); });
+    }
+  } catch(e) { console.error(e); }
+}
+
+function abrirLightboxAdmin(url) {
+  var ov = document.createElement("div");
+  ov.style.cssText = "position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;";
+  ov.innerHTML = '<img src="' + url + '" style="max-width:100%;max-height:90vh;border-radius:10px;object-fit:contain;">';
+  ov.addEventListener("click", function() { document.body.removeChild(ov); });
+  document.body.appendChild(ov);
+}
+
+var _btnSubirBienvenida = document.getElementById("btnSubirBienvenida");
+if (_btnSubirBienvenida) {
+  _btnSubirBienvenida.addEventListener("click", function() {
+    document.getElementById("inputImagenBienvenida").click();
+  });
+}
+var _inputBienvenida = document.getElementById("inputImagenBienvenida");
+if (_inputBienvenida) {
+  _inputBienvenida.addEventListener("change", async function() {
+    var file = this.files[0]; if (!file) return;
+    var btn = document.getElementById("btnSubirBienvenida");
+    btn.textContent = "⏳ Subiendo..."; btn.disabled = true;
+    try {
+      // Usar Cloudinary igual que las fotos de jugadores
+      var formData = new FormData();
+      formData.append("file", file);
+      formData.append("upload_preset", "racing_escuela");
+      var resp = await fetch("https://api.cloudinary.com/v1_1/dnb4eehqo/image/upload", { method:"POST", body:formData });
+      var data = await resp.json();
+      var url = data.secure_url;
+      // Guardar en Firestore
+      var snap = await getDocs(query(collection(db, "configuracion"), where("tipo", "==", "bienvenida")));
+      if (snap.empty) {
+        await addDoc(collection(db, "configuracion"), { tipo:"bienvenida", url:url, actualizadoEn:Timestamp.now() });
+      } else {
+        await updateDoc(doc(db, "configuracion", snap.docs[0].id), { url:url, actualizadoEn:Timestamp.now() });
+      }
+      toast("Imagen subida", "ok");
+      cargarImagenBienvenida();
+    } catch(e) { toast("Error: " + e.message, "error"); }
+    btn.textContent = "📤 Subir nueva imagen"; btn.disabled = false;
+  });
+}
+
+var _btnBorrarBienvenida = document.getElementById("btnBorrarBienvenida");
+if (_btnBorrarBienvenida) {
+  _btnBorrarBienvenida.addEventListener("click", async function() {
+    if (!confirm("¿Borrar la imagen de bienvenida?")) return;
+    try {
+      var snap = await getDocs(query(collection(db, "configuracion"), where("tipo", "==", "bienvenida")));
+      if (!snap.empty) await deleteDoc(doc(db, "configuracion", snap.docs[0].id));
+      toast("Imagen borrada", "ok");
+      cargarImagenBienvenida();
+    } catch(e) { toast("Error: " + e.message, "error"); }
+  });
+}
+
+// ══════════════════════════════════════════════════════
+// SCOUTING — modal de detalle al pinchar
+// ══════════════════════════════════════════════════════
+document.getElementById("btnCerrarScDetalle").addEventListener("click", function() {
+  document.getElementById("modalScoutingDetalle").style.display = "none";
+});
+
+function abrirDetalleScout(f) {
+  var ESTADO_LBL = {detectado:"Detectado", contactado:"Contactado", negociacion:"En negociación", fichado:"Fichado", descartado:"Descartado"};
+  var INTERES_LBL = {alto:"🔥 Alto", medio:"👀 Medio", seguimiento:"📝 Seguimiento"};
+  document.getElementById("scDetalleNombre").textContent = f.nombre || "(sin nombre)";
+  var html = "";
+  var campos = [
+    ["📅 Año de nacimiento", f.anioNacimiento],
+    ["🥅 Posición", f.posicion],
+    ["⚽ Club actual", f.clubActual],
+    ["🦶 Pierna dominante", f.piernaDominante],
+    ["🏆 Categoría", f.categoria],
+    ["🎯 Interés", INTERES_LBL[f.interes] || f.interes],
+    ["📋 Estado", ESTADO_LBL[f.estado] || f.estado],
+    ["📞 Teléfono", f.contactoFamiliar],
+    ["👤 Detectado por", f.registradoPorNombre || f.registradoPor],
+  ].filter(function(c) { return c[1]; });
+  html += '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;">' +
+    campos.map(function(c) {
+      return '<div style="background:#0d0d0d;border:1px solid var(--b);border-radius:8px;padding:8px 10px;">' +
+        '<div style="font-size:9px;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:3px;">' + c[0] + '</div>' +
+        '<div style="font-size:13px;color:var(--bl);font-weight:600;">' + c[1] + '</div>' +
+        '</div>';
+    }).join("") +
+  '</div>';
+  if (f.notas) html += '<div style="background:#0d0d0d;border:1px solid var(--b);border-radius:8px;padding:10px;font-size:13px;color:#ccc;line-height:1.5;">' +
+    '<div style="font-size:9px;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">📝 Notas técnicas</div>' +
+    f.notas.split("\n").join("<br>") +
+  '</div>';
+  document.getElementById("scDetalleBody").innerHTML = html;
+  document.getElementById("modalScoutingDetalle").style.display = "flex";
+}
+
+// ══════════════════════════════════════════════════════
+// INICIALIZACIÓN — rellenar selects con equipos
+// ══════════════════════════════════════════════════════
+// Hookear a cargarEquipos para rellenar todos los selects
+var _origCargarEq2 = typeof cargarEquipos !== "undefined" ? cargarEquipos : null;
+if (_origCargarEq2) {
+  cargarEquipos = async function() {
+    await _origCargarEq2();
+    rellenarAsiEquipoSelect();
+    rellenarNotaEquipoSelects();
+    rellenarMultimediaEquipoSelect();
+    rellenarFinanzasEquipoSelect();
+    var sel = document.getElementById("adminMdEquipo");
+    if (sel && typeof equiposGlobales !== "undefined") {
+      sel.innerHTML = equiposGlobales.map(function(eq) { return '<option value="' + eq.nombre + '">' + eq.nombre + '</option>'; }).join("");
+    }
+  };
+}
+
+// Cargar panel de control al entrar en inicio
+document.querySelectorAll('.tab[data-sec="inicio"]').forEach(function(t) {
+  t.addEventListener("click", function() { cargarInicioPanelControl(); });
+});
+setTimeout(function() { cargarInicioPanelControl(); }, 1000);
+
+// Cargar imagen bienvenida al entrar en normativa
+document.querySelectorAll('.tab[data-sec="decalogo"]').forEach(function(t) {
+  t.addEventListener("click", function() { cargarImagenBienvenida(); });
+});
+
 </script>
 
+
+
+    <!-- MODAL DETALLE SCOUTING -->
+    <div style="position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:200;display:none;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto;" id="modalScoutingDetalle">
+      <div style="background:var(--g);border:1px solid var(--b);border-radius:14px;padding:18px 16px;width:100%;max-width:480px;position:relative;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--bl);letter-spacing:.5px;flex:1;" id="scDetalleNombre">—</div>
+          <button id="btnCerrarScDetalle" style="background:rgba(0,0,0,.4);border:none;color:#aaa;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;">✕</button>
+        </div>
+        <div id="scDetalleBody"></div>
+      </div>
+    </div>
 
     <!-- SCOUTING (centralizado para admin) -->
     <div class="sec" id="sec-scouting">
@@ -3895,6 +4592,42 @@ setTimeout(function() {
       <div id="listaScoutingAdmin"><div class="cargando">Cargando...</div></div>
     </div>
 
+
+
+    <!-- MODAL DÍA ADMIN — crear/editar eventos puntuales -->
+    <div style="position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:200;display:none;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto;" id="modalDiaAdmin">
+      <div style="background:var(--g);border:1px solid var(--b);border-radius:14px;padding:18px 16px;width:100%;max-width:480px;position:relative;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--bl);letter-spacing:.5px;flex:1;" id="adminModalDiaTitulo"></div>
+          <button id="btnCerrarModalDiaAdmin" style="background:rgba(0,0,0,.4);border:none;color:#aaa;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;">✕</button>
+        </div>
+        <div id="adminModalDiaEventos"></div>
+        <div id="adminModalDiaForm" style="display:none;background:rgba(74,144,217,.06);border:1px solid rgba(74,144,217,.2);border-radius:10px;padding:14px;margin-top:10px;">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--bl);letter-spacing:.5px;margin-bottom:12px;" id="adminMdFormTitulo">➕ Nuevo evento</div>
+          <input type="hidden" id="adminMdEditId">
+          <div class="form-grid">
+            <div class="form-campo ancho"><label>Equipo</label><select id="adminMdEquipo"></select></div>
+            <div class="form-campo ancho"><label>Tipo</label>
+              <select id="adminMdTipo" style="padding:10px;background:#0a0a0a;border:1px solid var(--b);border-radius:8px;color:var(--bl);font-size:13px;font-family:'DM Sans',sans-serif;width:100%;">
+                <option value="entrenamiento">⚽ Entrenamiento</option>
+                <option value="partido">🏆 Partido</option>
+                <option value="otro">📌 Otro</option>
+              </select>
+            </div>
+            <div class="form-campo"><label>Hora inicio</label><input type="time" id="adminMdHoraIni" style="padding:10px;background:#0a0a0a;border:1px solid var(--b);border-radius:8px;color:var(--bl);font-size:13px;font-family:'DM Sans',sans-serif;width:100%;"></div>
+            <div class="form-campo"><label>Hora fin</label><input type="time" id="adminMdHoraFin" style="padding:10px;background:#0a0a0a;border:1px solid var(--b);border-radius:8px;color:var(--bl);font-size:13px;font-family:'DM Sans',sans-serif;width:100%;"></div>
+            <div class="form-campo ancho"><label>Lugar</label><input type="text" id="adminMdLugar" placeholder="Ciudad Deportiva..." style="padding:10px;background:#0a0a0a;border:1px solid var(--b);border-radius:8px;color:var(--bl);font-size:13px;font-family:'DM Sans',sans-serif;width:100%;"></div>
+            <div class="form-campo ancho"><label>Título (opcional)</label><input type="text" id="adminMdTitulo" placeholder="Se autogenera si lo dejas vacío" style="padding:10px;background:#0a0a0a;border:1px solid var(--b);border-radius:8px;color:var(--bl);font-size:13px;font-family:'DM Sans',sans-serif;width:100%;"></div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:12px;">
+            <button id="adminMdBtnGuardar" style="flex:1;padding:11px;background:linear-gradient(135deg,var(--ad),#1a3a6a);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">💾 Guardar</button>
+            <button id="adminMdBtnCancelar" style="padding:11px 16px;background:transparent;border:1px solid var(--b);color:#888;border-radius:8px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;">Cancelar</button>
+          </div>
+          <div id="adminMdStatus" style="font-size:12px;margin-top:8px;color:#666;"></div>
+        </div>
+        <button id="adminMdBtnNuevo" style="width:100%;padding:12px;margin-top:12px;background:linear-gradient(135deg,rgba(37,163,82,.15),rgba(29,138,69,.25));border:1px solid rgba(37,163,82,.35);color:var(--v);border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">➕ Añadir evento en este día</button>
+      </div>
+    </div>
 
 <!-- MODAL EDITAR ENTRENAMIENTO -->
 <div class="overlay" id="modalEditarEntreno">
