@@ -455,6 +455,18 @@ body{background:var(--negro);color:#e8e8e4;font-family:"DM Sans",sans-serif;min-
 
 .modalP-obs { font-size:13px; color:#aaa; padding:10px 12px; background:#0d0d0d; border:1px solid var(--borde); border-radius:9px; line-height:1.5; }
 
+
+/* Visor de captura thum.io dentro del modal */
+.acta-visor { margin-top:12px; border-top:1px solid var(--borde); padding-top:12px; }
+.acta-visor-spinner { text-align:center; padding:30px 0; color:#888; font-size:13px; }
+.acta-visor-spinner .spinner-ico { font-size:28px; display:block; margin-bottom:8px; animation:spin 1.2s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.acta-visor-img { width:100%; border-radius:8px; display:block; margin-bottom:8px; cursor:zoom-in; }
+.acta-visor-error { background:rgba(224,60,60,.1); border:1px solid rgba(224,60,60,.25); border-radius:8px; padding:14px; text-align:center; font-size:12px; color:var(--rojo); }
+.acta-visor-cerrar { width:100%; padding:9px; background:transparent; border:1px solid var(--borde); color:#888; border-radius:8px; font-size:12px; cursor:pointer; font-family:"DM Sans",sans-serif; margin-top:6px; }
+.acta-visor-nota { font-size:10px; color:#666; text-align:center; margin-top:5px; font-style:italic; }
+.acta-link-ext { display:block; text-align:center; margin-top:8px; font-size:11px; color:var(--azul-c); cursor:pointer; text-decoration:underline; background:none; border:none; font-family:"DM Sans",sans-serif; width:100%; }
+
 </style>
 </head>
 <body>
@@ -2032,13 +2044,7 @@ document.querySelectorAll(".tab[data-sec=\"partidos\"]").forEach(function(t) {
 // MODAL DETALLE PARTIDO
 // ═══════════════════════════════════════════════════
 
-// Captura la URL externa con thum.io y abre la imagen (ampliable con dos dedos en móvil)
-function abrirActaCaptura(url) {
-  if (!url) return;
-  // Servicio gratuito de captura web — devuelve PNG ampliable
-  var capturaUrl = "https://image.thum.io/get/width/1200/png/" + url;
-  window.open(capturaUrl, "_blank", "noopener");
-}
+// abrirActaCaptura reemplazada por visor inline
 
 // Abre la URL del acta: si es PDF la pasa por el visor responsive de Google Docs
 function abrirActaURL(url) {
@@ -2116,25 +2122,29 @@ function abrirModalPartido(p) {
       '<div class="modalP-obs">' + p.observaciones.replace(/\n/g, "<br>") + '</div>';
   }
 
-  // Botón al acta oficial (vía captura thum.io)
-  // Usamos data-url en lugar de onclick para evitar problemas de escapado
+  // Acta del partido: captura thum.io inline + fallback web
   var seccionActa;
   if (p.urlActa && p.urlActa.trim()) {
     var urlSafe = (p.urlActa || "").replace(/"/g, "&quot;");
+    var urlCaptura = "https://image.thum.io/get/width/1200/png/" + urlSafe;
     seccionActa =
       '<div class="modalP-acta-wrap">' +
-        '<button class="modalP-acta" id="btnActaCaptura" data-url="' + urlSafe + '">' +
+        '<button class="modalP-acta" id="btnActaCaptura" data-url-captura="' + urlCaptura + '" data-url-orig="' + urlSafe + '">' +
           '<div class="modalP-acta-ico">📸</div>' +
           '<div class="modalP-acta-text">' +
             '<div class="modalP-acta-titulo">Ver acta oficial</div>' +
-            '<div class="modalP-acta-sub">Imagen ampliable · puede tardar 5-10s la 1ª vez</div>' +
+            '<div class="modalP-acta-sub">Se carga aquí · amplía con dos dedos</div>' +
           '</div>' +
           '<div class="modalP-acta-arrow">→</div>' +
         '</button>' +
-        '<button class="modalP-acta-secundario" id="btnActaOriginal" data-url="' + urlSafe + '" ' +
-          'style="display:flex;align-items:center;justify-content:center;gap:8px;padding:9px;margin-top:7px;background:transparent;border:1px solid var(--borde);border-radius:8px;color:#888;font-size:11px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif;width:100%;">' +
-          '🌐 Abrir página original' +
-        '</button>' +
+        '<div class="acta-visor" id="actaVisor" style="display:none;">' +
+          '<div class="acta-visor-spinner" id="actaSpinner"><span class="spinner-ico">⏳</span>Cargando acta... puede tardar 5-10 segundos la primera vez.</div>' +
+          '<img class="acta-visor-img" id="actaImgEl" src="" alt="Acta del partido" style="display:none;">' +
+          '<div class="acta-visor-error" id="actaError" style="display:none;">❌ No se pudo cargar la captura.<br><span style="color:#888;font-size:11px;">Prueba a abrir la página original.</span></div>' +
+          '<button class="acta-visor-cerrar" id="actaVisorCerrar">✕ Cerrar imagen</button>' +
+          '<div class="acta-visor-nota">Usa dos dedos para ampliar cualquier zona</div>' +
+        '</div>' +
+        '<button class="acta-link-ext" id="btnActaOrig" data-url="' + urlSafe + '">🌐 Abrir página original de la federación</button>' +
       '</div>';
   } else {
     seccionActa =
@@ -2157,17 +2167,61 @@ function abrirModalPartido(p) {
   ov.classList.add("visible");
   document.body.style.overflow = "hidden";
 
-  // Listeners para los botones del acta (tras insertar el HTML)
+  // Listeners para el acta (imagen inline + fallback web)
   var btnCaptura = body.querySelector("#btnActaCaptura");
   if (btnCaptura) {
     btnCaptura.addEventListener("click", function() {
-      abrirActaCaptura(this.dataset.url);
+      var visor = body.querySelector("#actaVisor");
+      var spinner = body.querySelector("#actaSpinner");
+      var img = body.querySelector("#actaImgEl");
+      var err = body.querySelector("#actaError");
+      if (!visor) return;
+
+      // Mostrar visor y spinner
+      visor.style.display = "";
+      spinner.style.display = "";
+      img.style.display = "none";
+      err.style.display = "none";
+      btnCaptura.style.display = "none";
+
+      // Cargar imagen desde thum.io
+      var capturaUrl = this.dataset.urlCaptura;
+      img.src = capturaUrl;
+      img.onload = function() {
+        spinner.style.display = "none";
+        img.style.display = "block";
+      };
+      img.onerror = function() {
+        spinner.style.display = "none";
+        err.style.display = "";
+        btnCaptura.style.display = "";
+      };
+
+      // Cerrar visor
+      var cerrar = body.querySelector("#actaVisorCerrar");
+      if (cerrar) {
+        cerrar.addEventListener("click", function() {
+          visor.style.display = "none";
+          img.src = "";
+          btnCaptura.style.display = "";
+        });
+      }
     });
   }
-  var btnOriginal = body.querySelector("#btnActaOriginal");
-  if (btnOriginal) {
-    btnOriginal.addEventListener("click", function() {
-      abrirActaURL(this.dataset.url);
+
+  // Botón "abrir página original" — link directo
+  var btnOrig = body.querySelector("#btnActaOrig");
+  if (btnOrig) {
+    btnOrig.addEventListener("click", function() {
+      var url = this.dataset.url;
+      // Crear link invisible y simularlo — más fiable que window.open en móvil
+      var a = document.createElement("a");
+      a.href = url;
+      a.target = "_blank";
+      a.rel = "noopener";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
     });
   }
 }
