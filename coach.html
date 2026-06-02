@@ -475,6 +475,31 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
 .ev-coach-del { padding:6px 10px; background:rgba(224,60,60,.1); border:1px solid rgba(224,60,60,.3); color:var(--rojo); border-radius:6px; font-size:11px; cursor:pointer; font-family:"DM Sans",sans-serif; flex-shrink:0; }
 .ev-coach-del:hover { background:rgba(224,60,60,.22); }
 
+
+/* CALENDARIO COACH — RESPONSIVE */
+.cal-coach-grid { display:grid; grid-template-columns:repeat(7, minmax(0, 1fr)); }
+.coach-cal-cab { text-align:center; padding:8px 2px; font-size:11px; color:#888; font-weight:600; text-transform:uppercase; }
+.coach-cal-dia { min-height:52px; padding:5px 3px; text-align:center; cursor:pointer; border:1px solid transparent; transition:border .1s; }
+.coach-cal-dia:hover { border-color:rgba(74,144,217,.3); border-radius:6px; background:rgba(74,144,217,.04); }
+.coach-cal-dia.hoy .coach-cal-num { color:var(--azul-c); font-weight:700; }
+.coach-cal-dia.otro-mes { opacity:.3; cursor:default; }
+.coach-cal-dia.otro-mes:hover { border-color:transparent; background:none; }
+.coach-cal-num { font-size:14px; color:var(--blanco); line-height:1; margin-bottom:3px; }
+.coach-ev-dot { font-size:9px; padding:1px 3px; border-radius:4px; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.coach-ev-entreno { background:rgba(74,144,217,.15); color:var(--azul-c); }
+.coach-ev-partido { background:rgba(37,163,82,.15); color:var(--verde); }
+@media (max-width:400px) {
+  .coach-cal-dia { min-height:42px; padding:3px 1px; }
+  .coach-cal-num { font-size:12px; }
+  .coach-ev-dot { font-size:7px; padding:1px 2px; }
+  .coach-cal-cab { font-size:9px; padding:5px 1px; }
+}
+@media (max-width:340px) {
+  .coach-cal-dia { min-height:36px; }
+  .coach-cal-num { font-size:11px; }
+  .coach-ev-dot { display:none; }
+}
+
 </style>
 </head>
 <body>
@@ -598,8 +623,8 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
           <span id="calCoachTitulo" style="font-family:Bebas Neue,sans-serif;font-size:20px;color:var(--blanco);letter-spacing:1px;"></span>
           <button id="calCoachSig" style="background:none;border:1px solid var(--borde);color:var(--texto);padding:6px 14px;border-radius:8px;cursor:pointer;font-size:18px;font-family:DM Sans,sans-serif;">›</button>
         </div>
-        <div style="display:grid;grid-template-columns:repeat(7,1fr);" id="calCoachCab"></div>
-        <div style="display:grid;grid-template-columns:repeat(7,1fr);" id="calCoachDias"></div>
+        <div class="cal-coach-grid" id="calCoachCab"></div>
+        <div class="cal-coach-grid" id="calCoachDias"></div>
       </div>
     </div>
 
@@ -2423,7 +2448,8 @@ async function cargarScoutingCoach() {
   if (!el) return;
   el.innerHTML = '<div class="cargando">Cargando fichas...</div>';
   try {
-    var snap = await getDocs(query(collection(db, "scouting"), where("registradoPor", "==", coachData.email)));
+    // Todos los coaches del equipo ven TODAS las fichas del equipo
+    var snap = await getDocs(query(collection(db, "scouting"), where("equipoCoach", "==", coachData.grupo)));
     scoutingMisFichas = [];
     snap.forEach(function(d) { scoutingMisFichas.push(Object.assign({id:d.id}, d.data())); });
     scoutingMisFichas.sort(function(a, b) {
@@ -2666,7 +2692,7 @@ async function cargarEventosCoach() {
 
 function renderEventosCoach() {
   var el = document.getElementById("listaEventosCoach");
-  if (!el) return;
+  if (!el) return; // elemento eliminado del HTML, no hacemos nada
   if (!eventosCoachCache.length) {
     el.innerHTML = '<div style="font-size:12px;color:#666;font-style:italic;padding:8px 0;">No hay eventos próximos para tu equipo. Crea uno con el botón verde de arriba.</div>';
     return;
@@ -2713,7 +2739,8 @@ async function borrarEventoCoach(id) {
   }
 }
 
-document.getElementById("btnCrearEntreno").addEventListener("click", async function() {
+var _bce = document.getElementById("btnCrearEntreno");
+if (_bce) _bce.addEventListener("click", async function() {
   var tipo = document.getElementById("entrenoTipo").value;
   var fecha = document.getElementById("entrenoFecha").value;
   var hora = document.getElementById("entrenoHora").value;
@@ -2761,17 +2788,11 @@ document.getElementById("btnCrearEntreno").addEventListener("click", async funct
   btn.disabled = false; btn.textContent = "💾 Guardar";
 });
 
-document.getElementById("btnCancelarEntreno").addEventListener("click", function() { resetFormEntreno(); });
+var _bcne = document.getElementById("btnCancelarEntreno");
+if (_bcne) _bcne.addEventListener("click", function() { resetFormEntreno(); });
 
 function resetFormEntreno() {
-  document.getElementById("entrenoEditId").value = "";
-  document.getElementById("entrenoFormTitulo").textContent = "➕ Crear evento";
-  document.getElementById("entrenoFecha").value = "";
-  document.getElementById("entrenoHora").value = "";
-  document.getElementById("entrenoLugar").value = "Ciudad Deportiva";
-  document.getElementById("entrenoTitulo").value = "";
-  document.getElementById("entrenoObs").value = "";
-  document.getElementById("entrenoStatus").textContent = "";
+  // form eliminado, nada que resetear
 }
 
 // Cargar eventos del coach cuando entra a Calendario
@@ -2780,7 +2801,7 @@ document.querySelectorAll('.tab[data-sec="calendario"]').forEach(function(t) {
 });
 
 // Default fecha hoy al abrir form
-document.querySelectorAll('.collap-btn[data-target="formCrearEntrenoCoach"]').forEach(function(btn) {
+document.querySelectorAll('.collap-btn[data-target="formCrearEntrenoCoach"]').forEach(function(btn) { if (!btn) return;
   btn.addEventListener("click", function() {
     setTimeout(function() {
       var f = document.getElementById("entrenoFecha");
