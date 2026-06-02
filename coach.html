@@ -508,7 +508,7 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
   <div class="tabs">
     <div class="tab activo" data-sec="hoy">Hoy</div>
     <div class="tab" data-sec="asistencia">Asistencia</div>
-    <div class="tab" data-sec="notas">Notas</div>
+    <div class="tab" data-sec="notas">📝 Notas del Mister</div>
     <div class="tab" data-sec="calendario">Calendario</div>
     <div class="tab" data-sec="partidos" id="tabPartidos" style="display:none">🏆 Partidos</div>
     <div class="tab" data-sec="alumnos">Mis jugadores</div>
@@ -560,7 +560,7 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
     </div>
 
     <div class="sec" id="sec-notas">
-      <div class="sec-titulo">Notas e incidencias</div>
+      <div class="sec-titulo">📝 Notas del Mister</div>
       <div class="form-card">
         <div class="form-titulo">➕ Nueva nota</div>
         <div class="form-grupo"><label>Jugador</label><select id="notaJugador"><option value="">Seleccionar...</option></select></div>
@@ -589,35 +589,9 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
     <div class="sec" id="sec-calendario">
       <div class="sec-titulo">📅 Calendario</div>
 
-      <button class="collap-btn" data-target="formCrearEntrenoCoach" style="background:linear-gradient(135deg,rgba(37,163,82,.15),rgba(29,138,69,.25));border:1px solid rgba(37,163,82,.35);color:var(--verde);"><span>➕</span><span>Crear evento</span><span class="arrow">▶</span></button>
-      <div class="coach-entreno-form collap-content" id="formCrearEntrenoCoach" style="display:none;">
-        <div class="form-titulo" id="entrenoFormTitulo">➕ Crear evento</div>
-        <input type="hidden" id="entrenoEditId">
-        <div class="form-grid">
-          <div class="form-campo ancho">
-            <label>Tipo de evento</label>
-            <select id="entrenoTipo">
-              <option value="entrenamiento">⚽ Entrenamiento</option>
-              <option value="partido">🏆 Partido amistoso</option>
-              <option value="otro">📌 Otro</option>
-            </select>
-          </div>
-          <div class="form-campo"><label>Fecha</label><input type="date" id="entrenoFecha"></div>
-          <div class="form-campo"><label>Hora</label><input type="time" id="entrenoHora"></div>
-          <div class="form-campo ancho"><label>Lugar</label><input type="text" id="entrenoLugar" placeholder="Ciudad Deportiva..."></div>
-          <div class="form-campo ancho"><label>Título <span style="color:#555;font-weight:400;text-transform:none;letter-spacing:0;">(opcional)</span></label><input type="text" id="entrenoTitulo" placeholder="Se autogenera si lo dejas vacío"></div>
-          <div class="form-campo ancho"><label>Observaciones</label><textarea id="entrenoObs" rows="2" placeholder="Llevar peto blanco, traer agua..."></textarea></div>
-        </div>
-        <div class="form-botones">
-          <button class="btn-crear" id="btnCrearEntreno">💾 Guardar</button>
-          <button class="btn-cancelar" id="btnCancelarEntreno">Cancelar</button>
-        </div>
-        <div id="entrenoStatus" style="font-size:12px;margin-top:8px;color:#666"></div>
-      </div>
 
-      <div style="font-size:13px;color:#888;margin:8px 0 6px;text-transform:uppercase;letter-spacing:1px;font-weight:600;">Próximos eventos del equipo</div>
-      <div id="listaEventosCoach" style="margin-bottom:14px;"></div>
 
+      <div style="font-size:12px;color:#888;text-align:center;margin-bottom:8px;font-style:italic;">Toca cualquier día para ver o crear eventos</div>
       <div style="background:var(--gris);border:1px solid var(--borde);border-radius:14px;overflow:hidden;margin-bottom:16px;">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--borde);">
           <button id="calCoachAnt" style="background:none;border:1px solid var(--borde);color:var(--texto);padding:6px 14px;border-radius:8px;cursor:pointer;font-size:18px;font-family:DM Sans,sans-serif;">‹</button>
@@ -629,13 +603,40 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
       </div>
     </div>
 
-    <!-- MODAL RESUMEN EVENTO -->
-    <div style="position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:200;display:none;align-items:center;justify-content:center;padding:16px;" id="modalResumenEv">
-      <div style="background:var(--gris);border:1px solid var(--borde);border-radius:14px;padding:22px;width:100%;max-width:420px;max-height:90vh;overflow-y:auto;">
-        <div style="font-family:Bebas Neue,sans-serif;font-size:22px;color:var(--blanco);margin-bottom:6px;" id="resumenEvTitulo"></div>
-        <div style="font-size:13px;color:var(--azul-c);margin-bottom:16px;" id="resumenEvMeta"></div>
-        <div id="resumenEvContenido"></div>
-        <button id="btnCerrarResumen" style="width:100%;padding:12px;background:none;border:1px solid var(--borde);color:#888;border-radius:8px;cursor:pointer;font-family:DM Sans,sans-serif;font-size:13px;margin-top:16px;">Cerrar</button>
+    <!-- MODAL DÍA — crear/editar/borrar eventos -->
+    <div style="position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:200;display:none;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto;" id="modalDiaCoach">
+      <div style="background:var(--gris);border:1px solid var(--borde);border-radius:14px;padding:18px 16px;width:100%;max-width:440px;position:relative;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--blanco);letter-spacing:.5px;flex:1;" id="modalDiaTitulo"></div>
+          <button id="btnCerrarModalDia" style="background:rgba(0,0,0,.4);border:none;color:#aaa;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;">✕</button>
+        </div>
+        <div id="modalDiaEventos"></div>
+        <!-- Form crear/editar evento -->
+        <div id="modalDiaForm" style="display:none;background:rgba(74,144,217,.06);border:1px solid rgba(74,144,217,.2);border-radius:10px;padding:14px;margin-top:10px;">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--blanco);letter-spacing:.5px;margin-bottom:12px;" id="mdFormTitulo">➕ Nuevo evento</div>
+          <input type="hidden" id="mdEditId">
+          <div class="form-grid">
+            <div class="form-campo ancho">
+              <label>Tipo</label>
+              <select id="mdTipo" style="padding:10px;background:#0a0a0a;border:1px solid var(--borde);border-radius:8px;color:var(--blanco);font-size:13px;font-family:'DM Sans',sans-serif;width:100%;">
+                <option value="entrenamiento">⚽ Entrenamiento</option>
+                <option value="partido">🏆 Partido amistoso</option>
+                <option value="otro">📌 Otro</option>
+              </select>
+            </div>
+            <div class="form-campo"><label>Hora inicio</label><input type="time" id="mdHoraIni" style="padding:10px;background:#0a0a0a;border:1px solid var(--borde);border-radius:8px;color:var(--blanco);font-size:13px;font-family:'DM Sans',sans-serif;width:100%;"></div>
+            <div class="form-campo"><label>Hora fin</label><input type="time" id="mdHoraFin" style="padding:10px;background:#0a0a0a;border:1px solid var(--borde);border-radius:8px;color:var(--blanco);font-size:13px;font-family:'DM Sans',sans-serif;width:100%;"></div>
+            <div class="form-campo ancho"><label>Lugar</label><input type="text" id="mdLugar" placeholder="Ciudad Deportiva..." style="padding:10px;background:#0a0a0a;border:1px solid var(--borde);border-radius:8px;color:var(--blanco);font-size:13px;font-family:'DM Sans',sans-serif;width:100%;"></div>
+            <div class="form-campo ancho"><label>Título <span style="color:#555;font-weight:400;text-transform:none;letter-spacing:0;">(opcional)</span></label><input type="text" id="mdTitulo" placeholder="Se autogenera si lo dejas vacío" style="padding:10px;background:#0a0a0a;border:1px solid var(--borde);border-radius:8px;color:var(--blanco);font-size:13px;font-family:'DM Sans',sans-serif;width:100%;"></div>
+            <div class="form-campo ancho"><label>Observaciones</label><textarea id="mdObs" rows="2" placeholder="Notas adicionales..." style="padding:10px;background:#0a0a0a;border:1px solid var(--borde);border-radius:8px;color:var(--blanco);font-size:13px;font-family:'DM Sans',sans-serif;width:100%;resize:vertical;"></textarea></div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:12px;">
+            <button id="mdBtnGuardar" style="flex:1;padding:11px;background:linear-gradient(135deg,var(--azul),#1a3a6a);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">💾 Guardar</button>
+            <button id="mdBtnCancelarForm" style="padding:11px 16px;background:transparent;border:1px solid var(--borde);color:#888;border-radius:8px;font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;">Cancelar</button>
+          </div>
+          <div id="mdStatus" style="font-size:12px;margin-top:8px;color:#666;"></div>
+        </div>
+        <button id="mdBtnNuevo" style="width:100%;padding:12px;margin-top:12px;background:linear-gradient(135deg,rgba(37,163,82,.15),rgba(29,138,69,.25));border:1px solid rgba(37,163,82,.35);color:var(--verde);border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">➕ Añadir evento en este día</button>
       </div>
     </div>
 
@@ -794,6 +795,7 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
       <div class="ficha-hero-info">
         <div class="ficha-nombre" id="fichaCoachNombre"></div>
         <div class="ficha-equipo" id="fichaCoachEquipo"></div>
+        <div id="fichaCoachCumple" style="font-size:12px;color:#888;margin-top:6px;line-height:1.5;"></div>
       </div>
     </div>
     <div class="ficha-stats">
@@ -1334,6 +1336,30 @@ async function verFichaCoach(id) {
   document.getElementById("fichaCoachTitulo").textContent = j.nombre + " " + j.apellidos;
   document.getElementById("fichaCoachNombre").textContent = j.nombre + " " + j.apellidos;
   document.getElementById("fichaCoachEquipo").textContent = "⚽ " + j.grupo;
+  // Año nacimiento + cumple + días
+  var fichaInfoCumple = document.getElementById("fichaCoachCumple");
+  if (fichaInfoCumple) {
+    if (j.fechaNacimiento) {
+      var pFN = j.fechaNacimiento.split("-");
+      if (pFN.length >= 3) {
+        var fcYear = parseInt(pFN[0]), fcMes = parseInt(pFN[1]), fcDia = parseInt(pFN[2]);
+        var fcHoy = new Date(); fcHoy.setHours(0,0,0,0);
+        var fcBday = new Date(fcHoy.getFullYear(), fcMes-1, fcDia);
+        if (fcBday < fcHoy) fcBday = new Date(fcHoy.getFullYear()+1, fcMes-1, fcDia);
+        var fcDias = Math.round((fcBday - fcHoy) / 86400000);
+        var fcDiasTxt = fcDias === 0 ? "¡Hoy es su cumpleaños! 🎂" : "Cumple en " + fcDias + " día" + (fcDias===1?"":"s");
+        var fcClr = fcDias === 0 ? "var(--verde)" : fcDias <= 7 ? "var(--amarillo)" : "#888";
+        fichaInfoCumple.innerHTML =
+          '📅 Nacido en <b style="color:var(--blanco)">' + fcYear + '</b> &nbsp;·&nbsp; ' +
+          '🎂 <b style="color:var(--blanco)">' + String(fcDia).padStart(2,"0") + "/" + String(fcMes).padStart(2,"0") + '</b> &nbsp;·&nbsp; ' +
+          '<span style="color:' + fcClr + ';font-weight:600;">' + fcDiasTxt + '</span>';
+      } else {
+        fichaInfoCumple.textContent = "";
+      }
+    } else {
+      fichaInfoCumple.textContent = "";
+    }
+  }
   if (j.photoUrl) {
     document.getElementById("fichaCoachFoto").src = j.photoUrl;
     document.getElementById("fichaCoachFoto").style.display = "block";
@@ -1500,9 +1526,7 @@ document.getElementById("calCoachSig").addEventListener("click", function() {
   calCoachMes++; if (calCoachMes > 11) { calCoachMes = 0; calCoachAnio++; }
   renderCalCoach();
 });
-document.getElementById("btnCerrarResumen").addEventListener("click", function() {
-  document.getElementById("modalResumenEv").style.display = "none";
-});
+// [btnCerrarResumen eliminado]
 
 async function cargarCalCoach() {
   // Reuse eventosCalMes or load fresh
@@ -1558,11 +1582,11 @@ function renderCalCoach() {
       dot.textContent = (ev.tipo === "partido" ? "🏆" : "⚽") + " " + ev.titulo;
       dEl.appendChild(dot);
     });
-    if (evsDia.length > 0) {
-      dEl.addEventListener("click", (function(evs, fecha) {
-        return function() { abrirResumenEvento(evs[0], fecha); };
-      })(evsDia, fStr));
-    }
+    // Todos los días son clicables: abrir modal con eventos + opción de crear
+    dEl.style.cursor = "pointer";
+    dEl.addEventListener("click", (function(evs, fecha) {
+      return function() { abrirModalDia(fecha, evs); };
+    })(evsDia.slice(), fStr));
     diasEl.appendChild(dEl);
   }
   // Relleno posterior
@@ -2275,12 +2299,15 @@ async function cargarDiasRapidos() {
   var hace90Str = fmt(hace90);
 
   var eventosDias = [];
+  // Para asistencia necesitamos: 2 días futuros + 4 pasados = 6 días
+  var en2 = new Date(hoyD); en2.setDate(en2.getDate() + 2);
+  var en2Str = fmt(en2);
   try {
     var snap = await getDocs(query(collection(db, "eventos"), orderBy("fecha", "desc")));
     snap.forEach(function(d) {
       var e = d.data();
       if (!e.fecha) return;
-      if (e.fecha > hoyStr) return;
+      if (e.fecha > en2Str) return;   // máx 2 días en el futuro
       if (e.fecha < hace90Str) return;
       // Eventos de "Todos", del equipo del coach, o el coach está en "Todos"
       var coincide = (e.equipo === coachData.grupo) || (e.equipo === "Todos") || (coachData.grupo === "Todos");
@@ -2313,8 +2340,11 @@ async function cargarDiasRapidos() {
     }
   }
 
-  // Limitar a 8 botones
-  eventosDias = eventosDias.slice(0, 8);
+  // Ordenar: futuros primero (asc), luego pasados (desc)
+  var futuros = eventosDias.filter(function(e) { return e.fecha >= hoyStr; }).sort(function(a,b) { return a.fecha.localeCompare(b.fecha); });
+  var pasados = eventosDias.filter(function(e) { return e.fecha < hoyStr; }).sort(function(a,b) { return b.fecha.localeCompare(a.fecha); });
+  // 2 futuros + 4 pasados = máx 6
+  eventosDias = futuros.slice(0,2).concat(pasados.slice(0,4));
 
   if (!eventosDias.length) {
     el.innerHTML = '<div class="vacio">No hay días para marcar. Usa "Marcar otra fecha" abajo.</div>';
@@ -2781,6 +2811,162 @@ document.querySelectorAll('.collap-btn').forEach(function(btn) {
     else t.style.display = "none";
   });
 });
+
+
+// ═══════════════════════════════════════════════════
+// MODAL DÍA — gestionar eventos desde el calendario
+// ═══════════════════════════════════════════════════
+var modalDiaFecha = null;
+
+document.getElementById("btnCerrarModalDia").addEventListener("click", cerrarModalDia);
+document.getElementById("modalDiaCoach").addEventListener("click", function(e) {
+  if (e.target === this) cerrarModalDia();
+});
+
+function cerrarModalDia() {
+  document.getElementById("modalDiaCoach").style.display = "none";
+}
+
+function abrirModalDia(fechaStr, evsDia) {
+  modalDiaFecha = fechaStr;
+  // Formatear fecha bonita
+  var DOWS = ["domingo","lunes","martes","miércoles","jueves","viernes","sábado"];
+  var MESES_LG = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+  var fd = new Date(fechaStr + "T00:00:00");
+  document.getElementById("modalDiaTitulo").textContent = DOWS[fd.getDay()] + " " + fd.getDate() + " de " + MESES_LG[fd.getMonth()];
+
+  document.getElementById("modalDiaForm").style.display = "none";
+  document.getElementById("mdBtnNuevo").style.display = "";
+  document.getElementById("mdStatus").textContent = "";
+
+  renderEventosDia(evsDia);
+  document.getElementById("modalDiaCoach").style.display = "flex";
+}
+
+function renderEventosDia(evsDia) {
+  var el = document.getElementById("modalDiaEventos");
+  if (!evsDia || !evsDia.length) {
+    el.innerHTML = '<div style="text-align:center;padding:20px 0;color:#888;font-size:13px;font-style:italic;">No hay eventos en este día.<br><span style="font-size:11px;color:#555;">Pulsa el botón verde para crear uno.</span></div>';
+    return;
+  }
+  el.innerHTML = "";
+  evsDia.forEach(function(ev) {
+    var ico = ev.tipo === "partido" ? "🏆" : (ev.tipo === "otro" ? "📌" : "⚽");
+    var item = document.createElement("div");
+    item.style.cssText = "background:#0d0d0d;border:1px solid var(--borde);border-radius:9px;padding:10px 12px;margin-bottom:8px;";
+    var meta = [ev.hora, ev.lugar].filter(Boolean).join(" · ");
+    item.innerHTML =
+      '<div style="display:flex;align-items:center;gap:8px;">' +
+        '<div style="font-size:16px;">' + ico + '</div>' +
+        '<div style="flex:1;min-width:0;">' +
+          '<div style="font-weight:600;color:var(--blanco);font-size:13px;">' + (ev.titulo || "Evento") + '</div>' +
+          (meta ? '<div style="font-size:11px;color:#888;margin-top:2px;">' + meta + '</div>' : '') +
+        '</div>' +
+        '<button class="md-btn-editar" data-id="' + ev.id + '" style="padding:5px 10px;background:rgba(74,144,217,.12);border:1px solid rgba(74,144,217,.3);color:var(--azul-c);border-radius:6px;font-size:11px;cursor:pointer;font-family:DM Sans,sans-serif;font-weight:600;">✏️</button>' +
+        '<button class="md-btn-borrar" data-id="' + ev.id + '" style="padding:5px 10px;background:rgba(224,60,60,.1);border:1px solid rgba(224,60,60,.3);color:var(--rojo);border-radius:6px;font-size:11px;cursor:pointer;font-family:DM Sans,sans-serif;font-weight:600;margin-left:4px;">🗑️</button>' +
+      '</div>' +
+      (ev.observaciones ? '<div style="font-size:11px;color:#999;margin-top:6px;padding-top:6px;border-top:1px dashed var(--borde);">' + ev.observaciones + '</div>' : '');
+    el.appendChild(item);
+  });
+  el.querySelectorAll(".md-btn-editar").forEach(function(b) {
+    b.addEventListener("click", function() { abrirFormDia(b.dataset.id); });
+  });
+  el.querySelectorAll(".md-btn-borrar").forEach(function(b) {
+    b.addEventListener("click", function() {
+      var ev = todosEventosCoach.find(function(x) { return x.id === b.dataset.id; });
+      if (!ev) return;
+      if (confirm("¿Borrar este evento?\n\n" + (ev.titulo || "Evento") + "\n" + (ev.fecha || ""))) {
+        borrarEventoModalDia(b.dataset.id);
+      }
+    });
+  });
+}
+
+function abrirFormDia(editId) {
+  var form = document.getElementById("modalDiaForm");
+  document.getElementById("mdBtnNuevo").style.display = "none";
+  form.style.display = "block";
+  document.getElementById("mdStatus").textContent = "";
+  document.getElementById("mdEditId").value = editId || "";
+  document.getElementById("mdFormTitulo").textContent = editId ? "✏️ Editar evento" : "➕ Nuevo evento";
+  if (editId) {
+    var ev = todosEventosCoach.find(function(x) { return x.id === editId; });
+    if (ev) {
+      document.getElementById("mdTipo").value = ev.tipo || "entrenamiento";
+      document.getElementById("mdHoraIni").value = ev.hora || "";
+      document.getElementById("mdHoraFin").value = ev.horaFin || "";
+      document.getElementById("mdLugar").value = ev.lugar || "";
+      document.getElementById("mdTitulo").value = ev.titulo || "";
+      document.getElementById("mdObs").value = ev.observaciones || "";
+    }
+  } else {
+    document.getElementById("mdTipo").value = "entrenamiento";
+    document.getElementById("mdHoraIni").value = "";
+    document.getElementById("mdHoraFin").value = "";
+    document.getElementById("mdLugar").value = "Ciudad Deportiva";
+    document.getElementById("mdTitulo").value = "";
+    document.getElementById("mdObs").value = "";
+  }
+  form.scrollIntoView({behavior:"smooth", block:"start"});
+}
+
+document.getElementById("mdBtnNuevo").addEventListener("click", function() { abrirFormDia(null); });
+document.getElementById("mdBtnCancelarForm").addEventListener("click", function() {
+  document.getElementById("modalDiaForm").style.display = "none";
+  document.getElementById("mdBtnNuevo").style.display = "";
+});
+
+document.getElementById("mdBtnGuardar").addEventListener("click", async function() {
+  var btn = this; btn.disabled = true; btn.textContent = "⏳...";
+  var editId = document.getElementById("mdEditId").value;
+  var tipo = document.getElementById("mdTipo").value;
+  var titulo = document.getElementById("mdTitulo").value.trim();
+  if (!titulo) titulo = (tipo === "entrenamiento" ? "Entrenamiento " : tipo === "partido" ? "Partido " : "Evento ") + (coachData ? coachData.grupo : "");
+  var datos = {
+    titulo: titulo, tipo: tipo,
+    fecha: modalDiaFecha,
+    hora: document.getElementById("mdHoraIni").value,
+    horaFin: document.getElementById("mdHoraFin").value,
+    lugar: document.getElementById("mdLugar").value.trim(),
+    observaciones: document.getElementById("mdObs").value.trim(),
+    equipo: coachData ? coachData.grupo : "",
+    actualizadoEn: Timestamp.now()
+  };
+  var status = document.getElementById("mdStatus");
+  try {
+    if (editId) {
+      await updateDoc(doc(db, "eventos", editId), datos);
+      toast("Evento actualizado", "ok");
+    } else {
+      datos.creadoEn = Timestamp.now();
+      await addDoc(collection(db, "eventos"), datos);
+      toast("Evento creado", "ok");
+    }
+    // Recargar y re-renderizar
+    todosEventosCoach = [];
+    await cargarCalCoach();
+    // Actualizar la lista dentro del modal sin cerrarlo
+    var evsDia = todosEventosCoach.filter(function(e) { return e.fecha === modalDiaFecha; });
+    renderEventosDia(evsDia);
+    document.getElementById("modalDiaForm").style.display = "none";
+    document.getElementById("mdBtnNuevo").style.display = "";
+    status.style.color = "var(--verde)"; status.textContent = "";
+  } catch(e) {
+    status.style.color = "var(--rojo)"; status.textContent = "Error: " + e.message;
+  }
+  btn.disabled = false; btn.textContent = "💾 Guardar";
+});
+
+async function borrarEventoModalDia(id) {
+  try {
+    await deleteDoc(doc(db, "eventos", id));
+    toast("Evento borrado", "ok");
+    todosEventosCoach = [];
+    await cargarCalCoach();
+    var evsDia = todosEventosCoach.filter(function(e) { return e.fecha === modalDiaFecha; });
+    renderEventosDia(evsDia);
+  } catch(e) { toast("Error: " + e.message, "error"); }
+}
 
 </script>
 </body>
