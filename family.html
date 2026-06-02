@@ -1890,6 +1890,11 @@ async function cargarResumenPartidosInicio() {
             '<div class="rpi-box"><div class="rpi-num">' + goles + '</div><div class="rpi-lbl">⚽ Goles</div></div>' +
             '<div class="rpi-box"><div class="rpi-num">' + asis + '</div><div class="rpi-lbl">🅰️ Asistencias</div></div>'
           : '') +
+          (amar > 0 || rojas > 0 ?
+            '<div class="rpi-box"><div class="rpi-num">' + amar + '</div><div class="rpi-lbl">🟨 Amarillas</div></div>' +
+            '<div class="rpi-box"><div class="rpi-num">' + rojas + '</div><div class="rpi-lbl">🟥 Rojas</div></div>'
+          : '') +
+
         '</div>' +
         '<div style="font-size:11px;color:#666;margin-top:10px;text-align:center;font-style:italic;">Detalle partido a partido en la pestaña 🏆 Partidos</div>' +
       '</div>';
@@ -1966,6 +1971,10 @@ async function cargarPartidosFam() {
           '<div class="fp-stat-box"><div class="fp-stat-num">' + titularidades + '</div><div class="fp-stat-lbl">Veces titular</div></div>' +
           '<div class="fp-stat-box"><div class="fp-stat-num">' + suplencias + '</div><div class="fp-stat-lbl">Veces suplente</div></div>' +
           (noConvocado > 0 ? '<div class="fp-stat-box"><div class="fp-stat-num">' + noConvocado + '</div><div class="fp-stat-lbl">No convocado</div></div>' : '') +
+          (amar > 0 || rojas > 0 ?
+            '<div class="fp-stat-box"><div class="fp-stat-num">' + amar + '</div><div class="fp-stat-lbl">🟨 Amarillas</div></div>' +
+            '<div class="fp-stat-box"><div class="fp-stat-num">' + rojas + '</div><div class="fp-stat-lbl">🟥 Rojas</div></div>'
+          : '') +
           '<div class="fp-stat-box"><div class="fp-stat-num">' + goles + '</div><div class="fp-stat-lbl">Goles</div></div>' +
           '<div class="fp-stat-box"><div class="fp-stat-num">' + asis + '</div><div class="fp-stat-lbl">Asistencias</div></div>' +
           '<div class="fp-stat-box" style="background:rgba(74,144,217,.18);"><div class="fp-stat-num">' + pctConvocado + '%</div><div class="fp-stat-lbl">% jugado · convocado</div></div>' +
@@ -2129,6 +2138,7 @@ function abrirModalPartido(p) {
         '<div class="modalP-stat"><div class="modalP-stat-num">' + (jd.goles||0) + '</div><div class="modalP-stat-lbl">⚽ Goles</div></div>' +
         '<div class="modalP-stat"><div class="modalP-stat-num">' + (jd.asistencias||0) + '</div><div class="modalP-stat-lbl">🅰️ Asistencias</div></div>' +
         '<div class="modalP-stat"><div class="modalP-stat-num">' + (jd.amarillas||0) + '</div><div class="modalP-stat-lbl">🟨 Amarillas</div></div>' +
+        ((jd.rojas||0) > 0 ? '<div class="modalP-stat" style="background:rgba(224,60,60,.15);border-color:rgba(224,60,60,.3);"><div class="modalP-stat-num" style="color:var(--rojo);">' + jd.rojas + '</div><div class="modalP-stat-lbl">🟥 Rojas</div></div>' : '') +
       '</div>';
 
     if (jd.rojas > 0) {
