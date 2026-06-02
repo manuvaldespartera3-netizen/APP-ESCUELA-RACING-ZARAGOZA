@@ -2164,13 +2164,13 @@ function abrirModalPartido(p) {
           '<div class="modalP-acta-arrow">→</div>' +
         '</button>' +
         '<div class="acta-visor" id="actaVisor" style="display:none;">' +
-          '<div class="acta-visor-spinner" id="actaSpinner"><span class="spinner-ico">⏳</span>Cargando acta... puede tardar 5-10 segundos la primera vez.</div>' +
+          '<div class="acta-visor-spinner" id="actaSpinner"><span class="spinner-ico">⏳</span><b>Cargando acta...</b><br><span style="font-size:11px;opacity:.8;">La primera vez puede tardar 30-60 segundos. Es normal, ten paciencia.</span></div>' +
           '<img class="acta-visor-img" id="actaImgEl" src="" alt="Acta del partido" style="display:none;">' +
           '<div class="acta-visor-error" id="actaError" style="display:none;">❌ No se pudo cargar la captura.<br><span style="color:#888;font-size:11px;">Prueba a abrir la página original.</span></div>' +
           '<button class="acta-visor-cerrar" id="actaVisorCerrar">✕ Cerrar imagen</button>' +
           '<div class="acta-visor-nota">Usa dos dedos para ampliar cualquier zona</div>' +
         '</div>' +
-        '<button class="acta-link-ext" id="btnActaOrig" data-url="' + urlSafe + '">🌐 Abrir página original de la federación</button>' +
+        '' +
       '</div>';
   } else {
     seccionActa =
