@@ -2116,23 +2116,25 @@ function abrirModalPartido(p) {
       '<div class="modalP-obs">' + p.observaciones.replace(/\n/g, "<br>") + '</div>';
   }
 
-  // Botón al acta oficial (vía captura thum.io para ver bien en móvil)
+  // Botón al acta oficial (vía captura thum.io)
+  // Usamos data-url en lugar de onclick para evitar problemas de escapado
   var seccionActa;
   if (p.urlActa && p.urlActa.trim()) {
-    var urlEscapada = (p.urlActa || "").replace(/\'/g, "\\\'");
+    var urlSafe = (p.urlActa || "").replace(/"/g, "&quot;");
     seccionActa =
       '<div class="modalP-acta-wrap">' +
-        '<a class="modalP-acta" href="javascript:void(0)" onclick="abrirActaCaptura(\'' + urlEscapada + '\')">' +
+        '<button class="modalP-acta" id="btnActaCaptura" data-url="' + urlSafe + '">' +
           '<div class="modalP-acta-ico">📸</div>' +
           '<div class="modalP-acta-text">' +
             '<div class="modalP-acta-titulo">Ver acta oficial</div>' +
-            '<div class="modalP-acta-sub">Imagen ampliable (puede tardar 5-10s la 1ª vez)</div>' +
+            '<div class="modalP-acta-sub">Imagen ampliable · puede tardar 5-10s la 1ª vez</div>' +
           '</div>' +
           '<div class="modalP-acta-arrow">→</div>' +
-        '</a>' +
-        '<a class="modalP-acta-secundario" href="javascript:void(0)" onclick="abrirActaURL(\'' + urlEscapada + '\')" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:9px;margin-top:7px;background:transparent;border:1px solid var(--borde);border-radius:8px;color:#888;text-decoration:none;font-size:11px;font-weight:600;cursor:pointer;font-family:\'DM Sans\',sans-serif;">' +
+        '</button>' +
+        '<button class="modalP-acta-secundario" id="btnActaOriginal" data-url="' + urlSafe + '" ' +
+          'style="display:flex;align-items:center;justify-content:center;gap:8px;padding:9px;margin-top:7px;background:transparent;border:1px solid var(--borde);border-radius:8px;color:#888;font-size:11px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif;width:100%;">' +
           '🌐 Abrir página original' +
-        '</a>' +
+        '</button>' +
       '</div>';
   } else {
     seccionActa =
@@ -2154,6 +2156,20 @@ function abrirModalPartido(p) {
 
   ov.classList.add("visible");
   document.body.style.overflow = "hidden";
+
+  // Listeners para los botones del acta (tras insertar el HTML)
+  var btnCaptura = body.querySelector("#btnActaCaptura");
+  if (btnCaptura) {
+    btnCaptura.addEventListener("click", function() {
+      abrirActaCaptura(this.dataset.url);
+    });
+  }
+  var btnOriginal = body.querySelector("#btnActaOriginal");
+  if (btnOriginal) {
+    btnOriginal.addEventListener("click", function() {
+      abrirActaURL(this.dataset.url);
+    });
+  }
 }
 
 function cerrarModalPartido() {
