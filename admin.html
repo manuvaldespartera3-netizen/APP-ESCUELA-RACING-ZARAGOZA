@@ -919,6 +919,26 @@ body{background:var(--n);color:var(--t);font-family:"DM Sans",sans-serif;min-hei
         <div class="exp-card"><div class="exp-ico">💳</div><div class="exp-titulo">Estado de pagos</div><div class="exp-desc">Pagos por familia y cuatrimestre</div><button class="btn-exp" id="btnExpPag">⬇️ Exportar Excel</button></div>
         <div class="exp-card"><div class="exp-ico">📅</div><div class="exp-titulo">Calendario</div><div class="exp-desc">Todos los eventos de la temporada</div><button class="btn-exp" id="btnExpCal">⬇️ Exportar Excel</button></div>
       </div>
+
+      <!-- ZONA PELIGROSA: CIERRE DE TEMPORADA -->
+      <div style="margin-top:28px;border:2px solid rgba(224,60,60,.4);border-radius:14px;padding:18px 16px;background:rgba(224,60,60,.05);">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--r);letter-spacing:.5px;margin-bottom:6px;">⚠️ Cierre de temporada</div>
+        <div style="font-size:13px;color:#bbb;line-height:1.5;margin-bottom:14px;">
+          Prepara el club para una temporada nueva. <b style="color:var(--bl);">Antes de continuar, exporta arriba todo lo que quieras guardar</b> (es tu copia histórica permanente).
+        </div>
+        <div style="font-size:12px;color:#999;line-height:1.6;background:rgba(0,0,0,.25);border-radius:10px;padding:12px 14px;margin-bottom:14px;">
+          <div style="color:var(--r);font-weight:600;margin-bottom:4px;">🗑️ Se borrará (empezar de cero):</div>
+          Asistencias · Confirmaciones · Eventos del calendario · Notas · <b>Partidos y todas sus estadísticas</b> (convocatorias, minutos, goles, tarjetas) · Avisos · Notificaciones
+          <div style="color:var(--y);font-weight:600;margin:8px 0 4px;">🔄 Se pondrá a cero:</div>
+          Pagos de jugadores y entrenadores
+          <div style="color:var(--v);font-weight:600;margin:8px 0 4px;">✅ Se conservará:</div>
+          Jugadores (sube tú las categorías antes) · Equipos · Entrenadores · Scouting · Imágenes · Info del club
+        </div>
+        <label style="font-size:12px;color:#bbb;display:block;margin-bottom:6px;">Para confirmar, escribe <b style="color:var(--r);">CERRAR TEMPORADA</b> en mayúsculas:</label>
+        <input type="text" id="resetConfirmTxt" placeholder="CERRAR TEMPORADA" style="width:100%;padding:11px 12px;background:#0a0a0a;border:1px solid var(--b);border-radius:8px;color:var(--bl);font-size:14px;font-family:'DM Sans',sans-serif;margin-bottom:12px;box-sizing:border-box;">
+        <button id="btnCerrarTemporada" style="width:100%;padding:13px;background:rgba(224,60,60,.15);color:var(--r);border:1px solid rgba(224,60,60,.45);border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">🔒 Cerrar temporada y empezar de cero</button>
+        <div id="resetStatus" style="font-size:13px;margin-top:12px;color:#888;line-height:1.5;"></div>
+      </div>
     </div>
 
     <!-- DECÁLOGO -->
@@ -4621,6 +4641,77 @@ async function borrarPartidoDiaAdmin(id, fechaStr) {
     cargarPartidosDiaAdmin(fechaStr);
   } catch(e) { toast("Error: " + e.message, "error"); }
 }
+
+// ══════════════════════════════════════════════════════
+// CIERRE DE TEMPORADA — borra lo efímero, conserva lo estructural
+// Doble salvaguarda: escribir "CERRAR TEMPORADA" + confirm final.
+// ══════════════════════════════════════════════════════
+async function borrarColeccionCompleta(nombre, status) {
+  var borrados = 0;
+  var snap = await getDocs(collection(db, nombre));
+  for (var i = 0; i < snap.docs.length; i++) {
+    await deleteDoc(doc(db, nombre, snap.docs[i].id));
+    borrados++;
+    if (borrados % 20 === 0 && status) { status.textContent = "Borrando " + nombre + "... (" + borrados + ")"; }
+  }
+  return borrados;
+}
+
+(function(){
+  var btn = document.getElementById("btnCerrarTemporada");
+  if (!btn) return;
+  btn.addEventListener("click", async function(){
+    var status = document.getElementById("resetStatus");
+    var txt = (document.getElementById("resetConfirmTxt").value || "").trim();
+    if (txt !== "CERRAR TEMPORADA") {
+      status.style.color = "var(--r)";
+      status.textContent = "Escribe exactamente CERRAR TEMPORADA para confirmar.";
+      return;
+    }
+    if (!confirm("ÚLTIMA CONFIRMACIÓN\n\n¿Has exportado ya todo lo que querías guardar?\n\nSe borrarán asistencias, confirmaciones, eventos, notas, partidos (con sus estadísticas), avisos y notificaciones; y se pondrán los pagos a cero.\n\nEsto NO se puede deshacer.")) return;
+
+    btn.disabled = true; btn.textContent = "⏳ Cerrando temporada...";
+    status.style.color = "#888";
+    var resumen = [];
+    try {
+      // 1) Borrar colecciones efímeras
+      var aBorrar = ["asistencia","confirmaciones","eventos","notas","partidos","avisos","notificaciones"];
+      for (var i = 0; i < aBorrar.length; i++) {
+        status.textContent = "Borrando " + aBorrar[i] + "...";
+        var n = await borrarColeccionCompleta(aBorrar[i], status);
+        resumen.push(aBorrar[i] + ": " + n);
+      }
+
+      // 2) Poner pagos de JUGADORES a cero
+      status.textContent = "Reseteando pagos de jugadores...";
+      var sj = await getDocs(collection(db, "alumnos"));
+      for (var j = 0; j < sj.docs.length; j++) {
+        await updateDoc(doc(db, "alumnos", sj.docs[j].id), { pago1: "", pago2: "" });
+      }
+      resumen.push("pagos jugadores: a cero");
+
+      // 3) Poner pagos de ENTRENADORES a cero
+      status.textContent = "Reseteando pagos de entrenadores...";
+      var se = await getDocs(collection(db, "entrenadores"));
+      for (var k = 0; k < se.docs.length; k++) {
+        await updateDoc(doc(db, "entrenadores", se.docs[k].id), { pagosMeses: {} });
+      }
+      resumen.push("pagos entrenadores: a cero");
+
+      status.style.color = "var(--v)";
+      status.innerHTML = "✅ <b>Temporada cerrada.</b> El club está listo para empezar de nuevo.<br><span style=\"font-size:11px;color:#888;\">" + resumen.join(" · ") + "</span>";
+      document.getElementById("resetConfirmTxt").value = "";
+      toast("Temporada cerrada", "ok");
+      // Recargar datos en memoria
+      if (typeof cargarJugadores === "function") await cargarJugadores();
+      if (typeof cargarEntrenadores === "function") await cargarEntrenadores();
+    } catch(e) {
+      status.style.color = "var(--r)";
+      status.textContent = "❌ Error durante el cierre: " + e.message + ". Puedes volver a pulsar para continuar.";
+    }
+    btn.disabled = false; btn.textContent = "🔒 Cerrar temporada y empezar de cero";
+  });
+})();
 
 async function borrarEventoDiaAdmin(id) {
   try {
