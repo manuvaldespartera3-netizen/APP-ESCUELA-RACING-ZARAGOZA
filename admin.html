@@ -468,6 +468,29 @@ body{background:var(--n);color:var(--t);font-family:"DM Sans",sans-serif;min-hei
     <div class="sec" id="sec-jugadores">
       <div class="sec-titulo">Jugadores</div>
       <button class="collap-btn" data-target="formNuevoJugador"><span>➕</span><span>Añadir jugador</span><span class="arrow">▶</span></button>
+      <button class="collap-btn" data-target="formMoverLote" style="background:linear-gradient(135deg,#1a3a2a,#1a5a3a);border-color:rgba(37,163,82,.3);"><span>🔄</span><span>Mover jugadores de equipo (en lote)</span><span class="arrow">▶</span></button>
+      <div class="form-card collap-content" id="formMoverLote">
+        <div class="form-titulo">🔄 Mover jugadores de equipo</div>
+        <div style="font-size:12px;color:#888;margin-bottom:14px;line-height:1.45;">Útil al cambiar de temporada: mueve un equipo entero de categoría sin editar uno a uno. Elige de qué equipo partes, marca los jugadores y elige el equipo destino.</div>
+        <div class="form-campo ancho" style="margin-bottom:12px;">
+          <label>1) Equipo de origen</label>
+          <select id="moverOrigen"><option value="">— Elige un equipo —</option></select>
+        </div>
+        <div id="moverListaWrap" style="display:none;margin-bottom:12px;">
+          <label style="font-size:11px;color:#777;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:8px;">2) Marca los jugadores a mover</label>
+          <div style="display:flex;gap:8px;margin-bottom:10px;">
+            <button type="button" id="moverTodos" style="flex:1;padding:8px;background:rgba(74,144,217,.12);border:1px solid rgba(74,144,217,.3);color:var(--ac);border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif;">Marcar todos</button>
+            <button type="button" id="moverNinguno" style="flex:1;padding:8px;background:rgba(120,120,120,.12);border:1px solid rgba(120,120,120,.3);color:#aaa;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif;">Desmarcar</button>
+          </div>
+          <div id="moverLista" style="max-height:280px;overflow-y:auto;"></div>
+        </div>
+        <div class="form-campo ancho" id="moverDestinoWrap" style="display:none;margin-bottom:12px;">
+          <label>3) Equipo de destino</label>
+          <select id="moverDestino"><option value="">— Elige destino —</option></select>
+        </div>
+        <button class="btn-guardar" id="btnMoverLote" style="background:var(--v);display:none;width:100%;">🔄 Mover los seleccionados</button>
+        <div id="moverStatus" style="font-size:13px;margin-top:10px;color:#888;"></div>
+      </div>
       <div class="form-card collap-content" id="formNuevoJugador">
         <div class="form-titulo">➕ Nuevo jugador</div>
         <div class="form-grid">
@@ -1369,6 +1392,82 @@ async function contarAsistencia(id) {
     return {total:total,presentes:presentes};
   } catch(e) { return {total:0,presentes:0}; }
 }
+
+// ══════════════════════════════════════════════════════
+// MOVER JUGADORES DE EQUIPO EN LOTE (cambio de temporada)
+// Solo cambia el campo "grupo" — mismo efecto que el botón Editar.
+// ══════════════════════════════════════════════════════
+function poblarSelectoresMover() {
+  if (typeof equiposGlobales === "undefined") return;
+  var op = '<option value="">— Elige un equipo —</option>' + equiposGlobales.map(function(eq){ return '<option value="'+eq.nombre+'">'+eq.nombre+'</option>'; }).join("");
+  var so = document.getElementById("moverOrigen");
+  var sd = document.getElementById("moverDestino");
+  if (so) so.innerHTML = op;
+  if (sd) sd.innerHTML = '<option value="">— Elige destino —</option>' + equiposGlobales.map(function(eq){ return '<option value="'+eq.nombre+'">'+eq.nombre+'</option>'; }).join("");
+}
+
+(function(){
+  var selOrigen = document.getElementById("moverOrigen");
+  if (!selOrigen) return;
+
+  selOrigen.addEventListener("focus", poblarSelectoresMover);
+  selOrigen.addEventListener("change", function(){
+    var equipo = this.value;
+    var wrap = document.getElementById("moverListaWrap");
+    var destWrap = document.getElementById("moverDestinoWrap");
+    var btn = document.getElementById("btnMoverLote");
+    var lista = document.getElementById("moverLista");
+    if (!equipo) { wrap.style.display="none"; destWrap.style.display="none"; btn.style.display="none"; return; }
+    // Jugadores activos de ese equipo
+    var jugs = listaJugadores.filter(function(j){ return j.estado!=="baja" && (j.grupo||"")===equipo; });
+    if (!jugs.length) {
+      lista.innerHTML = '<div style="font-size:12px;color:#888;font-style:italic;padding:10px 0;">No hay jugadores en ese equipo.</div>';
+    } else {
+      lista.innerHTML = jugs.map(function(j){
+        return '<label style="display:flex;align-items:center;gap:10px;padding:9px 10px;background:#0d0d0d;border:1px solid var(--b);border-radius:8px;margin-bottom:6px;cursor:pointer;">' +
+          '<input type="checkbox" class="mover-chk" value="'+j.id+'" style="width:18px;height:18px;">' +
+          '<span style="font-size:13px;color:var(--bl);">'+j.nombre+' '+j.apellidos+'</span></label>';
+      }).join("");
+    }
+    wrap.style.display="block"; destWrap.style.display="block"; btn.style.display="block";
+    poblarSelectoresMover();
+  });
+
+  document.getElementById("moverTodos").addEventListener("click", function(){
+    document.querySelectorAll("#moverLista .mover-chk").forEach(function(ch){ ch.checked=true; });
+  });
+  document.getElementById("moverNinguno").addEventListener("click", function(){
+    document.querySelectorAll("#moverLista .mover-chk").forEach(function(ch){ ch.checked=false; });
+  });
+
+  document.getElementById("btnMoverLote").addEventListener("click", async function(){
+    var destino = document.getElementById("moverDestino").value;
+    var origen = document.getElementById("moverOrigen").value;
+    var status = document.getElementById("moverStatus");
+    var ids = Array.prototype.slice.call(document.querySelectorAll("#moverLista .mover-chk:checked")).map(function(ch){ return ch.value; });
+    if (!destino) { status.style.color="var(--r)"; status.textContent="Elige el equipo de destino."; return; }
+    if (destino===origen) { status.style.color="var(--r)"; status.textContent="El destino es el mismo que el origen."; return; }
+    if (!ids.length) { status.style.color="var(--r)"; status.textContent="No has marcado ningún jugador."; return; }
+    if (!confirm("¿Mover "+ids.length+" jugador(es) de \""+origen+"\" a \""+destino+"\"?\n\nSolo cambia su equipo. No afecta a asistencias, notas ni pagos.")) return;
+    var btn=this; btn.disabled=true; btn.textContent="⏳ Moviendo...";
+    status.style.color="#888"; status.textContent="";
+    var ok=0;
+    try {
+      for (var i=0;i<ids.length;i++){
+        await updateDoc(doc(db,"alumnos",ids[i]),{grupo:destino});
+        ok++;
+      }
+      status.style.color="var(--v)"; status.textContent="✅ "+ok+" jugador(es) movido(s) a "+destino+".";
+      toast("Movidos "+ok+" a "+destino,"ok");
+      await cargarJugadores();
+      // Refrescar la lista del propio bloque
+      document.getElementById("moverOrigen").dispatchEvent(new Event("change"));
+    } catch(e) {
+      status.style.color="var(--r)"; status.textContent="❌ Error tras mover "+ok+": "+e.message;
+    }
+    btn.disabled=false; btn.textContent="🔄 Mover los seleccionados";
+  });
+})();
 
 async function pintarJugadores(filtro) {
   var el = document.getElementById("listaJugadores");
