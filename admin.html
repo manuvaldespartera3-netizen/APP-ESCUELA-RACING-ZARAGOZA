@@ -1434,10 +1434,11 @@ async function contarAsistencia(id) {
 // ══════════════════════════════════════════════════════
 function poblarSelectoresMover() {
   if (typeof equiposGlobales === "undefined") return;
-  var op = '<option value="">— Elige un equipo —</option>' + equiposGlobales.map(function(eq){ return '<option value="'+eq.nombre+'">'+eq.nombre+'</option>'; }).join("");
+  var opEquipos = equiposGlobales.map(function(eq){ return '<option value="'+eq.nombre+'">'+eq.nombre+'</option>'; }).join("");
   var so = document.getElementById("moverOrigen");
   var sd = document.getElementById("moverDestino");
-  if (so) so.innerHTML = op;
+  // El origen incluye "Sin asignar" (jugadores recién importados, sin equipo)
+  if (so) so.innerHTML = '<option value="">— Elige un equipo —</option><option value="__SIN_ASIGNAR__">⚠️ Sin asignar (sin equipo)</option>' + opEquipos;
   if (sd) sd.innerHTML = '<option value="">— Elige destino —</option>' + equiposGlobales.map(function(eq){ return '<option value="'+eq.nombre+'">'+eq.nombre+'</option>'; }).join("");
 }
 
@@ -1454,7 +1455,12 @@ function poblarSelectoresMover() {
     var lista = document.getElementById("moverLista");
     if (!equipo) { wrap.style.display="none"; destWrap.style.display="none"; btn.style.display="none"; return; }
     // Jugadores activos de ese equipo
-    var jugs = listaJugadores.filter(function(j){ return j.estado!=="baja" && (j.grupo||"")===equipo; });
+    var jugs;
+    if (equipo === "__SIN_ASIGNAR__") {
+      jugs = listaJugadores.filter(function(j){ return j.estado!=="baja" && (!j.grupo || j.grupo===""); });
+    } else {
+      jugs = listaJugadores.filter(function(j){ return j.estado!=="baja" && (j.grupo||"")===equipo; });
+    }
     if (!jugs.length) {
       lista.innerHTML = '<div style="font-size:12px;color:#888;font-style:italic;padding:10px 0;">No hay jugadores en ese equipo.</div>';
     } else {
