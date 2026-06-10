@@ -468,10 +468,10 @@ body{background:var(--n);color:var(--t);font-family:"DM Sans",sans-serif;min-hei
     <div class="sec" id="sec-jugadores">
       <div class="sec-titulo">Jugadores</div>
       <button class="collap-btn" data-target="formNuevoJugador"><span>➕</span><span>Añadir jugador</span><span class="arrow">▶</span></button>
-      <button class="collap-btn" data-target="formMoverLote" style="background:linear-gradient(135deg,#1a3a2a,#1a5a3a);border-color:rgba(37,163,82,.3);"><span>🔄</span><span>Mover jugadores de equipo (en lote)</span><span class="arrow">▶</span></button>
+      <button class="collap-btn" data-target="formMoverLote" style="background:linear-gradient(135deg,#1a3a2a,#1a5a3a);border-color:rgba(37,163,82,.3);"><span>🔧</span><span>Gestionar jugadores en lote</span><span class="arrow">▶</span></button>
       <div class="form-card collap-content" id="formMoverLote">
-        <div class="form-titulo">🔄 Mover jugadores de equipo</div>
-        <div style="font-size:12px;color:#888;margin-bottom:14px;line-height:1.45;">Útil al cambiar de temporada: mueve un equipo entero de categoría sin editar uno a uno. Elige de qué equipo partes, marca los jugadores y elige el equipo destino.</div>
+        <div class="form-titulo">🔧 Gestionar jugadores en lote</div>
+        <div style="font-size:12px;color:#888;margin-bottom:14px;line-height:1.45;">Selecciona varios jugadores de un equipo y elige qué hacer con ellos: moverlos a otro equipo, darlos de baja o eliminarlos. Evita tener que hacerlo uno a uno.</div>
         <div class="form-campo ancho" style="margin-bottom:12px;">
           <label>1) Equipo de origen</label>
           <select id="moverOrigen"><option value="">— Elige un equipo —</option></select>
@@ -484,12 +484,31 @@ body{background:var(--n);color:var(--t);font-family:"DM Sans",sans-serif;min-hei
           </div>
           <div id="moverLista" style="max-height:280px;overflow-y:auto;"></div>
         </div>
-        <div class="form-campo ancho" id="moverDestinoWrap" style="display:none;margin-bottom:12px;">
-          <label>3) Equipo de destino</label>
-          <select id="moverDestino"><option value="">— Elige destino —</option></select>
+        <div id="moverAccionesWrap" style="display:none;">
+          <label style="font-size:11px;color:#777;text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:8px;">3) ¿Qué hacer con los seleccionados?</label>
+
+          <!-- Acción: mover a otro equipo -->
+          <div style="background:rgba(74,144,217,.06);border:1px solid rgba(74,144,217,.25);border-radius:10px;padding:12px;margin-bottom:10px;">
+            <div class="form-campo ancho" style="margin-bottom:8px;">
+              <label style="color:var(--ac);">Mover a otro equipo</label>
+              <select id="moverDestino"><option value="">— Elige destino —</option></select>
+            </div>
+            <button id="btnMoverLote" style="width:100%;padding:11px;background:var(--a);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif;">🔄 Mover los seleccionados</button>
+          </div>
+
+          <!-- Acción: dar de baja -->
+          <div style="background:rgba(240,180,41,.06);border:1px solid rgba(240,180,41,.25);border-radius:10px;padding:12px;margin-bottom:10px;">
+            <div style="font-size:11px;color:var(--y);margin-bottom:8px;line-height:1.4;">Dar de baja: el jugador sale del equipo pero <b>sus datos se conservan</b> (reversible).</div>
+            <button id="btnBajaLote" style="width:100%;padding:11px;background:rgba(240,180,41,.15);color:var(--y);border:1px solid rgba(240,180,41,.4);border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:DM Sans,sans-serif;">⏸️ Dar de baja a los seleccionados</button>
+          </div>
+
+          <!-- Acción: eliminar definitivamente -->
+          <div style="background:rgba(224,60,60,.06);border:1px solid rgba(224,60,60,.3);border-radius:10px;padding:12px;">
+            <div style="font-size:11px;color:var(--r);margin-bottom:8px;line-height:1.4;">⚠️ Eliminar: borra al jugador <b>para siempre</b> (se guarda una copia en el histórico). No se puede deshacer.</div>
+            <button id="btnEliminarLote" style="width:100%;padding:11px;background:rgba(224,60,60,.12);color:var(--r);border:1px solid rgba(224,60,60,.45);border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;font-family:DM Sans,sans-serif;">🗑️ Eliminar a los seleccionados</button>
+          </div>
         </div>
-        <button class="btn-guardar" id="btnMoverLote" style="background:var(--v);display:none;width:100%;">🔄 Mover los seleccionados</button>
-        <div id="moverStatus" style="font-size:13px;margin-top:10px;color:#888;"></div>
+        <div id="moverStatus" style="font-size:13px;margin-top:12px;color:#888;line-height:1.5;"></div>
       </div>
       <div class="form-card collap-content" id="formNuevoJugador">
         <div class="form-titulo">➕ Nuevo jugador</div>
@@ -1108,7 +1127,7 @@ body{background:var(--n);color:var(--t);font-family:"DM Sans",sans-serif;min-hei
           <div class="form-campo"><label>Edades</label><input type="text" id="clubEdades" placeholder="3 a 6 años"></div>
           <div class="form-campo"><label>Días entrenamiento</label><input type="text" id="clubDias" placeholder="Lunes y Jueves"></div>
           <div class="form-campo"><label>Horario</label><input type="text" id="clubHorario" placeholder="17:30 - 18:30h"></div>
-          <div class="form-campo"><label>Nombre director</label><input type="text" id="clubDirector" placeholder="Nombre del director"></div>
+          <div class="form-campo"><label>Persona Referencia del Club</label><input type="text" id="clubDirector" placeholder="Nombre y apellidos"></div>
           <div class="form-campo"><label>Teléfono contacto</label><input type="tel" id="clubTel" placeholder="600 000 000"></div>
           <div class="form-campo"><label>Email contacto</label><input type="email" id="clubEmail" placeholder="contacto@racing.com"></div>
           <div class="form-campo ancho"><label>Dirección / Instalaciones</label><input type="text" id="clubDireccion" placeholder="Ciudad Deportiva..."></div>
@@ -1434,7 +1453,7 @@ function poblarSelectoresMover() {
   selOrigen.addEventListener("change", function(){
     var equipo = this.value;
     var wrap = document.getElementById("moverListaWrap");
-    var destWrap = document.getElementById("moverDestinoWrap");
+    var destWrap = document.getElementById("moverAccionesWrap");
     var btn = document.getElementById("btnMoverLote");
     var lista = document.getElementById("moverLista");
     if (!equipo) { wrap.style.display="none"; destWrap.style.display="none"; btn.style.display="none"; return; }
@@ -1449,7 +1468,7 @@ function poblarSelectoresMover() {
           '<span style="font-size:13px;color:var(--bl);">'+j.nombre+' '+j.apellidos+'</span></label>';
       }).join("");
     }
-    wrap.style.display="block"; destWrap.style.display="block"; btn.style.display="block";
+    wrap.style.display="block"; destWrap.style.display="block";
     poblarSelectoresMover();
   });
 
@@ -1486,6 +1505,59 @@ function poblarSelectoresMover() {
       status.style.color="var(--r)"; status.textContent="❌ Error tras mover "+ok+": "+e.message;
     }
     btn.disabled=false; btn.textContent="🔄 Mover los seleccionados";
+  });
+})();
+
+// Acciones en lote: baja y eliminar (reutilizan las funciones individuales ya probadas)
+(function(){
+  function idsSeleccionados(){
+    return Array.prototype.slice.call(document.querySelectorAll("#moverLista .mover-chk:checked")).map(function(ch){ return ch.value; });
+  }
+  function nombresDe(ids){
+    return ids.map(function(id){ var j=listaJugadores.find(function(x){return x.id===id;}); return j? (j.nombre+" "+j.apellidos):id; });
+  }
+  var btnBaja = document.getElementById("btnBajaLote");
+  var btnElim = document.getElementById("btnEliminarLote");
+  var status = function(){ return document.getElementById("moverStatus"); };
+
+  if (btnBaja) btnBaja.addEventListener("click", async function(){
+    var ids = idsSeleccionados(); var st = status();
+    if (!ids.length) { st.style.color="var(--r)"; st.textContent="No has marcado ningún jugador."; return; }
+    if (!confirm("¿Dar de baja a "+ids.length+" jugador(es)?\n\nSalen del equipo pero sus datos se conservan. Es reversible.")) return;
+    var btn=this; btn.disabled=true; btn.textContent="⏳ Dando de baja...";
+    var ok=0;
+    try {
+      for (var i=0;i<ids.length;i++){ await updateDoc(doc(db,"alumnos",ids[i]),{estado:"baja"}); ok++; }
+      st.style.color="var(--v)"; st.textContent="✅ "+ok+" jugador(es) dados de baja.";
+      toast("Baja: "+ok,"ok");
+      await cargarJugadores();
+      document.getElementById("moverOrigen").dispatchEvent(new Event("change"));
+    } catch(e){ st.style.color="var(--r)"; st.textContent="❌ Error tras "+ok+": "+e.message; }
+    btn.disabled=false; btn.textContent="⏸️ Dar de baja a los seleccionados";
+  });
+
+  if (btnElim) btnElim.addEventListener("click", async function(){
+    var ids = idsSeleccionados(); var st = status();
+    if (!ids.length) { st.style.color="var(--r)"; st.textContent="No has marcado ningún jugador."; return; }
+    // Doble confirmación por ser destructivo
+    if (!confirm("⚠️ Vas a ELIMINAR PARA SIEMPRE a "+ids.length+" jugador(es):\n\n"+nombresDe(ids).slice(0,10).join(", ")+(ids.length>10?"...":"")+"\n\nSe guardará una copia en el histórico, pero saldrán de la app. ¿Continuar?")) return;
+    if (!confirm("Última confirmación: ¿seguro que eliminas a "+ids.length+" jugador(es)? Esto NO se puede deshacer.")) return;
+    var btn=this; btn.disabled=true; btn.textContent="⏳ Eliminando...";
+    var ok=0;
+    try {
+      for (var i=0;i<ids.length;i++){
+        var id=ids[i];
+        var j=listaJugadores.find(function(x){return x.id===id;});
+        if (j) { await addDoc(collection(db,"historico_alumnos"), Object.assign({}, j, {eliminadoEn:Timestamp.now(), idOriginal:id})); }
+        await deleteDoc(doc(db,"alumnos",id));
+        ok++;
+      }
+      st.style.color="var(--v)"; st.textContent="✅ "+ok+" jugador(es) eliminados (copia guardada en histórico).";
+      toast("Eliminados: "+ok,"ok");
+      await cargarJugadores();
+      document.getElementById("moverOrigen").dispatchEvent(new Event("change"));
+    } catch(e){ st.style.color="var(--r)"; st.textContent="❌ Error tras "+ok+": "+e.message; }
+    btn.disabled=false; btn.textContent="🗑️ Eliminar a los seleccionados";
   });
 })();
 
