@@ -1736,6 +1736,34 @@ async function verFichaJugador(id) {
     var notas=[]; snapN.forEach(function(d){notas.push(d.data());}); notas.sort(function(a,b){return(b.fecha||"").localeCompare(a.fecha||"");});
     if(notas.length){var sec=document.createElement("div"); sec.innerHTML='<div style="font-size:11px;color:var(--ac);text-transform:uppercase;letter-spacing:.5px;margin:14px 0 8px;">📝 Notas recientes</div>'; notas.slice(0,5).forEach(function(n){var c=document.createElement("div");c.className="nota-card";c.style.marginBottom="6px";c.innerHTML='<div class="nota-head"><div class="nota-quien">'+(n.tipo||"nota")+'</div><span class="nota-fecha-lbl">'+(n.fecha||"")+'</span></div><div class="nota-texto">'+n.texto+'</div>';sec.appendChild(c);}); cont.appendChild(sec);}
   } catch(e){}
+  // ── RESUMEN DEPORTIVO (lo mismo que ve la familia) ──
+  try {
+    var snapP = await getDocs(query(collection(db,"partidos"),where("equipo","==",(j.grupo||""))));
+    var parts=[]; snapP.forEach(function(d){parts.push(d.data());});
+    if (parts.length) {
+      var conv=0,jug=0,min=0,gol=0,asi=0,amar=0,roj=0,tit=0,sup=0,noConv=0,minPos=0;
+      parts.forEach(function(p){
+        var d=p.jugadas && p.jugadas[id];
+        if(!d || !d.convocado){ noConv++; return; }
+        conv++; minPos += (p.duracion_min||40);
+        if(d.minutos>0) jug++;
+        min+=d.minutos||0; gol+=d.goles||0; asi+=d.asistencias||0; amar+=d.amarillas||0; roj+=d.rojas||0;
+        if(d.titular) tit++; else sup++;
+      });
+      var pct = minPos>0 ? Math.round((min/minPos)*100) : 0;
+      function _tar(num,lbl,dest){ return '<div style="background:'+(dest?'rgba(74,144,217,.18)':'var(--g)')+';border:1px solid var(--b);border-radius:10px;padding:12px 6px;text-align:center;"><div style="font-size:19px;font-weight:700;color:var(--bl);">'+num+'</div><div style="font-size:10px;color:#888;text-transform:uppercase;letter-spacing:.3px;margin-top:3px;">'+lbl+'</div></div>'; }
+      var box=document.createElement("div");
+      var html='<div style="font-size:11px;color:var(--ac);text-transform:uppercase;letter-spacing:.5px;margin:18px 0 8px;">⚽ Resumen deportivo (lo que ve la familia)</div>';
+      html+='<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;">';
+      html+=_tar(parts.length,"Partidos",true)+_tar(conv,"Convocado")+_tar(jug,"Jugados");
+      html+=_tar(min+"\'","Minutos")+_tar(tit,"Titular")+_tar(sup,"Suplente");
+      html+=_tar(gol,"Goles")+_tar(asi,"Asist.")+_tar(pct+"%","% jugado");
+      if(amar>0||roj>0||noConv>0){ html+=_tar(amar,"🟨 Amar.")+_tar(roj,"🟥 Rojas")+_tar(noConv,"No conv."); }
+      html+='</div>';
+      box.innerHTML=html;
+      cont.appendChild(box);
+    }
+  } catch(e){ console.error("resumen deportivo ficha",e); }
 }
 document.getElementById("btnCerrarFicha").addEventListener("click",function(){document.getElementById("modalFicha").classList.remove("abierto");});
 document.getElementById("btnEditarDesdeFicha").addEventListener("click",function(){document.getElementById("modalFicha").classList.remove("abierto");if(fichaJugadorId)abrirEditarJugador(fichaJugadorId);});
