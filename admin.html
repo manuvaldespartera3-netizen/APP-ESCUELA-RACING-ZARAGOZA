@@ -1123,10 +1123,6 @@ body{background:var(--n);color:var(--t);font-family:"DM Sans",sans-serif;min-hei
         <div class="form-grid">
           <div class="form-campo"><label>Nombre del club</label><input type="text" id="clubNombre" placeholder="Racing Club Zaragoza"></div>
           <div class="form-campo"><label>Temporada</label><input type="text" id="clubTemporada" placeholder="2025/2026"></div>
-          <div class="form-campo"><label>Categoría</label><input type="text" id="clubCategoria" placeholder="Escuela (2022)"></div>
-          <div class="form-campo"><label>Edades</label><input type="text" id="clubEdades" placeholder="3 a 6 años"></div>
-          <div class="form-campo"><label>Días entrenamiento</label><input type="text" id="clubDias" placeholder="Lunes y Jueves"></div>
-          <div class="form-campo"><label>Horario</label><input type="text" id="clubHorario" placeholder="17:30 - 18:30h"></div>
           <div class="form-campo"><label>Persona Referencia del Club</label><input type="text" id="clubDirector" placeholder="Nombre y apellidos"></div>
           <div class="form-campo"><label>Teléfono contacto</label><input type="tel" id="clubTel" placeholder="600 000 000"></div>
           <div class="form-campo"><label>Email contacto</label><input type="email" id="clubEmail" placeholder="contacto@racing.com"></div>
@@ -2500,7 +2496,7 @@ async function cargarInfoClub() {
     var snap = await getDocs(query(collection(db, "configuracion"), where("tipo", "==", "club")));
     if (!snap.empty) {
       var d = snap.docs[0].data();
-      var campos = {clubNombre:"nombre",clubTemporada:"temporada",clubCategoria:"categoria",clubEdades:"edades",clubDias:"dias",clubHorario:"horario",clubDirector:"director",clubTel:"tel",clubEmail:"email",clubDireccion:"direccion",clubDesc:"desc"};
+      var campos = {clubNombre:"nombre",clubTemporada:"temporada",clubDirector:"director",clubTel:"tel",clubEmail:"email",clubDireccion:"direccion",clubDesc:"desc"};
       Object.keys(campos).forEach(function(elId) {
         var el = document.getElementById(elId);
         if (el) el.value = d[campos[elId]] || "";
@@ -2519,10 +2515,6 @@ document.getElementById("btnGuardarClub").addEventListener("click", async functi
       tipo:      "club",
       nombre:    document.getElementById("clubNombre").value.trim(),
       temporada: document.getElementById("clubTemporada").value.trim(),
-      categoria: document.getElementById("clubCategoria").value.trim(),
-      edades:    document.getElementById("clubEdades").value.trim(),
-      dias:      document.getElementById("clubDias").value.trim(),
-      horario:   document.getElementById("clubHorario").value.trim(),
       director:  document.getElementById("clubDirector").value.trim(),
       tel:       document.getElementById("clubTel").value.trim(),
       email:     document.getElementById("clubEmail").value.trim(),
