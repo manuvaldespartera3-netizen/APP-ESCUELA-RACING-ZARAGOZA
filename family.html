@@ -2138,6 +2138,33 @@ function abrirModalPartido(p) {
       '</div>';
   }
 
+  // Fotos y vídeos del partido (enlaces que pone el entrenador; vacíos no se muestran)
+  var seccionMedia = "";
+  var _vids = (p.videos || []).filter(Boolean);
+  var _albs = (p.albumes || []).filter(Boolean);
+  if (_vids.length || _albs.length) {
+    var _items = "";
+    _vids.forEach(function(u, i) {
+      var us = (u || "").replace(/"/g, "&quot;");
+      _items += '<a href="' + us + '" target="_blank" rel="noopener" class="modalP-acta" style="margin-bottom:8px;text-decoration:none;">' +
+        '<div class="modalP-acta-ico">🎬</div>' +
+        '<div class="modalP-acta-text"><div class="modalP-acta-titulo">Ver vídeo ' + (i+1) + '</div>' +
+        '<div class="modalP-acta-sub">Se abre en una pestaña nueva</div></div>' +
+        '<div class="modalP-acta-arrow">→</div></a>';
+    });
+    _albs.forEach(function(u, i) {
+      var us = (u || "").replace(/"/g, "&quot;");
+      _items += '<a href="' + us + '" target="_blank" rel="noopener" class="modalP-acta" style="margin-bottom:8px;text-decoration:none;">' +
+        '<div class="modalP-acta-ico">📸</div>' +
+        '<div class="modalP-acta-text"><div class="modalP-acta-titulo">Ver álbum de fotos ' + (i+1) + '</div>' +
+        '<div class="modalP-acta-sub">Se abre en una pestaña nueva</div></div>' +
+        '<div class="modalP-acta-arrow">→</div></a>';
+    });
+    seccionMedia = '<div class="modalP-acta-wrap">' +
+      '<div style="font-size:11px;color:var(--azul-c);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;">🎬 Fotos y vídeos del partido</div>' +
+      _items + '</div>';
+  }
+
   body.innerHTML =
     '<div class="modalP-header">' +
       '<div class="modalP-rival">' + (p.equipo || "") + ' vs ' + (p.rival || "?") + '</div>' +
@@ -2147,7 +2174,8 @@ function abrirModalPartido(p) {
     '</div>' +
     seccionJugador +
     seccionObs +
-    seccionActa;
+    seccionActa +
+    seccionMedia;
 
   ov.classList.add("visible");
   document.body.style.overflow = "hidden";
