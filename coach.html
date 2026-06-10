@@ -806,6 +806,20 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
                 <input type="url" id="pUrlActa" placeholder="https://...">
               </div>
               <div class="partido-form-campo ancho">
+                <label>🎬 Vídeos del partido <span style="color:#555;font-weight:400;text-transform:none;">(opcional — hasta 4 enlaces de YouTube, Drive...)</span></label>
+                <input type="url" id="pVideo1" placeholder="Enlace vídeo 1...">
+                <input type="url" id="pVideo2" placeholder="Enlace vídeo 2..." style="margin-top:6px;">
+                <input type="url" id="pVideo3" placeholder="Enlace vídeo 3..." style="margin-top:6px;">
+                <input type="url" id="pVideo4" placeholder="Enlace vídeo 4..." style="margin-top:6px;">
+              </div>
+              <div class="partido-form-campo ancho">
+                <label>📸 Álbumes de fotos <span style="color:#555;font-weight:400;text-transform:none;">(opcional — hasta 4 enlaces de Google Fotos, Drive...)</span></label>
+                <input type="url" id="pAlbum1" placeholder="Enlace álbum 1...">
+                <input type="url" id="pAlbum2" placeholder="Enlace álbum 2..." style="margin-top:6px;">
+                <input type="url" id="pAlbum3" placeholder="Enlace álbum 3..." style="margin-top:6px;">
+                <input type="url" id="pAlbum4" placeholder="Enlace álbum 4..." style="margin-top:6px;">
+              </div>
+              <div class="partido-form-campo ancho">
                 <label>Resultado</label>
                 <div class="resultado-row">
                   <input type="number" id="pGolesPropio" placeholder="Nosotros" min="0">
@@ -2031,6 +2045,11 @@ function abrirFormPartido(p) {
   document.getElementById("pHora").value = p ? (p.hora||"") : "";
   document.getElementById("pLugar").value = p ? (p.lugar||"") : "";
   document.getElementById("pUrlActa").value = p ? (p.urlActa||"") : "";
+  var _vids = (p && p.videos) || []; var _albs = (p && p.albumes) || [];
+  for (var _i=1; _i<=4; _i++) {
+    document.getElementById("pVideo"+_i).value = _vids[_i-1] || "";
+    document.getElementById("pAlbum"+_i).value = _albs[_i-1] || "";
+  }
   document.getElementById("pGolesPropio").value = (p && typeof p.goles_propio === "number") ? p.goles_propio : "";
   document.getElementById("pGolesRival").value = (p && typeof p.goles_rival === "number") ? p.goles_rival : "";
   var loc = (p && p.localia) ? p.localia : "casa";
@@ -2070,6 +2089,8 @@ document.getElementById("btnGuardarPartidoForm").addEventListener("click", async
     hora: document.getElementById("pHora").value || "",
     lugar: document.getElementById("pLugar").value.trim(),
     urlActa: document.getElementById("pUrlActa").value.trim(),
+    videos: [1,2,3,4].map(function(n){ return document.getElementById("pVideo"+n).value.trim(); }).filter(Boolean),
+    albumes: [1,2,3,4].map(function(n){ return document.getElementById("pAlbum"+n).value.trim(); }).filter(Boolean),
     localia: loc,
     goles_propio: golP === "" ? null : parseInt(golP),
     goles_rival: golR === "" ? null : parseInt(golR),
