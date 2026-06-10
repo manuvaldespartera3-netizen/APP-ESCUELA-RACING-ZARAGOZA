@@ -1570,21 +1570,15 @@ async function cargarInfoClub() {
     // Card principal
     var card1 = document.createElement("div"); card1.className = "info-card";
     card1.innerHTML = '<div class="info-card-titulo">🏟️ '+(d.nombre||"Racing Club Zaragoza")+'</div>';
-    var filas1 = [["Temporada",d.temporada],["Categoría",d.categoria],["Edades",d.edades]];
+    var filas1 = [["Temporada",d.temporada]];
     filas1.forEach(function(f) { if(f[1]) card1.innerHTML += '<div class="info-row"><span class="info-label">'+f[0]+'</span><span class="info-val">'+f[1]+'</span></div>'; });
     if (d.desc) card1.innerHTML += '<div style="font-size:13px;color:#888;margin-top:10px;line-height:1.5;">'+d.desc+'</div>';
     el.appendChild(card1);
 
-    var card2 = document.createElement("div"); card2.className = "info-card";
-    card2.innerHTML = '<div class="info-card-titulo">📅 Horarios</div>';
-    var filas2 = [["Días",d.dias],["Horario",d.horario],["Instalaciones",d.direccion]];
-    filas2.forEach(function(f) { if(f[1]) card2.innerHTML += '<div class="info-row"><span class="info-label">'+f[0]+'</span><span class="info-val">'+f[1]+'</span></div>'; });
-    el.appendChild(card2);
-
-    if (d.director || d.tel || d.email) {
+    if (d.director || d.tel || d.email || d.direccion) {
       var card3 = document.createElement("div"); card3.className = "info-card";
       card3.innerHTML = '<div class="info-card-titulo">📞 Contacto</div>';
-      var filas3 = [["Director",d.director],["Teléfono",d.tel],["Email",d.email]];
+      var filas3 = [["Persona de referencia",d.director],["Teléfono",d.tel],["Email",d.email],["Instalaciones",d.direccion]];
       filas3.forEach(function(f) { if(f[1]) card3.innerHTML += '<div class="info-row"><span class="info-label">'+f[0]+'</span><span class="info-val">'+f[1]+'</span></div>'; });
       el.appendChild(card3);
     }
@@ -1594,7 +1588,7 @@ async function cargarInfoClub() {
 }
 
 function renderClubDefault() {
-  return '<div class="info-card"><div class="info-card-titulo">🏟️ Racing Club Zaragoza</div><div class="info-row"><span class="info-label">Temporada</span><span class="info-val">2025/2026</span></div><div class="info-row"><span class="info-label">Categoría</span><span class="info-val">Escuela</span></div></div><div class="info-card"><div class="info-card-titulo">📅 Horarios</div><div class="info-row"><span class="info-label">Entrenos</span><span class="info-val">Lunes y Jueves 17:30 - 18:30h</span></div></div>';
+  return '<div class="info-card"><div class="info-card-titulo">🏟️ Racing Club Zaragoza</div><div class="info-row"><span class="info-label">Temporada</span><span class="info-val">2026/2027</span></div></div>';
 }
 
 
