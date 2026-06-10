@@ -1825,7 +1825,9 @@ async function cargarResumenPartidosInicio() {
       '<div class="resumen-partidos-inicio">' +
         '<div class="rpi-titulo">🏆 Resumen de partidos</div>' +
         '<div class="rpi-grid">' +
-          '<div class="rpi-box"><div class="rpi-num">' + jugados + ' / ' + convocados + '</div><div class="rpi-lbl">Jugados / convocado</div></div>' +
+          '<div class="rpi-box destacado"><div class="rpi-num">' + partidos.length + '</div><div class="rpi-lbl">Partidos del equipo</div></div>' +
+          '<div class="rpi-box"><div class="rpi-num">' + convocados + '</div><div class="rpi-lbl">Convocado</div></div>' +
+          '<div class="rpi-box"><div class="rpi-num">' + jugados + '</div><div class="rpi-lbl">Jugados</div></div>' +
           '<div class="rpi-box destacado"><div class="rpi-num">' + pctConv + '%</div><div class="rpi-lbl">% minutos jugados</div></div>' +
           '<div class="rpi-box"><div class="rpi-num">' + minutos + '\'</div><div class="rpi-lbl">Minutos totales</div></div>' +
           '<div class="rpi-box"><div class="rpi-num">' + titularidades + '</div><div class="rpi-lbl">Veces titular</div></div>' +
@@ -1910,7 +1912,9 @@ async function cargarPartidosFam() {
       '<div class="fp-stats-card">' +
         '<div class="fp-stats-titulo">📊 Resumen — ' + hijoActual.nombre + '</div>' +
         '<div class="fp-stats-grid">' +
-          '<div class="fp-stat-box"><div class="fp-stat-num">' + jugados + ' / ' + convocados + '</div><div class="fp-stat-lbl">Jugados / convocado</div></div>' +
+          '<div class="fp-stat-box" style="background:rgba(74,144,217,.18);"><div class="fp-stat-num">' + partidos.length + '</div><div class="fp-stat-lbl">Partidos del equipo</div></div>' +
+          '<div class="fp-stat-box"><div class="fp-stat-num">' + convocados + '</div><div class="fp-stat-lbl">Convocado</div></div>' +
+          '<div class="fp-stat-box"><div class="fp-stat-num">' + jugados + '</div><div class="fp-stat-lbl">Jugados</div></div>' +
           '<div class="fp-stat-box"><div class="fp-stat-num">' + minutos + '\'</div><div class="fp-stat-lbl">Minutos totales</div></div>' +
           '<div class="fp-stat-box"><div class="fp-stat-num">' + promedio + '\'</div><div class="fp-stat-lbl">Promedio por partido</div></div>' +
           '<div class="fp-stat-box"><div class="fp-stat-num">' + titularidades + '</div><div class="fp-stat-lbl">Veces titular</div></div>' +
