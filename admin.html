@@ -384,6 +384,20 @@ body{background:var(--n);color:var(--t);font-family:"DM Sans",sans-serif;min-hei
 .cal-ev-emojis { font-size:14px; line-height:1.3; margin-top:2px; text-align:center; letter-spacing:1px; }
 @media (max-width:400px){ .cal-ev-emojis { font-size:12px; } }
 
+
+/* === Visibilidad para familias === */
+.vis-htitle{font-size:12px;font-weight:700;color:var(--ac);text-transform:uppercase;letter-spacing:.05em;margin:18px 0 8px 4px;}
+.vis-group{background:var(--g);border:1px solid var(--b);border-radius:12px;padding:2px 16px;margin-bottom:8px;}
+.vis-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.06);}
+.vis-row:last-child{border-bottom:none;}
+.vis-row .vl{font-size:14px;color:var(--w);line-height:1.3;}
+.vis-row .vl small{display:block;color:#888;font-size:11px;margin-top:2px;}
+.vis-sw{position:relative;width:48px;height:27px;flex-shrink:0;cursor:pointer;display:inline-block;}
+.vis-sw input{opacity:0;width:0;height:0;position:absolute;}
+.vis-sw .track{position:absolute;inset:0;background:#3a3a3a;border-radius:100px;transition:.2s;}
+.vis-sw .knob{position:absolute;top:3px;left:3px;width:21px;height:21px;background:#fff;border-radius:50%;transition:.2s;}
+.vis-sw input:checked + .track{background:var(--v);}
+.vis-sw input:checked + .track + .knob{transform:translateX(21px);}
 </style>
 </head>
 <body>
@@ -424,6 +438,7 @@ body{background:var(--n);color:var(--t);font-family:"DM Sans",sans-serif;min-hei
     <div class="tab" data-sec="decalogo">📋 Normativa</div>
     <div class="tab" data-sec="club-info">🏟️ Info Club</div>
     <div class="tab" data-sec="scouting">🔍 Scouting</div>
+    <div class="tab" data-sec="visibilidad">👁️ Visibilidad</div>
   </div>
   <div class="ct">
 
@@ -1262,8 +1277,41 @@ document.querySelectorAll(".tab").forEach(function(t) {
     document.getElementById("sec-"+t.dataset.sec).classList.add("activo");
     if (t.dataset.sec === "push") { cargarPushAdmin(); rellenarPushJugador(); }
     if (t.dataset.sec === "infografias") { cargarInfografias(); }
+    if (t.dataset.sec === "visibilidad") { cargarVisibilidad(); }
   });
 });
+// === Visibilidad para familias ===
+var VIS_KEYS = ["minutos","promedio","pctMin","titular","goles","asistencias","tarjetas","asistenciaEntrenos","notas","carta","cuotas"];
+async function cargarVisibilidad(){
+  try {
+    var snap = await getDoc(doc(db,"configuracion","visibilidad"));
+    var data = snap.exists() ? snap.data() : {};
+    VIS_KEYS.forEach(function(k){
+      var el = document.getElementById("vis_"+k);
+      if (el) el.checked = (data[k] !== false); // por defecto visible
+    });
+  } catch(e){ console.error("Error cargar visibilidad:", e); }
+}
+(function(){
+  var btnVis = document.getElementById("btnGuardarVis");
+  if (!btnVis) return;
+  btnVis.addEventListener("click", async function(){
+    btnVis.disabled = true; var txt = btnVis.textContent; btnVis.textContent = "Guardando...";
+    try {
+      var data = { tipo:"visibilidad" };
+      VIS_KEYS.forEach(function(k){
+        var el = document.getElementById("vis_"+k);
+        data[k] = el ? el.checked : true;
+      });
+      await setDoc(doc(db,"configuracion","visibilidad"), data);
+      toast("✅ Visibilidad guardada","ok");
+      var st = document.getElementById("visStatus");
+      if (st) st.textContent = "Guardado · " + new Date().toLocaleDateString("es-ES");
+    } catch(e){ toast("Error: "+e.message,"error"); }
+    btnVis.disabled = false; btnVis.textContent = txt;
+  });
+})();
+
 function irA(sec) {
   var tab = document.querySelector('.tab[data-sec="' + sec + '"]');
   if (tab) { tab.click(); return; }
@@ -5143,6 +5191,30 @@ if (_origCEQ_v2) {
     </div>
 
 
+
+    <div class="sec" id="sec-visibilidad">
+      <h2 style="font-size:20px;color:var(--w);margin:0 0 6px;">👁️ Visibilidad para las familias</h2>
+      <p style="color:#888;font-size:13px;margin:0 0 6px;">Elige qué datos ven las familias de cada jugador. Lo que desactives no se mostrará en la app de la familia. Por defecto se muestra todo.</p>
+      <div class="vis-htitle">Estadísticas de partidos</div>
+      <div class="vis-group">
+        <div class="vis-row"><div class="vl">Minutos jugados<small>Minutos totales en partidos</small></div><label class="vis-sw"><input type="checkbox" id="vis_minutos" checked><span class="track"></span><span class="knob"></span></label></div>
+        <div class="vis-row"><div class="vl">Promedio de minutos<small>Media por partido jugado</small></div><label class="vis-sw"><input type="checkbox" id="vis_promedio" checked><span class="track"></span><span class="knob"></span></label></div>
+        <div class="vis-row"><div class="vl">% de minutos<small>Porcentaje sobre el total posible</small></div><label class="vis-sw"><input type="checkbox" id="vis_pctMin" checked><span class="track"></span><span class="knob"></span></label></div>
+        <div class="vis-row"><div class="vl">Titularidades<small>Veces de titular</small></div><label class="vis-sw"><input type="checkbox" id="vis_titular" checked><span class="track"></span><span class="knob"></span></label></div>
+        <div class="vis-row"><div class="vl">Goles<small>Goles marcados</small></div><label class="vis-sw"><input type="checkbox" id="vis_goles" checked><span class="track"></span><span class="knob"></span></label></div>
+        <div class="vis-row"><div class="vl">Asistencias<small>Asistencias de gol</small></div><label class="vis-sw"><input type="checkbox" id="vis_asistencias" checked><span class="track"></span><span class="knob"></span></label></div>
+        <div class="vis-row"><div class="vl">Tarjetas<small>Amarillas y rojas</small></div><label class="vis-sw"><input type="checkbox" id="vis_tarjetas" checked><span class="track"></span><span class="knob"></span></label></div>
+      </div>
+      <div class="vis-htitle">Otros datos</div>
+      <div class="vis-group">
+        <div class="vis-row"><div class="vl">Asistencia a entrenamientos<small>El donut y el % de asistencia</small></div><label class="vis-sw"><input type="checkbox" id="vis_asistenciaEntrenos" checked><span class="track"></span><span class="knob"></span></label></div>
+        <div class="vis-row"><div class="vl">Notas del míster<small>Las notas que envía el entrenador</small></div><label class="vis-sw"><input type="checkbox" id="vis_notas" checked><span class="track"></span><span class="knob"></span></label></div>
+        <div class="vis-row"><div class="vl">Carta del jugador<small>El botón de ver/descargar la carta</small></div><label class="vis-sw"><input type="checkbox" id="vis_carta" checked><span class="track"></span><span class="knob"></span></label></div>
+        <div class="vis-row"><div class="vl">Estado de cuotas<small>Los botones de pago al día / pendiente</small></div><label class="vis-sw"><input type="checkbox" id="vis_cuotas" checked><span class="track"></span><span class="knob"></span></label></div>
+      </div>
+      <button id="btnGuardarVis" style="width:100%;margin-top:14px;padding:14px;background:var(--v);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">💾 Guardar visibilidad</button>
+      <div id="visStatus" style="text-align:center;color:#888;font-size:12px;margin-top:8px;"></div>
+    </div>
 
     <!-- MODAL DÍA ADMIN — crear/editar eventos puntuales -->
     <div style="position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:200;display:none;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto;" id="modalDiaAdmin">
