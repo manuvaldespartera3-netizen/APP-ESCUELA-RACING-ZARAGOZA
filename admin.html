@@ -1281,7 +1281,7 @@ document.querySelectorAll(".tab").forEach(function(t) {
   });
 });
 // === Visibilidad para familias ===
-var VIS_KEYS = ["minutos","promedio","pctMin","titular","goles","asistencias","tarjetas","asistenciaEntrenos","notas","carta","cuotas"];
+var VIS_KEYS = ["minutos","promedio","pctMin","titular","goles","asistencias","golesEncajados","propias","tarjetas","asistenciaEntrenos","notas","carta","cuotas"];
 async function cargarVisibilidad(){
   try {
     var snap = await getDoc(doc(db,"configuracion","visibilidad"));
@@ -5203,6 +5203,8 @@ if (_origCEQ_v2) {
         <div class="vis-row"><div class="vl">Titularidades<small>Veces de titular</small></div><label class="vis-sw"><input type="checkbox" id="vis_titular" checked><span class="track"></span><span class="knob"></span></label></div>
         <div class="vis-row"><div class="vl">Goles<small>Goles marcados</small></div><label class="vis-sw"><input type="checkbox" id="vis_goles" checked><span class="track"></span><span class="knob"></span></label></div>
         <div class="vis-row"><div class="vl">Asistencias<small>Asistencias de gol</small></div><label class="vis-sw"><input type="checkbox" id="vis_asistencias" checked><span class="track"></span><span class="knob"></span></label></div>
+        <div class="vis-row"><div class="vl">Goles encajados<small>Para porteros · solo se ve si es distinto de 0</small></div><label class="vis-sw"><input type="checkbox" id="vis_golesEncajados" checked><span class="track"></span><span class="knob"></span></label></div>
+        <div class="vis-row"><div class="vl">Goles en propia puerta<small>Solo se ve si es distinto de 0</small></div><label class="vis-sw"><input type="checkbox" id="vis_propias" checked><span class="track"></span><span class="knob"></span></label></div>
         <div class="vis-row"><div class="vl">Tarjetas<small>Amarillas y rojas</small></div><label class="vis-sw"><input type="checkbox" id="vis_tarjetas" checked><span class="track"></span><span class="knob"></span></label></div>
       </div>
       <div class="vis-htitle">Otros datos</div>
