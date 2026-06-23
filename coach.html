@@ -291,6 +291,17 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
 .med-obs-txt{flex:1;font-size:13.5px;color:var(--blanco);line-height:1.35;}
 .med-obs-fecha{display:block;font-size:10.5px;color:#666;margin-top:3px;}
 .med-obs-del{background:none;border:none;cursor:pointer;font-size:15px;opacity:.6;flex-shrink:0;}
+.med-sm-add{margin-top:10px;}
+.med-sm-animo{display:flex;gap:8px;margin-bottom:8px;}
+.med-animo-btn{width:44px;height:40px;border:1px solid var(--borde);background:#0a0a0a;border-radius:9px;font-size:18px;cursor:pointer;opacity:.4;}
+.med-animo-btn.sel{opacity:1;border-color:var(--azul-c);background:rgba(74,144,217,.12);}
+.med-textarea{width:100%;min-height:64px;padding:10px 12px;background:#0a0a0a;border:1px solid var(--borde);border-radius:8px;color:var(--blanco);font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box;}
+.med-sm-item{display:flex;align-items:flex-start;gap:10px;padding:11px 12px;background:#0a0a0a;border:1px solid var(--borde);border-radius:8px;margin-bottom:7px;}
+.med-sm-ico{font-size:15px;flex-shrink:0;line-height:1.4;}
+.med-sm-body{flex:1;}
+.med-sm-txt{font-size:13.5px;color:var(--blanco);line-height:1.4;}
+.med-sm-fecha{font-size:10.5px;color:#666;margin-top:4px;}
+.med-sm-del{background:none;border:none;cursor:pointer;font-size:15px;opacity:.6;flex-shrink:0;}
 .asi-motivo-wrap{padding:0 2px 8px;}
 .asi-motivo{width:100%;padding:9px 11px;background:#0a0a0a;border:1px solid var(--rojo);border-radius:8px;color:var(--blanco);font-size:13px;font-family:inherit;}
 .nc-acciones{display:flex;align-items:center;gap:6px;}
@@ -1118,6 +1129,19 @@ async function abrirFichaMedica(j){
           '<div id="medObsLista"></div>' +
           '<div class="med-add-row"><input id="medObsInput" type="text" placeholder="Ej: alergia al polen, padres separados..." class="med-input"/>' +
           '<button id="medObsAdd" class="med-add-btn">+ Añadir</button></div></div>';
+  // Salud mental / bienestar
+  html += '<div class="med-bloque"><div class="med-bloque-tit">🧠 Salud mental y bienestar</div>' +
+          '<div style="font-size:11.5px;color:#777;margin-bottom:10px;line-height:1.4;">Seguimiento del estado emocional del jugador. Ver al jugador como un todo.</div>' +
+          '<div id="medSmLista"></div>' +
+          '<div class="med-sm-add">' +
+            '<div class="med-sm-animo" id="medSmAnimo">' +
+              '<button class="med-animo-btn" data-an="bien" title="Bien">🟢</button>' +
+              '<button class="med-animo-btn" data-an="vigilar" title="A vigilar">🟡</button>' +
+              '<button class="med-animo-btn" data-an="atencion" title="Atención">🔴</button>' +
+            '</div>' +
+            '<textarea id="medSmTexto" class="med-textarea" placeholder="¿Cómo se le ve? Anota la evolución..."></textarea>' +
+            '<button id="medSmAdd" class="med-add-btn" style="width:100%;margin-top:8px;">+ Añadir al diario</button>' +
+          '</div></div>';
   cont.innerHTML = html;
   cont.querySelectorAll(".med-est-btn").forEach(function(btn){
     btn.addEventListener("click", async function(){
@@ -1137,6 +1161,19 @@ async function abrirFichaMedica(j){
   if (addBtn) addBtn.addEventListener("click", function(){ agregarMedObs(j); });
   var inp = document.getElementById("medObsInput");
   if (inp) inp.addEventListener("keydown", function(e){ if(e.key==="Enter") agregarMedObs(j); });
+  // Salud mental
+  renderMedSm(j);
+  var animoSel = "bien";
+  cont.querySelectorAll(".med-animo-btn").forEach(function(b){
+    if (b.dataset.an === "bien") b.classList.add("sel");
+    b.addEventListener("click", function(){
+      animoSel = b.dataset.an;
+      cont.querySelectorAll(".med-animo-btn").forEach(function(x){ x.classList.remove("sel"); });
+      b.classList.add("sel");
+    });
+  });
+  var smAdd = document.getElementById("medSmAdd");
+  if (smAdd) smAdd.addEventListener("click", function(){ agregarMedSm(j, animoSel); });
 }
 function fmtFechaMed(ts){
   try { var d = ts && ts.toDate ? ts.toDate() : (ts ? new Date(ts) : new Date()); return d.toLocaleDateString("es-ES",{day:"2-digit",month:"2-digit",year:"numeric"}); } catch(e){ return ""; }
@@ -1182,6 +1219,52 @@ async function borrarMedObs(j, idx){
     medicoCache[j.id].observaciones = obs;
     renderMedObs(j);
     toast("Observación eliminada");
+  } catch(e){ toast("Error: "+e.message); }
+}
+var ANIMO_MED = { bien:"🟢", vigilar:"🟡", atencion:"🔴" };
+function renderMedSm(j){
+  var cont = document.getElementById("medSmLista");
+  if (!cont) return;
+  var m = medicoCache[j.id] || {};
+  var sm = (m.saludMental || []).slice();
+  if (!sm.length){ cont.innerHTML = '<div style="color:#666;font-size:12px;margin-bottom:10px;">Sin anotaciones en el diario.</div>'; return; }
+  // más recientes primero
+  sm.sort(function(a,b){ return (b.ts||0) - (a.ts||0); });
+  var html = "";
+  sm.forEach(function(e){
+    html += '<div class="med-sm-item"><div class="med-sm-ico">'+(ANIMO_MED[e.animo]||"🟢")+'</div>' +
+            '<div class="med-sm-body"><div class="med-sm-txt">'+e.texto+'</div><div class="med-sm-fecha">'+(e.fecha||"")+'</div></div>' +
+            '<button class="med-sm-del" data-ts="'+(e.ts||0)+'">🗑️</button></div>';
+  });
+  cont.innerHTML = html;
+  cont.querySelectorAll(".med-sm-del").forEach(function(b){
+    b.addEventListener("click", function(){ borrarMedSm(j, parseInt(b.dataset.ts)); });
+  });
+}
+async function agregarMedSm(j, animo){
+  var ta = document.getElementById("medSmTexto");
+  var txt = (ta.value||"").trim();
+  if (!txt){ toast("Escribe una anotación"); return; }
+  var m = medicoCache[j.id] || {};
+  var sm = (m.saludMental || []).slice();
+  sm.push({ texto:txt, animo:animo||"bien", fecha:new Date().toLocaleDateString("es-ES",{day:"2-digit",month:"2-digit",year:"numeric"}), ts:Date.now() });
+  try {
+    await setDoc(doc(db,"medico",j.id), { alumnoId:j.id, alumnoNombre:j.nombre+" "+(j.apellidos||""), saludMental:sm, actualizadoEn:Timestamp.now() }, { merge:true });
+    if(!medicoCache[j.id]) medicoCache[j.id]={};
+    medicoCache[j.id].saludMental = sm;
+    ta.value = "";
+    renderMedSm(j);
+    toast("✅ Anotación añadida");
+  } catch(e){ toast("Error: "+e.message); }
+}
+async function borrarMedSm(j, ts){
+  var m = medicoCache[j.id] || {};
+  var sm = (m.saludMental || []).filter(function(e){ return (e.ts||0) !== ts; });
+  try {
+    await setDoc(doc(db,"medico",j.id), { saludMental:sm, actualizadoEn:Timestamp.now() }, { merge:true });
+    medicoCache[j.id].saludMental = sm;
+    renderMedSm(j);
+    toast("Anotación eliminada");
   } catch(e){ toast("Error: "+e.message); }
 }
 (function(){ var b = document.getElementById("btnVolverMedico"); if(b) b.addEventListener("click", function(){ mostrarListaMedico(); cargarMedicoLista(); }); })();
