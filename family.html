@@ -91,6 +91,8 @@ body{background:var(--negro);color:#e8e8e4;font-family:"DM Sans",sans-serif;min-
 
 /* DONUT */
 .donut-wrap{display:flex;align-items:center;justify-content:center;gap:24px;background:var(--gris);border:1px solid var(--borde);border-radius:14px;padding:20px 16px;margin-bottom:16px;}
+.motivos-desglose{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;}
+.motivo-chip{font-size:11px;color:var(--texto);background:rgba(255,255,255,.04);border:1px solid var(--borde);border-radius:100px;padding:3px 9px;white-space:nowrap;}
 .donut-leyenda{display:flex;flex-direction:column;gap:10px;}
 .donut-item{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--texto);}
 .donut-color{width:12px;height:12px;border-radius:50%;flex-shrink:0;}
@@ -569,6 +571,7 @@ body{background:var(--negro);color:#e8e8e4;font-family:"DM Sans",sans-serif;min-
           <div class="donut-item"><div class="donut-color" style="background:#25a352"></div><span>Presente</span><span class="donut-valor" id="donutPres1">-</span></div>
           <div class="donut-item"><div class="donut-color" style="background:#e03c3c"></div><span>Ausente</span><span class="donut-valor" id="donutAus1">-</span></div>
           <div class="donut-item" style="margin-top:4px;padding-top:8px;border-top:1px solid var(--borde)"><span style="color:#666">Total</span><span class="donut-valor" id="donutTot1" style="color:var(--azul-c)">-</span></div>
+          <div class="motivos-desglose" id="motivosDesglose1"></div>
         </div>
       </div>
       <div class="pagos-grid">
@@ -617,6 +620,7 @@ body{background:var(--negro);color:#e8e8e4;font-family:"DM Sans",sans-serif;min-
           <div class="donut-item"><div class="donut-color" style="background:#25a352"></div><span>Presente</span><span class="donut-valor" id="donutPres2">-</span></div>
           <div class="donut-item"><div class="donut-color" style="background:#e03c3c"></div><span>Ausente</span><span class="donut-valor" id="donutAus2">-</span></div>
           <div class="donut-item" style="margin-top:4px;padding-top:8px;border-top:1px solid var(--borde)"><span style="color:#666">Total</span><span class="donut-valor" id="donutTot2" style="color:var(--azul-c)">-</span></div>
+          <div class="motivos-desglose" id="motivosDesglose2"></div>
         </div>
       </div>
       <!-- Semana navegable -->
@@ -1029,6 +1033,18 @@ function renderDonut(n) {
   if (elPr) elPr.textContent = presentes;
   if (elAu) elAu.textContent = ausentes;
   if (elTo) elTo.textContent = total;
+  // Desglose de motivos de las ausencias
+  var elMot = document.getElementById("motivosDesglose"+n);
+  if (elMot) {
+    var faltas = asistenciaCache.filter(function(a){ return !a.presente; });
+    var cnt = {};
+    faltas.forEach(function(a){ var m = a.motivo || "sin"; cnt[m] = (cnt[m]||0)+1; });
+    var LBL = { lesion:"🩹 Lesión", enfermedad:"🤒 Enfermedad", personal:"📋 Causas personales", seleccion:"🌍 Selección", otros:"✏️ Otros", sin:"❔ Sin especificar" };
+    var orden = ["lesion","enfermedad","personal","seleccion","otros","sin"];
+    var html = "";
+    orden.forEach(function(k){ if (cnt[k]) html += '<span class="motivo-chip">' + LBL[k] + ": " + cnt[k] + '</span>'; });
+    elMot.innerHTML = html;
+  }
 }
 
 function renderEstadisticas() {
