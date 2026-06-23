@@ -3048,8 +3048,7 @@ function calcResumenJug(datos) {
   var asisTot = datos.asistencia.length, asisPres = datos.asistencia.filter(function(a){return a.presente;}).length;
   return { partidosEquipo:datos.partidos.length, convocado:conv, jugados:jug, titular:tit, suplente:sup,
     minutos:min, goles:gol, asistencias:asi, amarillas:ama, rojas:roj,
-    golesEncajados:gEnc, propias:prop,
-    partidosEquipo:partidosEquipo, lesionado:les, personal:per,
+    golesEncajados:gEnc, propias:prop, lesionado:les, personal:per,
     sesiones:asisTot, asistidas:asisPres, pctAsis: asisTot?Math.round(asisPres/asisTot*100):0 };
 }
 
