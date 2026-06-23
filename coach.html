@@ -267,6 +267,7 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
 .no-conv-row{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#0a0a0a;border:1px solid var(--borde);border-radius:8px;margin-bottom:5px;}
 .no-conv-row.bloqueado{opacity:.4;}
 .asi-item{margin-bottom:4px;}
+.asi-aviso-fam{font-size:11.5px;color:var(--azul-c);background:rgba(74,144,217,.12);border:1px solid rgba(74,144,217,.25);border-radius:7px;padding:5px 9px;margin:0 2px 5px;}
 .asi-motivo-wrap{padding:0 2px 8px;}
 .asi-motivo{width:100%;padding:9px 11px;background:#0a0a0a;border:1px solid var(--rojo);border-radius:8px;color:var(--blanco);font-size:13px;font-family:inherit;}
 .nc-acciones{display:flex;align-items:center;gap:6px;}
@@ -954,6 +955,11 @@ let jugadores = [];
 let todasNotas = [];
 let asistenciaEstado = {};
 let asistenciaMotivo = {};
+let avisoFamilia = {};
+function motivoLabelCoach(k){
+  var L={lesion:"🩹 Lesión",enfermedad:"🤒 Enfermedad",personal:"📋 Causas personales",seleccion:"🌍 Convocatoria selección",otros:"✏️ Otros"};
+  return L[k]||k;
+}
 let coachData = null;
 
 // ── AUTH ──
@@ -1284,13 +1290,36 @@ async function cargarListaAsi() {
       }
     });
   } catch(e) {}
+  // Avisos de ausencia de las familias para los eventos de esta fecha (Paso 5)
+  avisoFamilia = {};
+  try {
+    var evSnap = await getDocs(query(collection(db, "eventos"), where("fecha", "==", fecha)));
+    var eventoIds = [];
+    evSnap.forEach(function(d) { eventoIds.push(d.id); });
+    for (var ei = 0; ei < eventoIds.length; ei++) {
+      var cSnap = await getDocs(query(collection(db, "confirmaciones"), where("eventoId", "==", eventoIds[ei])));
+      cSnap.forEach(function(d) {
+        var cf = d.data();
+        if (cf.asiste === false && cf.alumnoId) avisoFamilia[cf.alumnoId] = cf.motivo || "otros";
+      });
+    }
+    // Pre-marcar ausencia con el motivo de la familia SOLO si el entrenador aún no certificó
+    Object.keys(avisoFamilia).forEach(function(aid) {
+      if (asistenciaEstado[aid] === undefined) {
+        asistenciaEstado[aid] = false;
+        asistenciaMotivo[aid] = avisoFamilia[aid];
+      }
+    });
+  } catch(e) { console.error("avisos familia:", e); }
   var html = "";
   for (var i = 0; i < jugadores.length; i++) {
     var j = jugadores[i];
     var c = await getContador(j.id);
     var p = asistenciaEstado[j.id];
     var mot = asistenciaMotivo[j.id] || "";
+    var avFam = avisoFamilia[j.id];
     html += '<div class="asi-item">';
+    if (avFam) html += '<div class="asi-aviso-fam">📩 La familia avisó ausencia: ' + motivoLabelCoach(avFam) + '</div>';
     html += '<div class="asi-fila"><div class="asi-info"><div class="asi-nombre">' + j.nombre + " " + j.apellidos + '</div><div class="asi-equipo">' + j.grupo + '</div></div>';
     html += '<div class="asi-contador" style="margin-right:6px">' + c.presentes + "/" + c.total + '</div>';
     html += '<div class="toggles"><button class="tbtn tbtn-p' + (p === true ? " marcado" : "") + '" data-id="' + j.id + '" data-v="1">✓</button>';
