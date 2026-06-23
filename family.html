@@ -1146,7 +1146,7 @@ function renderCalMesFam() {
       var dot = document.createElement("div");
       dot.className = "cal-ev-dot "+(ev.tipo==="partido"?"cal-ev-partido":ev.tipo==="amistoso"?"cal-ev-amistoso":"cal-ev-entreno");
       var conf = confirmacionesCache[ev.id];
-      if (conf && conf.asiste) dot.style.outline = "1px solid var(--verde)";
+      if (conf && conf.asiste === false) dot.style.outline = "1px solid var(--rojo)";
       dot.textContent = (ev.tipo==="partido"?"🏆":ev.tipo==="amistoso"?"🤝":"⚽")+" "+ev.titulo;
       dot.style.cursor = "pointer";
       // Cada chip abre SU evento (y para de propagar para no abrir también el del día)
@@ -1201,64 +1201,61 @@ function abrirModalEvento(ev) {
   document.getElementById("modalEvento").classList.add("abierto");
 }
 
+function motivoLabelFam(k){
+  var L={lesion:"🩹 Lesión",enfermedad:"🤒 Enfermedad",personal:"📋 Causas personales",seleccion:"🌍 Convocatoria selección",otros:"✏️ Otros"};
+  return L[k]||k;
+}
 function renderConfirmacionModal(ev, container) {
   var conf = confirmacionesCache[ev.id];
   var titulo = document.createElement("div");
   titulo.style.cssText = "font-size:12px;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px;";
-  titulo.textContent = "Tu confirmación de asistencia:";
-  container.appendChild(titulo);
-  if (conf) {
+  if (conf && conf.asiste === false) {
+    titulo.textContent = "Aviso de ausencia enviado:";
+    container.appendChild(titulo);
     var estadoEl = document.createElement("div");
-    estadoEl.className = "conf-estado " + (conf.asiste ? "conf-estado-si" : "conf-estado-no");
-    estadoEl.textContent = conf.asiste ? "✅ Confirmaste que asistirás" : "❌ Confirmaste que no asistirás" + (conf.motivo ? " · "+conf.motivo : "");
+    estadoEl.className = "conf-estado conf-estado-no";
+    estadoEl.textContent = "❌ Avisaste que no asistirá" + (conf.motivo ? " · " + motivoLabelFam(conf.motivo) : "");
     container.appendChild(estadoEl);
     var btnCambiar = document.createElement("button");
     btnCambiar.className = "conf-btn-guardar";
-    btnCambiar.style.cssText = "background:rgba(74,144,217,.1);color:var(--azul-c);border:1px solid rgba(74,144,217,.3);margin-bottom:8px;";
-    btnCambiar.textContent = "✏️ Cambiar respuesta";
+    btnCambiar.style.cssText = "background:rgba(37,163,82,.1);color:var(--verde);border:1px solid rgba(37,163,82,.3);margin-bottom:8px;";
+    btnCambiar.textContent = "↩️ Cancelar aviso (sí asistirá)";
     btnCambiar.addEventListener("click", async function() {
-      btnCambiar.textContent = "Borrando..."; btnCambiar.disabled = true;
+      btnCambiar.textContent = "..."; btnCambiar.disabled = true;
       try {
         await deleteDoc(doc(db, "confirmaciones", hijoActual.id+"_"+ev.id));
         delete confirmacionesCache[ev.id];
         container.innerHTML = "";
-        titulo.textContent = "Cambia tu confirmación:";
-        container.appendChild(titulo);
-        renderBotonesConfirmacion(ev, container);
-      } catch(e) { toast("Error: "+e.message); btnCambiar.disabled=false; btnCambiar.textContent="✏️ Cambiar"; }
+        renderConfirmacionModal(ev, container);
+      } catch(e) { toast("Error: "+e.message); btnCambiar.disabled=false; btnCambiar.textContent="↩️ Cancelar aviso"; }
     });
     container.appendChild(btnCambiar);
   } else {
+    titulo.textContent = "¿No va a poder asistir?";
+    container.appendChild(titulo);
     renderBotonesConfirmacion(ev, container);
   }
 }
 
 function renderBotonesConfirmacion(ev, container) {
-  var btns = document.createElement("div"); btns.className = "conf-btns";
-  var btnSi = document.createElement("button"); btnSi.className = "conf-btn conf-btn-si"; btnSi.textContent = "✅ Sí asistiré";
-  var btnNo = document.createElement("button"); btnNo.className = "conf-btn conf-btn-no"; btnNo.textContent = "❌ No asistiré";
-  var motivoDiv = document.createElement("div"); motivoDiv.className = "conf-motivo";
+  var info = document.createElement("div");
+  info.style.cssText = "font-size:13px;color:rgba(255,255,255,.7);margin-bottom:12px;line-height:1.45;";
+  info.textContent = "Se da por hecho que asistirá. Solo avisa si NO va a poder ir, indicando el motivo:";
+  container.appendChild(info);
+  var motivoDiv = document.createElement("div"); motivoDiv.className = "conf-motivo"; motivoDiv.style.display = "block";
   var select = document.createElement("select");
-  [["","Selecciona motivo..."],["Enfermedad","🤒 Enfermedad"],["Viaje","✈️ Viaje"],["Compromiso familiar","👨‍👩‍👧 Compromiso familiar"],["Otro","📌 Otro"]].forEach(function(op) {
+  [["","Selecciona el motivo..."],["lesion","🩹 Lesión"],["enfermedad","🤒 Enfermedad"],["personal","📋 Causas personales"],["seleccion","🌍 Convocatoria selección"],["otros","✏️ Otros"]].forEach(function(op) {
     var opt = document.createElement("option"); opt.value=op[0]; opt.textContent=op[1]; select.appendChild(opt);
   });
   motivoDiv.appendChild(select);
-  var btnGuardar = document.createElement("button"); btnGuardar.className = "conf-btn-guardar"; btnGuardar.textContent = "💾 Confirmar";
+  var btnGuardar = document.createElement("button"); btnGuardar.className = "conf-btn-guardar"; btnGuardar.textContent = "📩 Avisar de la ausencia";
+  btnGuardar.style.cssText = "background:rgba(224,60,60,.12);color:#e86a6a;border:1px solid rgba(224,60,60,.3);";
   btnGuardar.addEventListener("click", async function() {
     if (!select.value) { toast("Selecciona un motivo"); return; }
     await guardarConfirmacion(ev, false, select.value);
   });
   motivoDiv.appendChild(btnGuardar);
-  btnSi.addEventListener("click", async function() {
-    btnSi.className = "conf-btn conf-btn-si activo";
-    await guardarConfirmacion(ev, true, "");
-  });
-  btnNo.addEventListener("click", function() {
-    btnNo.className = "conf-btn conf-btn-no activo";
-    motivoDiv.style.display = "block";
-  });
-  btns.appendChild(btnSi); btns.appendChild(btnNo);
-  container.appendChild(btns); container.appendChild(motivoDiv);
+  container.appendChild(motivoDiv);
 }
 
 async function guardarConfirmacion(ev, asiste, motivo) {
@@ -1269,12 +1266,12 @@ async function guardarConfirmacion(ev, asiste, motivo) {
       alumnoId: hijoActual.id,
       alumnoNombre: hijoActual.nombre + " " + hijoActual.apellidos,
       eventoId: ev.id, eventoTitulo: ev.titulo, eventoFecha: ev.fecha,
-      equipo: hijoActual.grupo || "Escuela",
+      equipo: hijoActual.grupo || "",
       asiste: asiste, motivo: motivo || "",
       actualizadoEn: Timestamp.now()
     });
     confirmacionesCache[ev.id] = { asiste: asiste, motivo: motivo };
-    toast(asiste ? "✅ Asistencia confirmada" : "✅ Ausencia registrada");
+    toast("📩 Aviso enviado · el entrenador lo verá");
     document.getElementById("modalEvento").classList.remove("abierto");
     renderCalMesFam();
     renderSemana("calGridI","semLabelI",semOffsetI);
