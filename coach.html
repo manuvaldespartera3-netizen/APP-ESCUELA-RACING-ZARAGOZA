@@ -266,6 +266,9 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
 .no-conv-titulo{font-size:11px;color:#555;text-transform:uppercase;letter-spacing:1px;margin:16px 0 6px;}
 .no-conv-row{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#0a0a0a;border:1px solid var(--borde);border-radius:8px;margin-bottom:5px;}
 .no-conv-row.bloqueado{opacity:.4;}
+.asi-item{margin-bottom:4px;}
+.asi-motivo-wrap{padding:0 2px 8px;}
+.asi-motivo{width:100%;padding:9px 11px;background:#0a0a0a;border:1px solid var(--rojo);border-radius:8px;color:var(--blanco);font-size:13px;font-family:inherit;}
 .nc-acciones{display:flex;align-items:center;gap:6px;}
 .nc-mini{width:34px;height:32px;border:1px solid var(--borde);background:#0a0a0a;border-radius:7px;font-size:15px;cursor:pointer;opacity:.5;}
 .nc-mini.on-les{opacity:1;border-color:var(--rojo);background:rgba(224,60,60,.15);}
@@ -950,6 +953,7 @@ const db = getFirestore(firebaseApp);
 let jugadores = [];
 let todasNotas = [];
 let asistenciaEstado = {};
+let asistenciaMotivo = {};
 let coachData = null;
 
 // ── AUTH ──
@@ -1269,11 +1273,15 @@ async function cargarListaAsi() {
     return;
   }
   asistenciaEstado = {};
+  asistenciaMotivo = {};
   try {
     var s = await getDocs(query(collection(db, "asistencia"), where("fecha", "==", fecha)));
     s.forEach(function(d) {
       var dat = d.data();
-      if (jugadores.find(function(j) { return j.id === dat.alumnoId; })) asistenciaEstado[dat.alumnoId] = dat.presente;
+      if (jugadores.find(function(j) { return j.id === dat.alumnoId; })) {
+        asistenciaEstado[dat.alumnoId] = dat.presente;
+        if (dat.motivo) asistenciaMotivo[dat.alumnoId] = dat.motivo;
+      }
     });
   } catch(e) {}
   var html = "";
@@ -1281,21 +1289,40 @@ async function cargarListaAsi() {
     var j = jugadores[i];
     var c = await getContador(j.id);
     var p = asistenciaEstado[j.id];
+    var mot = asistenciaMotivo[j.id] || "";
+    html += '<div class="asi-item">';
     html += '<div class="asi-fila"><div class="asi-info"><div class="asi-nombre">' + j.nombre + " " + j.apellidos + '</div><div class="asi-equipo">' + j.grupo + '</div></div>';
     html += '<div class="asi-contador" style="margin-right:6px">' + c.presentes + "/" + c.total + '</div>';
     html += '<div class="toggles"><button class="tbtn tbtn-p' + (p === true ? " marcado" : "") + '" data-id="' + j.id + '" data-v="1">✓</button>';
     html += '<button class="tbtn tbtn-a' + (p === false ? " marcado" : "") + '" data-id="' + j.id + '" data-v="0">✗</button></div></div>';
+    html += '<div class="asi-motivo-wrap" data-for="' + j.id + '" style="display:' + (p === false ? "block" : "none") + '">';
+    html += '<select class="asi-motivo" data-id="' + j.id + '">';
+    html += '<option value="">— Motivo de la ausencia —</option>';
+    var MOT = [["lesion","🩹 Lesión"],["enfermedad","🤒 Enfermedad"],["personal","📋 Causas personales"],["seleccion","🌍 Convocatoria selección"],["otros","✏️ Otros"]];
+    for (var mi=0; mi<MOT.length; mi++) html += '<option value="' + MOT[mi][0] + '"' + (mot===MOT[mi][0]?" selected":"") + '>' + MOT[mi][1] + '</option>';
+    html += '</select></div></div>';
   }
   var el = document.getElementById("listaAsi");
   el.innerHTML = html;
   el.querySelectorAll(".tbtn").forEach(function(btn) {
     btn.addEventListener("click", function() {
-      asistenciaEstado[btn.dataset.id] = btn.dataset.v === "1";
+      var id = btn.dataset.id;
+      var ausente = btn.dataset.v === "0";
+      asistenciaEstado[id] = btn.dataset.v === "1";
       var fila = btn.closest(".asi-fila");
       fila.querySelectorAll(".tbtn-p").forEach(function(b) { b.classList.remove("marcado"); });
       fila.querySelectorAll(".tbtn-a").forEach(function(b) { b.classList.remove("marcado"); });
       btn.classList.add("marcado");
+      var item = btn.closest(".asi-item");
+      var wrap = item ? item.querySelector(".asi-motivo-wrap") : null;
+      if (wrap) {
+        wrap.style.display = ausente ? "block" : "none";
+        if (!ausente) { asistenciaMotivo[id] = ""; var sel = wrap.querySelector(".asi-motivo"); if (sel) sel.value = ""; }
+      }
     });
+  });
+  el.querySelectorAll(".asi-motivo").forEach(function(sel) {
+    sel.addEventListener("change", function() { asistenciaMotivo[sel.dataset.id] = sel.value; });
   });
   document.getElementById("wrapGuardar").style.display = "block";
 }
@@ -1313,6 +1340,7 @@ document.getElementById("btnGuardarAsi").addEventListener("click", async functio
       var j = jugadores.find(function(x) { return x.id === alumnoId; });
       await setDoc(doc(db, "asistencia", alumnoId + "_" + fecha), {
         alumnoId: alumnoId, fecha: fecha, presente: presente,
+        motivo: presente ? "" : (asistenciaMotivo[alumnoId] || ""),
         nombreAlumno: j ? j.nombre + " " + j.apellidos : "",
         entrenadorId: coachData.id, entrenadorNombre: coachData.nombre,
         guardadoEn: Timestamp.now()
