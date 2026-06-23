@@ -1359,7 +1359,19 @@ async function descargarCartaFam() {
   try {
     await ensureHtml2canvasFam();
     var nodo = document.getElementById("crtCarta");
-    var canvas = await html2canvas(nodo, { scale:3, useCORS:true, backgroundColor:null, logging:false });
+    var canvas = await html2canvas(nodo, { scale:3, useCORS:true, backgroundColor:null, logging:false,
+      onclone: function(doc){
+        var f = doc.querySelector("#crtCarta .crt-frame");
+        if (f){ f.style.webkitMask="none"; f.style.mask="none"; f.style.background="none"; f.style.border="3px solid #f3c44a"; }
+        var fa = doc.querySelector("#crtCarta .crt-frame");
+        var fo = doc.querySelector("#crtCarta .crt-foto");
+        if (fo){ fo.style.webkitMaskImage="none"; fo.style.maskImage="none"; }
+        var ph = doc.querySelector("#crtCarta .crt-foto-ph");
+        if (ph){ ph.style.webkitMaskImage="none"; ph.style.maskImage="none"; }
+        var ry = doc.querySelector("#crtCarta .crt-rays");
+        if (ry){ ry.style.display="none"; }
+      }
+    });
     var nombre = (document.getElementById("crtNombre").textContent || "carta").replace(/[^a-zA-Z0-9]/g,"_");
     canvas.toBlob(function(blob){
       var url = URL.createObjectURL(blob);
@@ -1960,10 +1972,14 @@ async function cargarPartidosFam() {
     var convocados = 0, jugados = 0;
     var minutos = 0, goles = 0, asis = 0, amar = 0, rojas = 0;
     var titularidades = 0, suplencias = 0, noConvocado = 0;
+    var gEnc = 0, prop = 0, lesionado = 0, personal = 0;
     partidos.forEach(function(p) {
       var j = p.jugadas && p.jugadas[hijoActual.id];
+      var estado = (j && j.estado) ? j.estado : (j && j.convocado ? "convocado" : "no_convocado");
       if (!j || !j.convocado) {
-        noConvocado++;
+        if (estado === "lesionado") lesionado++;
+        else if (estado === "personal") personal++;
+        else noConvocado++;
         return;
       }
       convocados++;
@@ -1973,6 +1989,8 @@ async function cargarPartidosFam() {
       asis += j.asistencias || 0;
       amar += j.amarillas || 0;
       rojas += j.rojas || 0;
+      gEnc += j.golesEncajados || 0;
+      prop += j.propias || 0;
       if (j.titular) titularidades++;
       else suplencias++;
     });
@@ -1996,12 +2014,16 @@ async function cargarPartidosFam() {
           '<div class="fp-stat-box"><div class="fp-stat-num">' + titularidades + '</div><div class="fp-stat-lbl">Veces titular</div></div>' +
           '<div class="fp-stat-box"><div class="fp-stat-num">' + suplencias + '</div><div class="fp-stat-lbl">Veces suplente</div></div>' +
           (noConvocado > 0 ? '<div class="fp-stat-box"><div class="fp-stat-num">' + noConvocado + '</div><div class="fp-stat-lbl">No convocado</div></div>' : '') +
+          (lesionado > 0 ? '<div class="fp-stat-box"><div class="fp-stat-num">' + lesionado + '</div><div class="fp-stat-lbl">🩹 Lesionado</div></div>' : '') +
+          (personal > 0 ? '<div class="fp-stat-box"><div class="fp-stat-num">' + personal + '</div><div class="fp-stat-lbl">📋 Causas personales</div></div>' : '') +
           (amar > 0 || rojas > 0 ?
             '<div class="fp-stat-box"><div class="fp-stat-num">' + amar + '</div><div class="fp-stat-lbl">🟨 Amarillas</div></div>' +
             '<div class="fp-stat-box"><div class="fp-stat-num">' + rojas + '</div><div class="fp-stat-lbl">🟥 Rojas</div></div>'
           : '') +
           '<div class="fp-stat-box"><div class="fp-stat-num">' + goles + '</div><div class="fp-stat-lbl">Goles</div></div>' +
           '<div class="fp-stat-box"><div class="fp-stat-num">' + asis + '</div><div class="fp-stat-lbl">Asistencias</div></div>' +
+          (gEnc > 0 ? '<div class="fp-stat-box"><div class="fp-stat-num">' + gEnc + '</div><div class="fp-stat-lbl">🧤 Goles encajados</div></div>' : '') +
+          (prop > 0 ? '<div class="fp-stat-box"><div class="fp-stat-num">' + prop + '</div><div class="fp-stat-lbl">⚽ En propia puerta</div></div>' : '') +
           '<div class="fp-stat-box" style="background:rgba(74,144,217,.18);"><div class="fp-stat-num">' + pctConvocado + '%</div><div class="fp-stat-lbl">% jugado · convocado</div></div>' +
           '<div class="fp-stat-box" style="background:rgba(74,144,217,.12);"><div class="fp-stat-num">' + pctTotal + '%</div><div class="fp-stat-lbl">% jugado · total temporada</div></div>' +
         '</div>' +
