@@ -266,6 +266,13 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
 .no-conv-titulo{font-size:11px;color:#555;text-transform:uppercase;letter-spacing:1px;margin:16px 0 6px;}
 .no-conv-row{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:#0a0a0a;border:1px solid var(--borde);border-radius:8px;margin-bottom:5px;}
 .no-conv-row.bloqueado{opacity:.4;}
+.nc-acciones{display:flex;align-items:center;gap:6px;}
+.nc-mini{width:34px;height:32px;border:1px solid var(--borde);background:#0a0a0a;border-radius:7px;font-size:15px;cursor:pointer;opacity:.5;}
+.nc-mini.on-les{opacity:1;border-color:var(--rojo);background:rgba(224,60,60,.15);}
+.nc-mini.on-per{opacity:1;border-color:var(--amarillo);background:rgba(243,196,74,.15);}
+.nc-tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 7px;border-radius:6px;margin-left:8px;vertical-align:middle;}
+.nc-tag.nc-les{color:#e86a6a;background:rgba(224,60,60,.15);}
+.nc-tag.nc-per{color:#f3c44a;background:rgba(243,196,74,.15);}
 .no-conv-nombre{font-size:13px;color:#777;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .no-conv-add{background:rgba(37,163,82,.12);border:1px solid rgba(37,163,82,.25);color:var(--verde);padding:4px 10px;border-radius:5px;font-size:11px;font-weight:600;cursor:pointer;font-family:"DM Sans",sans-serif;flex-shrink:0;}
 .no-conv-add:disabled{background:#0a0a0a;border-color:var(--borde);color:#444;cursor:not-allowed;}
@@ -2362,7 +2369,8 @@ function ensureJugada(jid, nombre) {
       amarillas: 0,
       rojas: 0,
       golesEncajados: 0,
-      propias: 0
+      propias: 0,
+      estado: "no_convocado"
     };
   }
   return datosPartidoEdit[jid];
@@ -2443,15 +2451,33 @@ function renderListaJugadoresPartido() {
 }
 
 function buildRowNoConvocado(j, nConv) {
+  var d = ensureJugada(j.id, j.nombre + " " + (j.apellidos||""));
+  var estado = d.estado || "no_convocado";
   var row = document.createElement("div");
   row.className = "no-conv-row" + (nConv >= 15 ? " bloqueado" : "");
+  var etiqueta = "";
+  if (estado === "lesionado") etiqueta = "<span class=\"nc-tag nc-les\">🩹 Lesionado</span>";
+  else if (estado === "personal") etiqueta = "<span class=\"nc-tag nc-per\">📋 Causas personales</span>";
   row.innerHTML =
-    "<div class=\"no-conv-nombre\">" + j.nombre + " " + (j.apellidos||"") + "</div>" +
-    "<button class=\"no-conv-add\"" + (nConv >= 15 ? " disabled" : "") + ">+ Convocar</button>";
+    "<div class=\"no-conv-nombre\">" + j.nombre + " " + (j.apellidos||"") + etiqueta + "</div>" +
+    "<div class=\"nc-acciones\">" +
+      "<button class=\"nc-mini " + (estado==="lesionado"?"on-les":"") + "\" data-est=\"lesionado\">🩹</button>" +
+      "<button class=\"nc-mini " + (estado==="personal"?"on-per":"") + "\" data-est=\"personal\">📋</button>" +
+      "<button class=\"no-conv-add\"" + (nConv >= 15 ? " disabled" : "") + ">+ Convocar</button>" +
+    "</div>";
+  row.querySelector('[data-est="lesionado"]').addEventListener("click", function() {
+    d.estado = (d.estado === "lesionado") ? "no_convocado" : "lesionado";
+    d.convocado = false;
+    renderListaJugadoresPartido(); actualizarContadores();
+  });
+  row.querySelector('[data-est="personal"]').addEventListener("click", function() {
+    d.estado = (d.estado === "personal") ? "no_convocado" : "personal";
+    d.convocado = false;
+    renderListaJugadoresPartido(); actualizarContadores();
+  });
   if (nConv < 15) {
     row.querySelector(".no-conv-add").addEventListener("click", function() {
-      var d = ensureJugada(j.id, j.nombre + " " + (j.apellidos||""));
-      d.convocado = true;
+      d.convocado = true; d.estado = "convocado";
       renderListaJugadoresPartido();
       actualizarContadores();
     });
@@ -2461,6 +2487,7 @@ function buildRowNoConvocado(j, nConv) {
 
 function buildCardConvocado(j, nConv, nTit) {
   var d = ensureJugada(j.id, j.nombre + " " + (j.apellidos||""));
+  if (d.convocado && d.estado !== "convocado") d.estado = "convocado";
   var cat = getCategoriaInfo();
   var maxMin = cat.duracion;
 
@@ -2533,6 +2560,7 @@ function buildCardConvocado(j, nConv, nTit) {
     if (!confirm("¿Quitar a " + j.nombre + " de la convocatoria?")) return;
     d.convocado = false; d.titular = false; d.capitan = false; d.minutos = 0;
     d.goles = 0; d.asistencias = 0; d.amarillas = 0; d.rojas = 0; d.golesEncajados = 0; d.propias = 0;
+    d.estado = "no_convocado";
     renderListaJugadoresPartido();
     actualizarContadores();
   });
@@ -2989,6 +3017,7 @@ async function recopilarDatosJugador(j) {
         fecha:p.fecha||"", rival:p.rival||"", localia:(p.localia==="fuera"?"Fuera":"Casa"),
         resultado:(typeof p.goles_propio==="number" && typeof p.goles_rival==="number")?(p.goles_propio+"-"+p.goles_rival):"",
         convocado: !!(jd && jd.convocado), titular: !!(jd && jd.titular),
+        estado: (jd && jd.estado) ? jd.estado : (jd && jd.convocado ? "convocado" : "no_convocado"),
         duracion: p.duracion_min || 40,
         minutos:(jd && jd.convocado)?(jd.minutos||0):0,
         goles:jd?(jd.goles||0):0, asistencias:jd?(jd.asistencias||0):0,
@@ -3007,9 +3036,12 @@ async function recopilarDatosJugador(j) {
 }
 
 function calcResumenJug(datos) {
-  var conv=0, jug=0, tit=0, sup=0, min=0, gol=0, asi=0, ama=0, roj=0, gEnc=0, prop=0;
+  var conv=0, jug=0, tit=0, sup=0, min=0, gol=0, asi=0, ama=0, roj=0, gEnc=0, prop=0, les=0, per=0;
+  var partidosEquipo = datos.partidos.length;
   datos.partidos.forEach(function(p){
     if (p.convocado) { conv++; if (p.titular) tit++; else sup++; if (p.minutos>0) jug++; }
+    if (p.estado === "lesionado") les++;
+    if (p.estado === "personal") per++;
     min+=p.minutos||0; gol+=p.goles||0; asi+=p.asistencias||0; ama+=p.amarillas||0; roj+=p.rojas||0;
     gEnc+=p.golesEncajados||0; prop+=p.propias||0;
   });
@@ -3017,6 +3049,7 @@ function calcResumenJug(datos) {
   return { partidosEquipo:datos.partidos.length, convocado:conv, jugados:jug, titular:tit, suplente:sup,
     minutos:min, goles:gol, asistencias:asi, amarillas:ama, rojas:roj,
     golesEncajados:gEnc, propias:prop,
+    partidosEquipo:partidosEquipo, lesionado:les, personal:per,
     sesiones:asisTot, asistidas:asisPres, pctAsis: asisTot?Math.round(asisPres/asisTot*100):0 };
 }
 
@@ -3051,6 +3084,9 @@ async function exportarFichaJugador(id) {
       {Concepto:"Tarjetas rojas", Valor:r.rojas},
       {Concepto:"Goles encajados", Valor:r.golesEncajados},
       {Concepto:"Goles en propia puerta", Valor:r.propias},
+      {Concepto:"Partidos del equipo", Valor:r.partidosEquipo},
+      {Concepto:"Lesionado", Valor:r.lesionado},
+      {Concepto:"Causas personales", Valor:r.personal},
       {Concepto:"Sesiones (entrenos)", Valor:r.sesiones},
       {Concepto:"Sesiones asistidas", Valor:r.asistidas},
       {Concepto:"% Asistencia", Valor:r.pctAsis+"%"}
