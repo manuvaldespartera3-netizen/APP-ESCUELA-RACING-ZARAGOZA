@@ -1692,18 +1692,24 @@ async function _pintarCardsJugadores(lista, el) {
 }
 async function buscarJugadoresGlobal(q) {
   var el = document.getElementById("listaJugadores");
+  var head = document.getElementById("cabeceraEquipoActivo");
   q = (q||"").toLowerCase().trim();
   if (!q) {
-    var fa = document.querySelector("[data-fj].activo");
-    pintarJugadores(fa ? fa.dataset.fj : "activo");
+    // Sin texto: volver al comportamiento normal (por equipo)
+    if (typeof pintarJugadoresFiltrado === "function") pintarJugadoresFiltrado();
     return;
   }
-  // Busca en TODA la base de datos de jugadores (todos los equipos, activos y bajas)
+  // Con texto: buscar en TODO el club, sin depender del equipo seleccionado
   var lista = listaJugadores.filter(function(j){
+    if (j.estado === "baja") return false;
     var txt = ((j.nombre||"")+" "+(j.apellidos||"")+" "+(j.grupo||"")).toLowerCase();
     return txt.indexOf(q) !== -1;
   });
-  await _pintarCardsJugadores(lista, el);
+  if (head) head.innerHTML = '<div style="font-size:12px;color:#888;margin-bottom:12px;">🔍 Buscando en todo el club · <b style="color:var(--bl);">'+lista.length+'</b> resultado'+(lista.length===1?'':'s')+'</div>';
+  if (!lista.length) { el.innerHTML = '<div class="vacio">Ningún jugador coincide con la búsqueda.</div>'; return; }
+  el.innerHTML = "";
+  for (var i=0; i<lista.length; i++) { await pintarCardJugador(el, lista[i], "activo"); }
+  enganchaListenersJugadores(el);
 }
 
 document.querySelectorAll("[data-fj]").forEach(function(btn) {
