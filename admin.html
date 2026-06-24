@@ -1661,6 +1661,9 @@ async function pintarJugadores(filtro) {
     renderHistorico(el); return;
   }
   var lista = listaJugadores.filter(function(j){ if(filtro==="activo") return j.estado!=="baja"; if(filtro==="baja") return j.estado==="baja"; return true; });
+  await _pintarCardsJugadores(lista, el);
+}
+async function _pintarCardsJugadores(lista, el) {
   if (!lista.length) { el.innerHTML='<div class="vacio">No hay jugadores</div>'; return; }
   el.innerHTML = "";
   for (var i=0; i<lista.length; i++) {
@@ -1686,6 +1689,21 @@ async function pintarJugadores(filtro) {
       }
     });
   });
+}
+async function buscarJugadoresGlobal(q) {
+  var el = document.getElementById("listaJugadores");
+  q = (q||"").toLowerCase().trim();
+  if (!q) {
+    var fa = document.querySelector("[data-fj].activo");
+    pintarJugadores(fa ? fa.dataset.fj : "activo");
+    return;
+  }
+  // Busca en TODA la base de datos de jugadores (todos los equipos, activos y bajas)
+  var lista = listaJugadores.filter(function(j){
+    var txt = ((j.nombre||"")+" "+(j.apellidos||"")+" "+(j.grupo||"")).toLowerCase();
+    return txt.indexOf(q) !== -1;
+  });
+  await _pintarCardsJugadores(lista, el);
 }
 
 document.querySelectorAll("[data-fj]").forEach(function(btn) {
@@ -3332,12 +3350,11 @@ document.querySelectorAll(".collap-btn").forEach(function(btn) {
 // Búsqueda jugadores
 var _buscaJ = document.getElementById("buscaJugadores");
 if (_buscaJ) {
+  var _buscaJTimer = null;
   _buscaJ.addEventListener("input", function() {
-    var q = this.value.toLowerCase().trim();
-    document.querySelectorAll("#listaJugadores .jugador-card, #listaJugadores .lista-row").forEach(function(card) {
-      var txt = (card.textContent || "").toLowerCase();
-      card.style.display = (q === "" || txt.indexOf(q) !== -1) ? "" : "none";
-    });
+    var q = this.value;
+    clearTimeout(_buscaJTimer);
+    _buscaJTimer = setTimeout(function(){ buscarJugadoresGlobal(q); }, 200);
   });
 }
 
