@@ -777,6 +777,8 @@ const db = getFirestore(firebaseApp);
 
 let hijosData = [], hijoActual = null;
 let eventosCache = [], asistenciaCache = [], confirmacionesCache = {};
+let visConfig = {};
+function visible(key){ return visConfig[key] !== false; } // por defecto visible
 let semOffsetI = 0, semOffsetA = 0;
 let calFamAnio = new Date().getFullYear(), calFamMes = new Date().getMonth();
 
@@ -958,6 +960,10 @@ async function cargarDatosGlobales() {
     confirmacionesCache = {};
     snapConf.forEach(function(d) { var c = d.data(); confirmacionesCache[c.eventoId] = c; });
   } catch(e) { confirmacionesCache = {}; }
+  try {
+    var snapVis = await getDoc(doc(db, "configuracion", "visibilidad"));
+    visConfig = snapVis.exists() ? snapVis.data() : {};
+  } catch(e) { visConfig = {}; }
 }
 
 // ── CARGAR TODO ──
@@ -994,6 +1000,27 @@ function cargarTodo() {
   cargarAvisos();
   cargarResumenPartidosInicio();
   cargarNotasMes();
+  aplicarVisibilidadFamily();
+}
+
+function aplicarVisibilidadFamily(){
+  function setTab(sec, vis){ var t=document.querySelector('.tab[data-sec="'+sec+'"]'); if(t) t.style.display = vis ? "" : "none"; }
+  // Carta
+  var bc = document.getElementById("btnVerCartaFam");
+  if (bc) bc.style.display = visible("carta") ? "" : "none";
+  // Asistencia (donut del inicio + pestaña)
+  var vAsi = visible("asistenciaEntrenos");
+  document.querySelectorAll(".donut-wrap").forEach(function(el){ el.style.display = vAsi ? "" : "none"; });
+  setTab("asistencia", vAsi);
+  // Cuotas (pagos del inicio + pestaña)
+  var vCuo = visible("cuotas");
+  document.querySelectorAll(".pagos-grid").forEach(function(el){ el.style.display = vCuo ? "" : "none"; });
+  setTab("pagos", vCuo);
+  // Notas (últimas del inicio + pestaña)
+  var vNot = visible("notas");
+  setTab("notas-mister", vNot);
+  var un = document.getElementById("ultimasNotas");
+  if (un){ un.style.display = vNot ? "" : "none"; var t=un.previousElementSibling; if(t && t.classList.contains("ult-titulo")) t.style.display = vNot ? "" : "none"; }
 }
 
 // ── PAGOS ──
@@ -2022,23 +2049,23 @@ async function cargarPartidosFam() {
           '<div class="fp-stat-box" style="background:rgba(74,144,217,.18);"><div class="fp-stat-num">' + partidos.length + '</div><div class="fp-stat-lbl">Partidos del equipo</div></div>' +
           '<div class="fp-stat-box"><div class="fp-stat-num">' + convocados + '</div><div class="fp-stat-lbl">Convocado</div></div>' +
           '<div class="fp-stat-box"><div class="fp-stat-num">' + jugados + '</div><div class="fp-stat-lbl">Jugados</div></div>' +
-          '<div class="fp-stat-box"><div class="fp-stat-num">' + minutos + '\'</div><div class="fp-stat-lbl">Minutos totales</div></div>' +
-          '<div class="fp-stat-box"><div class="fp-stat-num">' + promedio + '\'</div><div class="fp-stat-lbl">Promedio por partido</div></div>' +
-          '<div class="fp-stat-box"><div class="fp-stat-num">' + titularidades + '</div><div class="fp-stat-lbl">Veces titular</div></div>' +
+          (visible("minutos") ? '<div class="fp-stat-box"><div class="fp-stat-num">' + minutos + '\'</div><div class="fp-stat-lbl">Minutos totales</div></div>' : '') +
+          (visible("promedio") ? '<div class="fp-stat-box"><div class="fp-stat-num">' + promedio + '\'</div><div class="fp-stat-lbl">Promedio por partido</div></div>' : '') +
+          (visible("titular") ? '<div class="fp-stat-box"><div class="fp-stat-num">' + titularidades + '</div><div class="fp-stat-lbl">Veces titular</div></div>' : '') +
           '<div class="fp-stat-box"><div class="fp-stat-num">' + suplencias + '</div><div class="fp-stat-lbl">Veces suplente</div></div>' +
           (noConvocado > 0 ? '<div class="fp-stat-box"><div class="fp-stat-num">' + noConvocado + '</div><div class="fp-stat-lbl">No convocado</div></div>' : '') +
           (lesionado > 0 ? '<div class="fp-stat-box"><div class="fp-stat-num">' + lesionado + '</div><div class="fp-stat-lbl">🩹 Lesionado</div></div>' : '') +
           (personal > 0 ? '<div class="fp-stat-box"><div class="fp-stat-num">' + personal + '</div><div class="fp-stat-lbl">📋 Causas personales</div></div>' : '') +
-          (amar > 0 || rojas > 0 ?
+          ((amar > 0 || rojas > 0) && visible("tarjetas") ?
             '<div class="fp-stat-box"><div class="fp-stat-num">' + amar + '</div><div class="fp-stat-lbl">🟨 Amarillas</div></div>' +
             '<div class="fp-stat-box"><div class="fp-stat-num">' + rojas + '</div><div class="fp-stat-lbl">🟥 Rojas</div></div>'
           : '') +
-          '<div class="fp-stat-box"><div class="fp-stat-num">' + goles + '</div><div class="fp-stat-lbl">Goles</div></div>' +
-          '<div class="fp-stat-box"><div class="fp-stat-num">' + asis + '</div><div class="fp-stat-lbl">Asistencias</div></div>' +
-          (gEnc > 0 ? '<div class="fp-stat-box"><div class="fp-stat-num">' + gEnc + '</div><div class="fp-stat-lbl">🧤 Goles encajados</div></div>' : '') +
-          (prop > 0 ? '<div class="fp-stat-box"><div class="fp-stat-num">' + prop + '</div><div class="fp-stat-lbl">⚽ En propia puerta</div></div>' : '') +
-          '<div class="fp-stat-box" style="background:rgba(74,144,217,.18);"><div class="fp-stat-num">' + pctConvocado + '%</div><div class="fp-stat-lbl">% jugado · convocado</div></div>' +
-          '<div class="fp-stat-box" style="background:rgba(74,144,217,.12);"><div class="fp-stat-num">' + pctTotal + '%</div><div class="fp-stat-lbl">% jugado · total temporada</div></div>' +
+          (visible("goles") ? '<div class="fp-stat-box"><div class="fp-stat-num">' + goles + '</div><div class="fp-stat-lbl">Goles</div></div>' : '') +
+          (visible("asistencias") ? '<div class="fp-stat-box"><div class="fp-stat-num">' + asis + '</div><div class="fp-stat-lbl">Asistencias</div></div>' : '') +
+          (gEnc > 0 && visible("golesEncajados") ? '<div class="fp-stat-box"><div class="fp-stat-num">' + gEnc + '</div><div class="fp-stat-lbl">🧤 Goles encajados</div></div>' : '') +
+          (prop > 0 && visible("propias") ? '<div class="fp-stat-box"><div class="fp-stat-num">' + prop + '</div><div class="fp-stat-lbl">⚽ En propia puerta</div></div>' : '') +
+          (visible("pctMin") ? '<div class="fp-stat-box" style="background:rgba(74,144,217,.18);"><div class="fp-stat-num">' + pctConvocado + '%</div><div class="fp-stat-lbl">% jugado · convocado</div></div>' : '') +
+          (visible("pctMin") ? '<div class="fp-stat-box" style="background:rgba(74,144,217,.12);"><div class="fp-stat-num">' + pctTotal + '%</div><div class="fp-stat-lbl">% jugado · total temporada</div></div>' : '') +
         '</div>' +
       '</div>';
 
