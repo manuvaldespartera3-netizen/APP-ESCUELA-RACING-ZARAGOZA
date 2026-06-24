@@ -567,6 +567,22 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
 
 .coach-ev-amistoso { background:rgba(199,125,255,.18); color:#c77dff; }
 .ev-coach-tipo.amistoso { background:rgba(199,125,255,.18); color:#c77dff; }
+/* ── DELEGADO ── */
+.del-bloque-titulo{font-size:11px;color:var(--ac);text-transform:uppercase;letter-spacing:.5px;margin:18px 0 8px;font-weight:700;}
+.del-item{margin-bottom:12px;}
+.del-label{display:block;font-size:13px;color:var(--texto);font-weight:500;margin-bottom:6px;}
+.del-radio-group{display:flex;flex-wrap:wrap;gap:8px;}
+.del-radio-group label{display:flex;align-items:center;gap:5px;font-size:13px;color:var(--texto);background:var(--gris);border:1px solid var(--borde);border-radius:8px;padding:6px 10px;cursor:pointer;}
+.del-check-group{display:flex;flex-direction:column;gap:6px;}
+.del-check-group label{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--texto);background:var(--gris);border:1px solid var(--borde);border-radius:8px;padding:7px 10px;cursor:pointer;}
+.del-quien{width:100%;box-sizing:border-box;background:var(--gris);border:1px solid var(--borde);color:var(--texto);border-radius:8px;padding:8px 10px;font-size:13px;font-family:"DM Sans",sans-serif;margin-top:6px;}
+.del-quien::placeholder{color:#666;}
+.del-sem-btn.seleccionado{border-color:currentColor !important;transform:scale(1.08);}
+.del-partido-card{background:var(--gris);border:1px solid var(--borde);border-radius:12px;padding:14px;margin-bottom:10px;}
+.del-partido-info{font-size:14px;font-weight:600;color:var(--texto);margin-bottom:4px;}
+.del-partido-meta{font-size:12px;color:#888;margin-bottom:10px;}
+.del-sem-badge{display:inline-block;font-size:18px;margin-right:6px;}
+.del-sin-informe{font-size:11px;color:#888;background:var(--fondo);border:1px solid var(--borde);border-radius:100px;padding:3px 10px;display:inline-block;}
 
 
 /* CREAR ENTRENAMIENTOS RECURRENTES (coach) */
@@ -618,6 +634,7 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
     <div class="tab" data-sec="partidos" id="tabPartidos" style="display:none">🏆 Partidos</div>
     <div class="tab" data-sec="alumnos">Mis jugadores</div>
     <div class="tab" data-sec="scouting" id="tabScouting" style="display:none">🔍 Scouting</div>
+    <div class="tab" data-sec="delegado" id="tabDelegado" style="display:none">📋 Delegado</div>
     <div class="tab" data-sec="cumples">🎂 Cumpleaños</div>
     <div class="tab" data-sec="medico">🏥 Médico</div>
   </div>
@@ -957,6 +974,152 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
       </div>
     </div>
 
+
+
+    <!-- ════════════════════════════════════════
+          MÓDULO DELEGADO (solo equipos competitivos)
+          ════════════════════════════════════════ -->
+    <div class="sec" id="sec-delegado">
+      <div class="sec-titulo">📋 Delegado</div>
+      <!-- Navegación semanas -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+        <button id="btnDelSemPrev" style="background:var(--gris);border:1px solid var(--borde);color:var(--texto);border-radius:8px;padding:7px 14px;cursor:pointer;font-size:18px;">‹</button>
+        <span id="delSemLabel" style="font-size:14px;font-weight:600;color:var(--texto);"></span>
+        <button id="btnDelSemNext" style="background:var(--gris);border:1px solid var(--borde);color:var(--texto);border-radius:8px;padding:7px 14px;cursor:pointer;font-size:18px;">›</button>
+      </div>
+      <div id="listaDelegado"><div class="cargando">Cargando...</div></div>
+
+      <!-- Modal informe delegado -->
+      <div id="modalInformeDelegado" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9000;overflow-y:auto;padding:16px;">
+        <div style="background:var(--fondo);border-radius:14px;max-width:520px;margin:0 auto;padding:20px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <div style="font-size:15px;font-weight:700;color:var(--texto);" id="infDelTitulo">Informe del partido</div>
+            <button id="btnCerrarInfDel" style="background:none;border:none;color:#888;font-size:22px;cursor:pointer;">✕</button>
+          </div>
+
+          <!-- SEMÁFORO -->
+          <div style="margin-bottom:18px;">
+            <div style="font-size:11px;color:var(--ac);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;">🚦 Valoración general</div>
+            <div style="display:flex;gap:10px;">
+              <button class="del-sem-btn" data-val="verde"  style="flex:1;padding:10px;border-radius:10px;border:2px solid transparent;background:rgba(37,163,82,.15);color:#25a352;font-size:22px;cursor:pointer;">🟢</button>
+              <button class="del-sem-btn" data-val="amarillo" style="flex:1;padding:10px;border-radius:10px;border:2px solid transparent;background:rgba(255,193,7,.15);color:#ffc107;font-size:22px;cursor:pointer;">🟡</button>
+              <button class="del-sem-btn" data-val="rojo"   style="flex:1;padding:10px;border-radius:10px;border:2px solid transparent;background:rgba(232,106,106,.15);color:#e86a6a;font-size:22px;cursor:pointer;">🔴</button>
+            </div>
+          </div>
+
+          <!-- ANTES DEL PARTIDO -->
+          <div class="del-bloque-titulo">⏱️ Antes del partido</div>
+          <div class="del-item">
+            <label class="del-label">Puntualidad convocatoria</label>
+            <div class="del-radio-group">
+              <label><input type="radio" name="puntualidad" value="si"> ✅ Sí</label>
+              <label><input type="radio" name="puntualidad" value="no"> ❌ No</label>
+            </div>
+            <input type="text" class="del-quien" id="delPuntualidadQuien" placeholder="¿Quiénes llegaron tarde?" style="display:none;">
+          </div>
+          <div class="del-item">
+            <label class="del-label">Uniformidad correcta</label>
+            <div class="del-radio-group">
+              <label><input type="radio" name="uniformidad" value="si"> ✅ Sí</label>
+              <label><input type="radio" name="uniformidad" value="no"> ❌ No</label>
+            </div>
+            <input type="text" class="del-quien" id="delUniformidadQuien" placeholder="¿Quiénes sin uniforme?" style="display:none;">
+          </div>
+          <div class="del-item">
+            <label class="del-label">Vestuario</label>
+            <div class="del-check-group">
+              <label><input type="checkbox" name="vestuario" value="limpio"> Limpio y en orden</label>
+              <label><input type="checkbox" name="vestuario" value="sucio"> Sucio y/o dañado</label>
+              <label><input type="checkbox" name="vestuario" value="tiempo"> Entregado a tiempo</label>
+              <label><input type="checkbox" name="vestuario" value="tarde"> Entregado tarde</label>
+            </div>
+          </div>
+
+          <!-- DURANTE EL PARTIDO -->
+          <div class="del-bloque-titulo">🏃 Durante el partido</div>
+          <div class="del-item">
+            <label class="del-label">Comienzo del partido</label>
+            <div class="del-radio-group">
+              <label><input type="radio" name="comienzo" value="puntual"> Puntual</label>
+              <label><input type="radio" name="comienzo" value="poco"> Poco retraso</label>
+              <label><input type="radio" name="comienzo" value="mucho"> Mucho retraso</label>
+            </div>
+            <input type="text" class="del-quien" id="delComienzoCuanto" placeholder="¿Cuánto retraso?" style="display:none;">
+          </div>
+          <div class="del-item">
+            <label class="del-label">Sanciones por protestas</label>
+            <input type="text" class="del-quien" id="delSancionAmar" placeholder="🟨 Tarjeta amarilla — ¿a quiénes?">
+            <input type="text" class="del-quien" id="delSancionRoja" placeholder="🟥 Tarjeta roja — ¿a quiénes?" style="margin-top:6px;">
+          </div>
+          <div class="del-item">
+            <label class="del-label">Acciones violentas</label>
+            <input type="text" class="del-quien" id="delViolInsultos" placeholder="💬 Insultos — ¿quiénes?">
+            <input type="text" class="del-quien" id="delViolAgresiones" placeholder="👊 Agresiones — ¿quiénes?" style="margin-top:6px;">
+          </div>
+          <div class="del-item">
+            <label class="del-label">Otros aspectos a destacar</label>
+            <textarea class="del-quien" id="delOtrosDurante" rows="2" placeholder="Escribe aquí..."></textarea>
+          </div>
+
+          <!-- DESPUÉS DEL PARTIDO -->
+          <div class="del-bloque-titulo">🏁 Después del partido</div>
+          <div class="del-item">
+            <label class="del-label">Cordialidad</label>
+            <div class="del-check-group">
+              <label><input type="checkbox" name="cordialidad" value="ok"> Ningún problema</label>
+              <label><input type="checkbox" name="cordialidad" value="agresiones"> Agresiones verbales</label>
+              <label><input type="checkbox" name="cordialidad" value="enfados"> Enfados</label>
+            </div>
+            <input type="text" class="del-quien" id="delCordialidadQuien" placeholder="¿Quiénes?">
+          </div>
+          <div class="del-item">
+            <label class="del-label">Cuidado del vestuario</label>
+            <div class="del-check-group">
+              <label><input type="checkbox" name="vestuario_post" value="ok"> Todo OK</label>
+              <label><input type="checkbox" name="vestuario_post" value="rotura"> Rotura o desperfectos</label>
+              <label><input type="checkbox" name="vestuario_post" value="sucio"> Vestuario sucio</label>
+            </div>
+          </div>
+
+          <!-- FAMILIAS -->
+          <div class="del-bloque-titulo">👨‍👩‍👧 Familias</div>
+          <div class="del-item">
+            <label class="del-label">Comportamiento general</label>
+            <div class="del-check-group">
+              <label><input type="checkbox" name="familias" value="ok"> Todo OK</label>
+              <label><input type="checkbox" name="familias" value="protestas"> Protestas excesivas al árbitro</label>
+              <label><input type="checkbox" name="familias" value="tension"> Tensión con otras familias</label>
+              <label><input type="checkbox" name="familias" value="agresiones"> Agresiones verbales o físicas</label>
+            </div>
+            <input type="text" class="del-quien" id="delFamiliasQuien" placeholder="¿Quiénes? / Explica...">
+          </div>
+
+          <!-- ÁRBITRO -->
+          <div class="del-bloque-titulo">🟡 Árbitro</div>
+          <div class="del-item">
+            <label class="del-label">Talante del árbitro</label>
+            <div class="del-radio-group" style="flex-direction:column;gap:6px;">
+              <label><input type="radio" name="arbitro" value="correcto"> Correcto en todo momento</label>
+              <label><input type="radio" name="arbitro" value="nervioso"> En ocasiones nervioso</label>
+              <label><input type="radio" name="arbitro" value="descontrol"> Partido no controlado</label>
+            </div>
+          </div>
+
+          <!-- BANQUILLO RIVAL -->
+          <div class="del-bloque-titulo">🆚 Banquillo rival</div>
+          <div class="del-item">
+            <label class="del-label">Comportamiento</label>
+            <div class="del-radio-group" style="flex-direction:column;gap:6px;">
+              <label><input type="radio" name="rival" value="ok"> Todo OK</label>
+              <label><input type="radio" name="rival" value="discrepancias"> Algunas discrepancias puntuales</label>
+              <label><input type="radio" name="rival" value="tension"> Tensión excesiva</label>
+            </div>
+          </div>
+
+          <button id="btnGuardarInfDel" style="width:100%;padding:13px;background:var(--azul-c);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;margin-top:18px;">💾 Guardar informe</button>
+        </div>
+      </div>
+    </div>
 
   </div>
 </div>
@@ -1518,6 +1681,7 @@ function iniciarApp() {
   console.log("[Coach] Equipo del entrenador:", coachData.grupo);
   if (typeof EQUIPOS_CON_PARTIDOS !== "undefined" && EQUIPOS_CON_PARTIDOS[coachData.grupo]) {
     document.getElementById("tabPartidos").style.display = "block";
+    document.getElementById("tabDelegado").style.display = "block";
     var tabSc = document.getElementById("tabScouting");
     if (tabSc) tabSc.style.display = "block";
     console.log("[Partidos] Pestaña activada");
@@ -2630,6 +2794,8 @@ async function cargarEquiposCoach() {
       if (tabSc2) tabSc2.style.display = "block";
       var tab = document.getElementById("tabPartidos");
       if (tab) tab.style.display = "block";
+      var tabDel2 = document.getElementById("tabDelegado");
+      if (tabDel2) tabDel2.style.display = "block";
     }
   } catch(e) { console.error("Error cargando equipos:", e); }
 }
@@ -4262,6 +4428,251 @@ async function borrarEventoModalDia(id) {
     renderEventosDia(evsDia);
   } catch(e) { toast("Error: " + e.message, "error"); }
 }
+
+
+// ════════════════════════════════════════
+// MÓDULO DELEGADO
+// ════════════════════════════════════════
+var _delSemOffset = 0; // 0 = semana actual, -1 = semana anterior...
+var _delPartidoActual = null; // partido abierto en modal
+var _delSemaforo = null;
+
+function _delLunes(offset) {
+  var hoy = new Date();
+  var dia = hoy.getDay(); // 0=dom, 1=lun...
+  var lunes = new Date(hoy);
+  lunes.setDate(hoy.getDate() - (dia === 0 ? 6 : dia - 1) + offset * 7);
+  lunes.setHours(0,0,0,0);
+  return lunes;
+}
+function _delFmt(d) {
+  return d.getFullYear()+"-"+(d.getMonth()+1+"").padStart(2,"0")+"-"+(d.getDate()+"").padStart(2,"0");
+}
+function _delFmtLeg(d) {
+  return (d.getDate()+"").padStart(2,"0")+"/"+(d.getMonth()+1+"").padStart(2,"0");
+}
+function _delDiaNombre(isoDate) {
+  var dias=["Domingo","Lunes","Martes","Miércoles","Jueves","Viernes","Sábado"];
+  var p=isoDate.split("-"); var d=new Date(parseInt(p[0]),parseInt(p[1])-1,parseInt(p[2]));
+  return dias[d.getDay()];
+}
+var ORDEN_CATEGORIA = ["Escuela","Prebenjamín","Benjamín","Alevín","Infantil","Cadete","Juvenil"];
+function _delCatOrd(cat) {
+  var i = ORDEN_CATEGORIA.findIndex(function(c){ return cat && cat.toLowerCase().includes(c.toLowerCase()); });
+  return i === -1 ? 99 : i;
+}
+
+async function cargarDelegado() {
+  var lunes = _delLunes(_delSemOffset);
+  var domingo = new Date(lunes); domingo.setDate(lunes.getDate()+6);
+  var fLunes = _delFmt(lunes), fDomingo = _delFmt(domingo);
+  document.getElementById("delSemLabel").textContent =
+    _delFmtLeg(lunes)+" – "+_delFmtLeg(domingo)+" "+domingo.getFullYear();
+
+  // Botón next: no navegar al futuro más allá de semana actual
+  document.getElementById("btnDelSemNext").style.opacity = _delSemOffset >= 0 ? ".3" : "1";
+  document.getElementById("btnDelSemNext").disabled = _delSemOffset >= 0;
+
+  var el = document.getElementById("listaDelegado");
+  el.innerHTML = '<div class="cargando">Cargando partidos...</div>';
+
+  try {
+    // Cargar partidos del equipo en el rango
+    var snap = await getDocs(query(
+      collection(db,"partidos"),
+      where("equipo","==",coachData.grupo),
+      where("fecha",">=",fLunes),
+      where("fecha","<=",fDomingo)
+    ));
+    var partidos = [];
+    snap.forEach(function(d){ partidos.push(Object.assign({id:d.id},d.data())); });
+    // Filtrar solo partido y amistoso (excluir entrenamiento/otros)
+    partidos = partidos.filter(function(p){ return p.tipo==="partido"||p.tipo==="amistoso"; });
+    partidos.sort(function(a,b){
+      if(a.fecha!==b.fecha) return a.fecha.localeCompare(b.fecha);
+      return _delCatOrd(a.equipo)-_delCatOrd(b.equipo);
+    });
+
+    if(!partidos.length){
+      el.innerHTML='<div class="vacio">No hay partidos esta semana.</div>';
+      return;
+    }
+
+    // Cargar informes existentes para estos partidos
+    var ids = partidos.map(function(p){return p.id;});
+    var informes = {};
+    // getDocs por lotes de hasta 10 (límite Firestore in query)
+    for(var i=0;i<ids.length;i+=10){
+      var batch=ids.slice(i,i+10);
+      var snapI=await getDocs(query(collection(db,"informes_delegado"),where("__name__","in",batch.map(function(id){ return id; }))));
+      // Alternativa: usar documentId()
+    }
+    // Más simple: cargar individualmente (pocos partidos por semana)
+    for(var pi=0;pi<partidos.length;pi++){
+      var snapI2 = await getDoc(doc(db,"informes_delegado",partidos[pi].id));
+      if(snapI2.exists()) informes[partidos[pi].id]=snapI2.data();
+    }
+
+    el.innerHTML="";
+    var diaActual="";
+    partidos.forEach(function(p){
+      if(p.fecha!==diaActual){
+        diaActual=p.fecha;
+        var diaHdr=document.createElement("div");
+        diaHdr.style.cssText="font-size:12px;font-weight:700;color:var(--ac);text-transform:uppercase;letter-spacing:.5px;margin:14px 0 6px;";
+        diaHdr.textContent=_delDiaNombre(p.fecha)+" "+_delFmtLeg(new Date(p.fecha.replace(/-/g,"/")));
+        el.appendChild(diaHdr);
+      }
+      var inf=informes[p.id];
+      var semBadge=inf?{verde:"🟢",amarillo:"🟡",rojo:"🔴"}[inf.semaforo]||"⬜":"";
+      var card=document.createElement("div");
+      card.className="del-partido-card";
+      var loc=p.localia==="fuera"?"✈️ Fuera":"🏟️ Casa";
+      var res=(typeof p.goles_propio==="number"&&typeof p.goles_rival==="number")?" · "+p.goles_propio+"-"+p.goles_rival:"";
+      card.innerHTML=
+        '<div style="display:flex;justify-content:space-between;align-items:flex-start;">' +
+          '<div>' +
+            '<div class="del-partido-info">'+(inf?'<span class="del-sem-badge">'+semBadge+'</span>':'')+'vs '+(p.rival||"Rival")+'</div>'+
+            '<div class="del-partido-meta">'+loc+(p.hora?" · "+p.hora:"")+res+' · '+(p.tipo==="amistoso"?"🤝 Amistoso":"🏆 Oficial")+'</div>'+
+            (inf?'':'<span class="del-sin-informe">Sin informe aún</span>')+
+          '</div>'+
+          '<button style="background:var(--azul-c);color:#fff;border:none;border-radius:8px;padding:7px 12px;font-size:12px;cursor:pointer;white-space:nowrap;margin-left:10px;">'+(inf?"✏️ Editar":"📝 Rellenar")+'</button>'+
+        '</div>';
+      card.querySelector("button").addEventListener("click",function(){ abrirInformeDelegado(p, inf||null); });
+      el.appendChild(card);
+    });
+  } catch(e){ console.error("cargarDelegado",e); el.innerHTML='<div class="vacio">Error cargando partidos.</div>'; }
+}
+
+function abrirInformeDelegado(partido, informe) {
+  _delPartidoActual = partido;
+  _delSemaforo = informe ? informe.semaforo : null;
+  var loc = partido.localia==="fuera"?"✈️ Fuera":"🏟️ Casa";
+  document.getElementById("infDelTitulo").textContent = "vs "+(partido.rival||"Rival")+" · "+loc+(partido.fecha?" · "+partido.fecha.split("-").reverse().join("/"):"");
+  var modal = document.getElementById("modalInformeDelegado");
+
+  // Resetear todo
+  modal.querySelectorAll("input[type=radio]").forEach(function(r){r.checked=false;});
+  modal.querySelectorAll("input[type=checkbox]").forEach(function(c){c.checked=false;});
+  modal.querySelectorAll("input[type=text],textarea").forEach(function(t){t.value="";t.style.display="";});
+  modal.querySelectorAll(".del-sem-btn").forEach(function(b){b.classList.remove("seleccionado");});
+
+  // Si hay informe previo, rellenar
+  if(informe){
+    _delSemaforo = informe.semaforo;
+    modal.querySelectorAll(".del-sem-btn").forEach(function(b){
+      if(b.dataset.val===informe.semaforo) b.classList.add("seleccionado");
+    });
+    function _radio(name,val){ if(val){ var r=modal.querySelector('input[name="'+name+'"][value="'+val+'"]'); if(r) r.checked=true; }}
+    function _checks(name,vals){ if(vals) vals.forEach(function(v){ var c=modal.querySelector('input[name="'+name+'"][value="'+v+'"]'); if(c) c.checked=true; }); }
+    function _txt(id,val){ var el=document.getElementById(id); if(el&&val){ el.value=val; } }
+    _radio("puntualidad", informe.puntualidad);
+    _txt("delPuntualidadQuien", informe.puntualidadQuien);
+    _radio("uniformidad", informe.uniformidad);
+    _txt("delUniformidadQuien", informe.uniformidadQuien);
+    _checks("vestuario", informe.vestuario);
+    _radio("comienzo", informe.comienzo);
+    _txt("delComienzoCuanto", informe.comienzoCuanto);
+    _txt("delSancionAmar", informe.sancionAmar);
+    _txt("delSancionRoja", informe.sancionRoja);
+    _txt("delViolInsultos", informe.violInsultos);
+    _txt("delViolAgresiones", informe.violAgresiones);
+    _txt("delOtrosDurante", informe.otrosDurante);
+    _checks("cordialidad", informe.cordialidad);
+    _txt("delCordialidadQuien", informe.cordialidadQuien);
+    _checks("vestuario_post", informe.vestuarioPost);
+    _checks("familias", informe.familias);
+    _txt("delFamiliasQuien", informe.familiasQuien);
+    _radio("arbitro", informe.arbitro);
+    _radio("rival", informe.rivalComp);
+  }
+
+  // Lógica condicional: mostrar campo "quién" si selección es negativa
+  function _condicional(name, vals, campoId){
+    modal.querySelectorAll('input[name="'+name+'"]').forEach(function(r){
+      r.addEventListener("change",function(){
+        var el=document.getElementById(campoId);
+        if(el) el.style.display = vals.includes(r.value)?"":"none";
+      });
+    });
+    // Estado inicial
+    var checked=modal.querySelector('input[name="'+name+'"]:checked');
+    var el=document.getElementById(campoId);
+    if(el) el.style.display=(checked&&vals.includes(checked.value))?"":"none";
+  }
+  _condicional("puntualidad",["no"],"delPuntualidadQuien");
+  _condicional("uniformidad",["no"],"delUniformidadQuien");
+  _condicional("comienzo",["poco","mucho"],"delComienzoCuanto");
+
+  modal.style.display="block";
+}
+
+document.getElementById("btnCerrarInfDel").addEventListener("click",function(){
+  document.getElementById("modalInformeDelegado").style.display="none";
+});
+
+document.querySelectorAll(".del-sem-btn").forEach(function(b){
+  b.addEventListener("click",function(){
+    document.querySelectorAll(".del-sem-btn").forEach(function(x){x.classList.remove("seleccionado");});
+    b.classList.add("seleccionado");
+    _delSemaforo = b.dataset.val;
+  });
+});
+
+document.getElementById("btnGuardarInfDel").addEventListener("click", async function(){
+  if(!_delPartidoActual){ return; }
+  if(!_delSemaforo){ alert("Por favor selecciona una valoración (🟢🟡🔴) antes de guardar."); return; }
+  var modal = document.getElementById("modalInformeDelegado");
+  function _radioVal(name){ var r=modal.querySelector('input[name="'+name+'"]:checked'); return r?r.value:null; }
+  function _checkVals(name){ return Array.from(modal.querySelectorAll('input[name="'+name+'"]:checked')).map(function(c){return c.value;}); }
+  function _txtVal(id){ var el=document.getElementById(id); return el?el.value.trim():""; }
+  var datos = {
+    partidoId: _delPartidoActual.id,
+    equipo: _delPartidoActual.equipo||"",
+    fecha: _delPartidoActual.fecha||"",
+    rival: _delPartidoActual.rival||"",
+    semaforo: _delSemaforo,
+    puntualidad: _radioVal("puntualidad"),
+    puntualidadQuien: _txtVal("delPuntualidadQuien"),
+    uniformidad: _radioVal("uniformidad"),
+    uniformidadQuien: _txtVal("delUniformidadQuien"),
+    vestuario: _checkVals("vestuario"),
+    comienzo: _radioVal("comienzo"),
+    comienzoCuanto: _txtVal("delComienzoCuanto"),
+    sancionAmar: _txtVal("delSancionAmar"),
+    sancionRoja: _txtVal("delSancionRoja"),
+    violInsultos: _txtVal("delViolInsultos"),
+    violAgresiones: _txtVal("delViolAgresiones"),
+    otrosDurante: _txtVal("delOtrosDurante"),
+    cordialidad: _checkVals("cordialidad"),
+    cordialidadQuien: _txtVal("delCordialidadQuien"),
+    vestuarioPost: _checkVals("vestuario_post"),
+    familias: _checkVals("familias"),
+    familiasQuien: _txtVal("delFamiliasQuien"),
+    arbitro: _radioVal("arbitro"),
+    rivalComp: _radioVal("rival"),
+    actualizadoEn: new Date().toISOString(),
+    creadoPor: coachData ? coachData.nombre : ""
+  };
+  try{
+    await setDoc(doc(db,"informes_delegado",_delPartidoActual.id), datos);
+    document.getElementById("modalInformeDelegado").style.display="none";
+    await cargarDelegado();
+  }catch(e){ console.error("guardar informe delegado",e); alert("Error al guardar. Inténtalo de nuevo."); }
+});
+
+document.getElementById("btnDelSemPrev").addEventListener("click",function(){
+  _delSemOffset--; cargarDelegado();
+});
+document.getElementById("btnDelSemNext").addEventListener("click",function(){
+  if(_delSemOffset>=0) return;
+  _delSemOffset++; cargarDelegado();
+});
+
+// Interceptar navegación a la pestaña delegado
+document.querySelectorAll('.tab[data-sec="delegado"]').forEach(function(t){
+  t.addEventListener("click",function(){ _delSemOffset=0; cargarDelegado(); });
+});
 
 </script>
 
