@@ -4008,18 +4008,7 @@ cargarJugadores = async function() {
 };
 
 // Búsqueda: filtra DENTRO del equipo activo
-var _buscaJEl2 = document.getElementById("buscaJugadores");
-if (_buscaJEl2) {
-  var nuevoBuscaJ2 = _buscaJEl2.cloneNode(true);
-  _buscaJEl2.parentNode.replaceChild(nuevoBuscaJ2, _buscaJEl2);
-  nuevoBuscaJ2.addEventListener("input", function() {
-    var q = this.value.toLowerCase().trim();
-    document.querySelectorAll("#listaJugadores .jugador-card").forEach(function(c) {
-      var txt = (c.textContent || "").toLowerCase();
-      c.style.display = (q === "" || txt.indexOf(q) !== -1) ? "" : "none";
-    });
-  });
-}
+// (El buscador de jugadores se gestiona arriba con buscarJugadoresGlobal, que busca en todo el club)
 
 // Cuando se abre el formulario de "Nuevo jugador", pre-rellenar el equipo activo
 document.querySelectorAll('.collap-btn[data-target="formNuevoJugador"]').forEach(function(btn) {
