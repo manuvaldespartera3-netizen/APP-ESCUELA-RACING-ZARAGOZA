@@ -88,6 +88,8 @@ body{background:var(--negro);color:#e8e8e4;font-family:"DM Sans",sans-serif;min-
 .jugador-nombre{font-family:"Bebas Neue",sans-serif;font-size:24px;color:var(--blanco);letter-spacing:1px;line-height:1.1;}
 .jugador-equipo{font-size:13px;color:var(--azul-c);margin-top:4px;}
 .jugador-estado{display:inline-block;margin-top:6px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;background:rgba(37,163,82,.15);color:var(--verde);border:1px solid rgba(37,163,82,.3);}
+.jugador-estado.est-lesionado{background:rgba(224,60,60,.15);color:#e86a6a;border-color:rgba(224,60,60,.4);}
+.jugador-estado.est-recuperacion{background:rgba(243,196,74,.15);color:#f3c44a;border-color:rgba(243,196,74,.4);}
 
 /* DONUT */
 .donut-wrap{display:flex;align-items:center;justify-content:center;gap:24px;background:var(--gris);border:1px solid var(--borde);border-radius:14px;padding:20px 16px;margin-bottom:16px;}
@@ -554,7 +556,7 @@ body{background:var(--negro);color:#e8e8e4;font-family:"DM Sans",sans-serif;min-
         <div class="jugador-info">
           <div class="jugador-nombre" id="hijoNombre">Cargando...</div>
           <div class="jugador-equipo" id="hijoEquipo"></div>
-          <span class="jugador-estado">Activo</span>
+          <span class="jugador-estado" id="hijoEstadoFisico">Activo</span>
         </div>
       </div>
       <button id="btnVerCartaFam" style="width:100%;margin:0 0 16px;padding:13px;background:linear-gradient(135deg,#0d2b5e,#4a90d9);border:none;color:#fff;border-radius:11px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;box-shadow:0 6px 16px rgba(74,144,217,.25);">🎴 Ver la carta de mi jugador</button>
@@ -778,6 +780,7 @@ const db = getFirestore(firebaseApp);
 let hijosData = [], hijoActual = null;
 let eventosCache = [], asistenciaCache = [], confirmacionesCache = {};
 let visConfig = {};
+let estadoFisicoHijo = "disponible";
 function visible(key){ return visConfig[key] !== false; } // por defecto visible
 let semOffsetI = 0, semOffsetA = 0;
 let calFamAnio = new Date().getFullYear(), calFamMes = new Date().getMonth();
@@ -964,6 +967,10 @@ async function cargarDatosGlobales() {
     var snapVis = await getDoc(doc(db, "configuracion", "visibilidad"));
     visConfig = snapVis.exists() ? snapVis.data() : {};
   } catch(e) { visConfig = {}; }
+  try {
+    var snapMedH = await getDoc(doc(db, "medico", hijoActual.id));
+    estadoFisicoHijo = (snapMedH.exists() && snapMedH.data().estado) ? snapMedH.data().estado : "disponible";
+  } catch(e) { estadoFisicoHijo = "disponible"; }
 }
 
 // ── CARGAR TODO ──
@@ -972,6 +979,13 @@ function cargarTodo() {
   document.getElementById("hijoNombre").textContent = hijoActual.nombre + " " + hijoActual.apellidos;
   document.getElementById("hijoEquipo").textContent = "⚽ " + (hijoActual.grupo || "Escuela");
   document.getElementById("topbarEquipo").textContent = hijoActual.grupo || "Escuela";
+  var elEstF = document.getElementById("hijoEstadoFisico");
+  if (elEstF) {
+    var EF = { disponible:["✅ ACTIVO","est-activo"], lesionado:["🔴 LESIONADO","est-lesionado"], recuperacion:["🟡 EN RECUPERACIÓN","est-recuperacion"] };
+    var ef = EF[estadoFisicoHijo] || EF.disponible;
+    elEstF.textContent = ef[0];
+    elEstF.className = "jugador-estado " + ef[1];
+  }
   // Mostrar/ocultar icono lupa según si hay foto
   var lupa = document.getElementById("hijoFotoLupa");
   if (lupa) lupa.style.display = hijoActual.photoUrl ? "flex" : "none";
