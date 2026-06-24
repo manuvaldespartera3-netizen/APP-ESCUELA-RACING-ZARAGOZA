@@ -4553,8 +4553,9 @@ async function cargarDelegado() {
     for(var pi=0; pi<partidos.length; pi++){
       try {
         var snapI = await getDoc(doc(db,"informes_delegado",partidos[pi].id));
+        console.log("[Delegado] Buscando informe para id="+partidos[pi].id+" ("+partidos[pi]._origen+") -> existe:"+snapI.exists());
         if(snapI.exists()) informes[partidos[pi].id] = snapI.data();
-      } catch(eI){ console.warn("informe no encontrado",partidos[pi].id,eI); }
+      } catch(eI){ console.warn("[Delegado] error leyendo informe",partidos[pi].id,eI); }
     }
 
     el.innerHTML="";
@@ -4707,11 +4708,19 @@ document.getElementById("btnGuardarInfDel").addEventListener("click", async func
     actualizadoEn: new Date().toISOString(),
     creadoPor: coachData ? coachData.nombre : ""
   };
+  var btn = document.getElementById("btnGuardarInfDel");
+  btn.disabled = true; btn.textContent = "Guardando...";
   try{
-    await setDoc(doc(db,"informes_delegado",_delPartidoActual.id), datos);
+    await setDoc(doc(db,"informes_delegado",_delPartidoActual.id), datos, { merge:true });
+    console.log("[Delegado] Informe guardado OK en informes_delegado/"+_delPartidoActual.id, datos);
+    btn.disabled = false; btn.textContent = "💾 Guardar informe";
     document.getElementById("modalInformeDelegado").style.display="none";
     await cargarDelegado();
-  }catch(e){ console.error("guardar informe delegado",e); alert("Error al guardar. Inténtalo de nuevo."); }
+  }catch(e){
+    console.error("[Delegado] ERROR guardando:",e);
+    btn.disabled = false; btn.textContent = "💾 Guardar informe";
+    alert("Error al guardar: "+(e.code||"")+" "+(e.message||e)+"\n\nSi dice 'permission-denied', hay que actualizar las reglas de Firestore.");
+  }
 });
 
 document.getElementById("btnDelSemPrev").addEventListener("click",function(){
