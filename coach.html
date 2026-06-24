@@ -4469,7 +4469,6 @@ async function cargarDelegado() {
   document.getElementById("delSemLabel").textContent =
     _delFmtLeg(lunes)+" – "+_delFmtLeg(domingo)+" "+domingo.getFullYear();
 
-  // Botón next: no navegar al futuro más allá de semana actual
   document.getElementById("btnDelSemNext").style.opacity = _delSemOffset >= 0 ? ".3" : "1";
   document.getElementById("btnDelSemNext").disabled = _delSemOffset >= 0;
 
@@ -4477,17 +4476,21 @@ async function cargarDelegado() {
   el.innerHTML = '<div class="cargando">Cargando partidos...</div>';
 
   try {
-    // Cargar partidos del equipo en el rango
+    // Cargar TODOS los partidos del equipo y filtrar por fecha en JS
+    // (evita índice compuesto Firestore equipo+fecha)
     var snap = await getDocs(query(
       collection(db,"partidos"),
-      where("equipo","==",coachData.grupo),
-      where("fecha",">=",fLunes),
-      where("fecha","<=",fDomingo)
+      where("equipo","==",coachData.grupo)
     ));
     var partidos = [];
     snap.forEach(function(d){ partidos.push(Object.assign({id:d.id},d.data())); });
-    // Filtrar solo partido y amistoso (excluir entrenamiento/otros)
-    partidos = partidos.filter(function(p){ return p.tipo==="partido"||p.tipo==="amistoso"; });
+
+    // Filtrar por semana y tipo en JS
+    partidos = partidos.filter(function(p){
+      if(!p.fecha) return false;
+      if(p.tipo!=="partido" && p.tipo!=="amistoso") return false;
+      return p.fecha >= fLunes && p.fecha <= fDomingo;
+    });
     partidos.sort(function(a,b){
       if(a.fecha!==b.fecha) return a.fecha.localeCompare(b.fecha);
       return _delCatOrd(a.equipo)-_delCatOrd(b.equipo);
@@ -4498,19 +4501,13 @@ async function cargarDelegado() {
       return;
     }
 
-    // Cargar informes existentes para estos partidos
-    var ids = partidos.map(function(p){return p.id;});
+    // Cargar informes individualmente (pocos partidos por semana)
     var informes = {};
-    // getDocs por lotes de hasta 10 (límite Firestore in query)
-    for(var i=0;i<ids.length;i+=10){
-      var batch=ids.slice(i,i+10);
-      var snapI=await getDocs(query(collection(db,"informes_delegado"),where("__name__","in",batch.map(function(id){ return id; }))));
-      // Alternativa: usar documentId()
-    }
-    // Más simple: cargar individualmente (pocos partidos por semana)
-    for(var pi=0;pi<partidos.length;pi++){
-      var snapI2 = await getDoc(doc(db,"informes_delegado",partidos[pi].id));
-      if(snapI2.exists()) informes[partidos[pi].id]=snapI2.data();
+    for(var pi=0; pi<partidos.length; pi++){
+      try {
+        var snapI = await getDoc(doc(db,"informes_delegado",partidos[pi].id));
+        if(snapI.exists()) informes[partidos[pi].id] = snapI.data();
+      } catch(eI){ console.warn("informe no encontrado",partidos[pi].id,eI); }
     }
 
     el.innerHTML="";
@@ -4524,24 +4521,33 @@ async function cargarDelegado() {
         el.appendChild(diaHdr);
       }
       var inf=informes[p.id];
-      var semBadge=inf?{verde:"🟢",amarillo:"🟡",rojo:"🔴"}[inf.semaforo]||"⬜":"";
+      var semBadge=inf?({verde:"🟢",amarillo:"🟡",rojo:"🔴"}[inf.semaforo]||"⬜"):"";
       var card=document.createElement("div");
       card.className="del-partido-card";
       var loc=p.localia==="fuera"?"✈️ Fuera":"🏟️ Casa";
       var res=(typeof p.goles_propio==="number"&&typeof p.goles_rival==="number")?" · "+p.goles_propio+"-"+p.goles_rival:"";
+      var btnLabel=inf?"✏️ Editar":"📝 Rellenar";
       card.innerHTML=
         '<div style="display:flex;justify-content:space-between;align-items:flex-start;">' +
-          '<div>' +
+          '<div style="flex:1;">' +
             '<div class="del-partido-info">'+(inf?'<span class="del-sem-badge">'+semBadge+'</span>':'')+'vs '+(p.rival||"Rival")+'</div>'+
             '<div class="del-partido-meta">'+loc+(p.hora?" · "+p.hora:"")+res+' · '+(p.tipo==="amistoso"?"🤝 Amistoso":"🏆 Oficial")+'</div>'+
             (inf?'':'<span class="del-sin-informe">Sin informe aún</span>')+
           '</div>'+
-          '<button style="background:var(--azul-c);color:#fff;border:none;border-radius:8px;padding:7px 12px;font-size:12px;cursor:pointer;white-space:nowrap;margin-left:10px;">'+(inf?"✏️ Editar":"📝 Rellenar")+'</button>'+
+          '<button class="del-btn-abrir" style="background:var(--azul-c);color:#fff;border:none;border-radius:8px;padding:7px 12px;font-size:12px;cursor:pointer;white-space:nowrap;margin-left:10px;">'+btnLabel+'</button>'+
         '</div>';
-      card.querySelector("button").addEventListener("click",function(){ abrirInformeDelegado(p, inf||null); });
+      // Usar closure correcto con IIFE para evitar problema de var en forEach
+      (function(partido, informe){
+        card.querySelector(".del-btn-abrir").addEventListener("click",function(){
+          abrirInformeDelegado(partido, informe||null);
+        });
+      })(p, inf);
       el.appendChild(card);
     });
-  } catch(e){ console.error("cargarDelegado",e); el.innerHTML='<div class="vacio">Error cargando partidos.</div>'; }
+  } catch(e){
+    console.error("cargarDelegado error:",e);
+    el.innerHTML='<div class="vacio">Error cargando partidos: '+e.message+'</div>';
+  }
 }
 
 function abrirInformeDelegado(partido, informe) {
