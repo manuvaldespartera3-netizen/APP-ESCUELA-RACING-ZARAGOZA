@@ -1510,9 +1510,14 @@ async function cargarJugadores() {
 async function contarAsistencia(id) {
   try {
     var s = await getDocs(query(collection(db,"asistencia"),where("alumnoId","==",id)));
-    var total=0, presentes=0; s.forEach(function(d){total++;if(d.data().presente)presentes++;});
-    return {total:total,presentes:presentes};
-  } catch(e) { return {total:0,presentes:0}; }
+    var total=0, presentes=0, motivos={};
+    s.forEach(function(d){
+      var dat=d.data(); total++;
+      if(dat.presente) presentes++;
+      else { var mo=dat.motivo||"sin"; motivos[mo]=(motivos[mo]||0)+1; }
+    });
+    return {total:total,presentes:presentes,motivos:motivos};
+  } catch(e) { return {total:0,presentes:0,motivos:{}}; }
 }
 
 // ══════════════════════════════════════════════════════
@@ -1823,13 +1828,20 @@ async function verFichaJugador(id) {
     var snapP = await getDocs(query(collection(db,"partidos"),where("equipo","==",(j.grupo||""))));
     var parts=[]; snapP.forEach(function(d){parts.push(d.data());});
     if (parts.length) {
-      var conv=0,jug=0,min=0,gol=0,asi=0,amar=0,roj=0,tit=0,sup=0,noConv=0,minPos=0;
+      var conv=0,jug=0,min=0,gol=0,asi=0,amar=0,roj=0,tit=0,sup=0,noConv=0,minPos=0,gEnc=0,prop=0,les=0,per=0;
       parts.forEach(function(p){
         var d=p.jugadas && p.jugadas[id];
-        if(!d || !d.convocado){ noConv++; return; }
+        var estado = (d && d.estado) ? d.estado : (d && d.convocado ? "convocado" : "no_convocado");
+        if(!d || !d.convocado){
+          if(estado==="lesionado") les++;
+          else if(estado==="personal") per++;
+          else noConv++;
+          return;
+        }
         conv++; minPos += (p.duracion_min||40);
         if(d.minutos>0) jug++;
         min+=d.minutos||0; gol+=d.goles||0; asi+=d.asistencias||0; amar+=d.amarillas||0; roj+=d.rojas||0;
+        gEnc+=d.golesEncajados||0; prop+=d.propias||0;
         if(d.titular) tit++; else sup++;
       });
       var pct = minPos>0 ? Math.round((min/minPos)*100) : 0;
@@ -1840,17 +1852,93 @@ async function verFichaJugador(id) {
       html+=_tar(parts.length,"Partidos",true)+_tar(conv,"Convocado")+_tar(jug,"Jugados");
       html+=_tar(min+"\'","Minutos")+_tar(tit,"Titular")+_tar(sup,"Suplente");
       html+=_tar(gol,"Goles")+_tar(asi,"Asist.")+_tar(pct+"%","% jugado");
-      if(amar>0||roj>0||noConv>0){ html+=_tar(amar,"🟨 Amar.")+_tar(roj,"🟥 Rojas")+_tar(noConv,"No conv."); }
+      var extra="";
+      if(gEnc>0) extra+=_tar(gEnc,"🧤 G.Enc.");
+      if(prop>0) extra+=_tar(prop,"⚽ Propia");
+      if(amar>0) extra+=_tar(amar,"🟨 Amar.");
+      if(roj>0) extra+=_tar(roj,"🟥 Rojas");
+      if(noConv>0) extra+=_tar(noConv,"No conv.");
+      if(les>0) extra+=_tar(les,"🩹 Lesionado");
+      if(per>0) extra+=_tar(per,"📋 Personal");
+      html+=extra;
       html+='</div>';
       box.innerHTML=html;
       cont.appendChild(box);
     }
   } catch(e){ console.error("resumen deportivo ficha",e); }
+  // ── DESGLOSE DE FALTAS POR MOTIVO ──
+  try {
+    if (typeof c !== "undefined" && c.motivos) {
+      var LBLm={lesion:"🩹 Lesión",enfermedad:"🤒 Enfermedad",personal:"📋 Causas personales",seleccion:"🌍 Selección",otros:"✏️ Otros",sin:"❔ Sin especificar"};
+      var ordenM=["lesion","enfermedad","personal","seleccion","otros","sin"];
+      var chips="";
+      ordenM.forEach(function(k){ if(c.motivos[k]) chips+='<span style="font-size:11.5px;color:#ccc;background:var(--g);border:1px solid var(--b);border-radius:100px;padding:4px 10px;white-space:nowrap;">'+LBLm[k]+': '+c.motivos[k]+'</span>'; });
+      if(chips){
+        var secM=document.createElement("div");
+        secM.innerHTML='<div style="font-size:11px;color:var(--ac);text-transform:uppercase;letter-spacing:.5px;margin:16px 0 8px;">📋 Faltas a entrenos por motivo</div><div style="display:flex;flex-wrap:wrap;gap:6px;">'+chips+'</div>';
+        cont.appendChild(secM);
+      }
+    }
+  } catch(e){ console.error("desglose motivos ficha",e); }
   try {
     var snapN=await getDocs(query(collection(db,"notas"),where("alumnoId","==",id)));
     var notas=[]; snapN.forEach(function(d){notas.push(d.data());}); notas.sort(function(a,b){return(b.fecha||"").localeCompare(a.fecha||"");});
     if(notas.length){var sec=document.createElement("div"); sec.innerHTML='<div style="font-size:11px;color:var(--ac);text-transform:uppercase;letter-spacing:.5px;margin:14px 0 8px;">📝 Notas recientes</div>'; notas.slice(0,5).forEach(function(n){var c=document.createElement("div");c.className="nota-card";c.style.marginBottom="6px";c.innerHTML='<div class="nota-head"><div class="nota-quien">'+(n.tipo||"nota")+'</div><span class="nota-fecha-lbl">'+(n.fecha||"")+'</span></div><div class="nota-texto">'+n.texto+'</div>';sec.appendChild(c);}); cont.appendChild(sec);}
   } catch(e){}
+  // ── DEPARTAMENTO MÉDICO (solo lectura) ──
+  try {
+    var snapMed = await getDoc(doc(db,"medico",id));
+    if (snapMed.exists()) {
+      var med = snapMed.data();
+      var secMed = document.createElement("div");
+      var h = '<div style="font-size:11px;color:#e86a6a;text-transform:uppercase;letter-spacing:.5px;margin:18px 0 8px;">🏥 Departamento médico</div>';
+      var EST={disponible:"🟢 Disponible",lesionado:"🔴 Lesionado",recuperacion:"🟡 En recuperación"};
+      var estM=med.estado||"disponible";
+      h += '<div style="background:var(--g);border:1px solid var(--b);border-radius:10px;padding:12px 14px;margin-bottom:8px;"><b style="color:var(--bl);">'+(EST[estM]||estM)+'</b>';
+      if(estM!=="disponible" && med.estadoDesde){ var dd=_pmDias(med.estadoDesde); h+='<div style="font-size:12px;color:#aaa;margin-top:4px;">Desde el '+med.estadoDesde.split("-").reverse().join("/")+' · '+dd+' día'+(dd===1?"":"s")+'</div>'; }
+      h += '</div>';
+      if(med.observaciones && med.observaciones.length){
+        h += '<div style="font-size:12px;color:#888;margin:10px 0 6px;">📌 Observaciones</div>';
+        med.observaciones.forEach(function(o){ h+='<div style="background:var(--g);border:1px solid var(--b);border-radius:8px;padding:9px 11px;margin-bottom:5px;font-size:13px;color:var(--bl);">'+o.texto+'<span style="display:block;font-size:10px;color:#666;margin-top:2px;">'+(o.fecha||"")+'</span></div>'; });
+      }
+      if(med.saludMental && med.saludMental.length){
+        var AN={bien:"🟢",vigilar:"🟡",atencion:"🔴"};
+        h += '<div style="font-size:12px;color:#888;margin:10px 0 6px;">🧠 Salud mental</div>';
+        med.saludMental.slice().sort(function(a,b){return (b.ts||0)-(a.ts||0);}).forEach(function(e){
+          h+='<div style="background:var(--g);border:1px solid var(--b);border-radius:8px;padding:9px 11px;margin-bottom:5px;font-size:13px;color:var(--bl);">'+(AN[e.animo]||"🟢")+' ';
+          if(e.situacion) h+='<b style="color:var(--ac);">'+e.situacion+'</b> ';
+          if(e.texto) h+=e.texto;
+          h+='<span style="display:block;font-size:10px;color:#666;margin-top:2px;">'+(e.fecha||"")+'</span></div>';
+        });
+      }
+      if(med.documentos && med.documentos.length){
+        h += '<div style="font-size:12px;color:#888;margin:10px 0 6px;">📄 Documentos</div>';
+        med.documentos.forEach(function(dc){ h+='<a href="'+dc.url+'" target="_blank" rel="noopener" style="display:block;background:var(--g);border:1px solid var(--b);border-radius:8px;padding:9px 11px;margin-bottom:5px;font-size:13px;color:var(--ac);text-decoration:none;">'+(dc.tipo==="pdf"?"📄":"🖼️")+' '+(dc.descripcion||"Documento")+'</a>'; });
+      }
+      if(med.visitas && med.visitas.length){
+        h += '<div style="font-size:12px;color:#888;margin:10px 0 6px;">🩺 Visitas fisio/médico</div>';
+        med.visitas.slice().sort(function(a,b){return (b.ts||0)-(a.ts||0);}).forEach(function(v){ h+='<div style="background:var(--g);border:1px solid var(--b);border-radius:8px;padding:9px 11px;margin-bottom:5px;font-size:13px;color:var(--bl);">'+(v.tipo==="medico"?"🩺 Médico":"🧑‍⚕️ Fisio")+(v.nota?' · '+v.nota:'')+'<span style="display:block;font-size:10px;color:#666;margin-top:2px;">'+(v.fechaTxt||"")+'</span></div>'; });
+      }
+      secMed.innerHTML = h;
+      cont.appendChild(secMed);
+    }
+  } catch(e){ console.error("medico ficha",e); }
+  // ── QUÉ VE LA FAMILIA (visibilidad) ──
+  try {
+    var snapVis = await getDoc(doc(db,"configuracion","visibilidad"));
+    var vis = snapVis.exists() ? snapVis.data() : {};
+    var ETIQv = {minutos:"Minutos",promedio:"Promedio",pctMin:"% minutos",titular:"Titularidades",goles:"Goles",asistencias:"Asistencias",golesEncajados:"Goles encajados",propias:"Propia puerta",tarjetas:"Tarjetas",asistenciaEntrenos:"Asistencia",notas:"Notas",carta:"Carta",cuotas:"Cuotas"};
+    var ven=[], ocultan=[];
+    Object.keys(ETIQv).forEach(function(k){ if(vis[k]===false) ocultan.push(ETIQv[k]); else ven.push(ETIQv[k]); });
+    var secV=document.createElement("div");
+    var hv='<div style="font-size:11px;color:var(--ac);text-transform:uppercase;letter-spacing:.5px;margin:18px 0 8px;">👁️ Qué ve la familia</div>';
+    hv+='<div style="background:var(--g);border:1px solid var(--b);border-radius:10px;padding:12px 14px;font-size:12.5px;line-height:1.6;">';
+    hv+='<div style="color:var(--v);">👁️ <b>Ve:</b> '+(ven.length?ven.join(", "):"—")+'</div>';
+    if(ocultan.length) hv+='<div style="color:#e86a6a;margin-top:6px;">🚫 <b>No ve:</b> '+ocultan.join(", ")+'</div>';
+    hv+='</div>';
+    secV.innerHTML=hv;
+    cont.appendChild(secV);
+  } catch(e){ console.error("visibilidad ficha",e); }
 }
 document.getElementById("btnCerrarFicha").addEventListener("click",function(){document.getElementById("modalFicha").classList.remove("abierto");});
 document.getElementById("btnEditarDesdeFicha").addEventListener("click",function(){document.getElementById("modalFicha").classList.remove("abierto");if(fichaJugadorId)abrirEditarJugador(fichaJugadorId);});
