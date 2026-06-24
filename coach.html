@@ -4476,19 +4476,66 @@ async function cargarDelegado() {
   el.innerHTML = '<div class="cargando">Cargando partidos...</div>';
 
   try {
-    // Cargar TODOS los partidos del equipo y filtrar por fecha en JS
-    // (evita índice compuesto Firestore equipo+fecha)
-    var snap = await getDocs(query(
+    var partidos = [];
+
+    // 1) Partidos de la colección "partidos" (creados desde pestaña Partidos, con stats)
+    var snapP = await getDocs(query(
       collection(db,"partidos"),
       where("equipo","==",coachData.grupo)
     ));
-    var partidos = [];
-    snap.forEach(function(d){ partidos.push(Object.assign({id:d.id},d.data())); });
+    snapP.forEach(function(d){
+      var p = Object.assign({id:d.id, _origen:"partidos"}, d.data());
+      partidos.push(p);
+    });
 
-    // Filtrar por semana y tipo en JS
+    // 2) Partidos de la colección "eventos" (creados desde el calendario)
+    var snapE = await getDocs(query(
+      collection(db,"eventos"),
+      where("equipo","==",coachData.grupo)
+    ));
+    snapE.forEach(function(d){
+      var e = d.data();
+      if(e.tipo!=="partido" && e.tipo!=="amistoso") return;
+      // Extraer rival del título si es posible (ej: "vs Stadium" o "Partido X")
+      var rival = "";
+      if(e.titulo){
+        var t = e.titulo.replace(/^(Partido|Amistoso)\s+/i,"").trim();
+        var mvs = t.match(/vs\.?\s+(.+)/i);
+        rival = mvs ? mvs[1].trim() : t;
+      }
+      partidos.push({
+        id: d.id,
+        _origen: "eventos",
+        tipo: e.tipo,
+        fecha: e.fecha,
+        hora: e.hora || "",
+        equipo: e.equipo,
+        rival: rival,
+        localia: "",
+        lugar: e.lugar || ""
+      });
+    });
+
+    // Evitar duplicados: si un mismo partido existe en ambas colecciones
+    // (misma fecha + equipo), priorizar el de "partidos" (tiene stats)
+    var vistos = {};
+    var partidosUnicos = [];
+    // Primero los de "partidos"
+    partidos.filter(function(p){return p._origen==="partidos";}).forEach(function(p){
+      var k = p.fecha+"_"+p.equipo;
+      vistos[k] = true;
+      partidosUnicos.push(p);
+    });
+    // Luego los de "eventos" solo si no hay ya uno ese día para ese equipo
+    partidos.filter(function(p){return p._origen==="eventos";}).forEach(function(p){
+      var k = p.fecha+"_"+p.equipo;
+      if(!vistos[k]){ vistos[k]=true; partidosUnicos.push(p); }
+    });
+    partidos = partidosUnicos;
+
+    // Filtrar por semana
     partidos = partidos.filter(function(p){
       if(!p.fecha) return false;
-      if(p.tipo!=="partido" && p.tipo!=="amistoso") return false;
       return p.fecha >= fLunes && p.fecha <= fDomingo;
     });
     partidos.sort(function(a,b){
