@@ -676,6 +676,13 @@ body{background:var(--n);color:var(--t);font-family:"DM Sans",sans-serif;min-hei
           <div class="form-campo"><label>Grupo</label>
             <select id="eGrupo"><option value="Escuela">Escuela</option><option value="Prebenjamín B">Prebenjamín B</option><option value="Todos">Todos</option></select>
           </div>
+          <div class="form-campo"><label>Rol</label>
+            <select id="eRol">
+              <option value="entrenador">Entrenador (acceso completo)</option>
+              <option value="delegado">Delegado (solo informes de partido)</option>
+              <option value="medico">Área médica (estado físico jugadores)</option>
+            </select>
+          </div>
           <div class="form-campo"><label>Sueldo mensual (€)</label><input type="number" id="eSueldo" placeholder="0"></div>
           <div class="form-campo ancho">
             <label>Foto (desde galería del móvil)</label>
@@ -1241,6 +1248,7 @@ body{background:var(--n);color:var(--t);font-family:"DM Sans",sans-serif;min-hei
       <div class="form-campo"><label>Email</label><input type="email" id="editEEmail"></div>
       <div class="form-campo"><label>Teléfono</label><input type="tel" id="editETel"></div>
       <div class="form-campo"><label>Grupo</label><select id="editEGrupo"><option value="Escuela">Escuela</option><option value="Prebenjamín B">Prebenjamín B</option><option value="Todos">Todos</option></select></div>
+      <div class="form-campo"><label>Rol</label><select id="editERol"><option value="entrenador">Entrenador (acceso completo)</option><option value="delegado">Delegado (solo informes)</option><option value="medico">Área médica</option></select></div>
       <div class="form-campo"><label>Sueldo mensual (€)</label><input type="number" id="editESueldo"></div>
       <div class="form-campo ancho">
         <label>Foto (subir nueva desde galería)</label>
@@ -2071,7 +2079,10 @@ function pintarEntrenadores() {
     var foto=e.photoUrl?'<img class="ent-foto" src="'+e.photoUrl+'" alt="">':'<div class="ent-ico">👨‍🏫</div>';
     var hdr=document.createElement("div"); hdr.className="ent-header";
     var semaforo=semaforoActividad(e.ultimaConexion);
-    hdr.innerHTML=foto+'<div class="ent-info"><div class="ent-nombre">'+e.nombre+'</div><div class="ent-meta">'+(e.email||"")+(e.grupo?" · "+e.grupo:"")+'</div>'+semaforo+'</div><div><div class="ent-sueldo">'+(e.sueldo||0)+'€/mes</div><button class="btn-j btn-edit" style="margin-top:6px;font-size:12px;padding:5px 10px;" data-id="'+e.id+'">✏️ Editar</button></div>';
+    var rolBadge="";
+    if(e.rol==="delegado") rolBadge=' <span style="font-size:10px;background:rgba(199,125,255,.18);color:#c77dff;border-radius:20px;padding:2px 8px;font-weight:600;vertical-align:middle;">📋 Delegado</span>';
+    else if(e.rol==="medico") rolBadge=' <span style="font-size:10px;background:rgba(74,144,217,.18);color:#4a90d9;border-radius:20px;padding:2px 8px;font-weight:600;vertical-align:middle;">🏥 Médico</span>';
+    hdr.innerHTML=foto+'<div class="ent-info"><div class="ent-nombre">'+e.nombre+rolBadge+'</div><div class="ent-meta">'+(e.email||"")+(e.grupo?" · "+e.grupo:"")+'</div>'+semaforo+'</div><div><div class="ent-sueldo">'+(e.sueldo||0)+'€/mes</div><button class="btn-j btn-edit" style="margin-top:6px;font-size:12px;padding:5px 10px;" data-id="'+e.id+'">✏️ Editar</button></div>';
     card.appendChild(hdr);
     var mDiv=document.createElement("div"); mDiv.innerHTML='<div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;margin-top:10px;">Pagos temporada 25/26</div>';
     var mg=document.createElement("div"); mg.className="meses-grid";
@@ -2096,8 +2107,8 @@ document.getElementById("btnGuardarEntrenador").addEventListener("click", async 
   var btn=document.getElementById("btnGuardarEntrenador"); btn.disabled=true; btn.textContent="Guardando...";
   try {
     var photoUrl=""; var fi=document.getElementById("eFotoInput"); if(fi.files[0])photoUrl=await subirFotoCloudinary(fi.files[0]);
-    await addDoc(collection(db,"entrenadores"),{nombre:nombre,email:email,telefono:document.getElementById("eTel").value.trim(),grupo:document.getElementById("eGrupo").value,sueldo:parseFloat(document.getElementById("eSueldo").value)||0,pagosMeses:{},photoUrl:photoUrl,creadoEn:Timestamp.now()});
-    toast("✅ Entrenador guardado","ok"); ["eNombre","eEmail","eTel","eSueldo"].forEach(function(id){document.getElementById(id).value="";}); await cargarEntrenadores(); actualizarStatsInicio();
+    await addDoc(collection(db,"entrenadores"),{nombre:nombre,email:email,telefono:document.getElementById("eTel").value.trim(),grupo:document.getElementById("eGrupo").value,rol:document.getElementById("eRol").value,sueldo:parseFloat(document.getElementById("eSueldo").value)||0,pagosMeses:{},photoUrl:photoUrl,creadoEn:Timestamp.now()});
+    toast("✅ Entrenador guardado","ok"); ["eNombre","eEmail","eTel","eSueldo"].forEach(function(id){document.getElementById(id).value="";}); document.getElementById("eRol").value="entrenador"; await cargarEntrenadores(); actualizarStatsInicio();
   } catch(e){toast("Error: "+e.message,"error");}
   btn.disabled=false; btn.textContent="💾 Guardar entrenador";
 });
@@ -2108,6 +2119,7 @@ function abrirEditarEntrenador(id) {
   document.getElementById("editEEmail").value=e.email||"";
   document.getElementById("editETel").value=e.telefono||"";
   document.getElementById("editEGrupo").value=e.grupo||"Escuela";
+  document.getElementById("editERol").value=e.rol||"entrenador";
   document.getElementById("editESueldo").value=e.sueldo||"";
   document.getElementById("editEFotoFile").value="";
   var fotoActual=document.getElementById("editEFotoActual");
@@ -2124,7 +2136,7 @@ document.getElementById("btnGuardarEditarE").addEventListener("click",async func
   var id=document.getElementById("editEId").value;
   var btn=document.getElementById("btnGuardarEditarE"); btn.disabled=true; btn.textContent="Guardando...";
   try{
-    var datos={nombre:document.getElementById("editENombre").value.trim(),email:document.getElementById("editEEmail").value.trim().toLowerCase(),telefono:document.getElementById("editETel").value.trim(),grupo:document.getElementById("editEGrupo").value,sueldo:parseFloat(document.getElementById("editESueldo").value)||0};
+    var datos={nombre:document.getElementById("editENombre").value.trim(),email:document.getElementById("editEEmail").value.trim().toLowerCase(),telefono:document.getElementById("editETel").value.trim(),grupo:document.getElementById("editEGrupo").value,rol:document.getElementById("editERol").value,sueldo:parseFloat(document.getElementById("editESueldo").value)||0};
     var fi=document.getElementById("editEFotoFile");
     if(fi.files[0]){btn.textContent="Subiendo foto...";datos.photoUrl=await subirFotoCloudinary(fi.files[0]);}
     await updateDoc(doc(db,"entrenadores",id),datos);
