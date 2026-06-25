@@ -1047,14 +1047,18 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
             <input type="text" class="del-quien" id="delComienzoCuanto" placeholder="¿Cuánto retraso?" style="display:none;">
           </div>
           <div class="del-item">
-            <label class="del-label">Sanciones por protestas</label>
-            <input type="text" class="del-quien" id="delSancionAmar" placeholder="🟨 Tarjeta amarilla — ¿a quiénes?">
-            <input type="text" class="del-quien" id="delSancionRoja" placeholder="🟥 Tarjeta roja — ¿a quiénes?" style="margin-top:6px;">
+            <label class="del-label">Sanciones por protestar</label>
+            <input type="text" class="del-quien" id="delSancionAmar" placeholder="🟨 Amarilla por protestar — ¿a quiénes?">
+            <input type="text" class="del-quien" id="delSancionRoja" placeholder="🟥 Roja por protestar — ¿a quiénes?" style="margin-top:6px;">
           </div>
           <div class="del-item">
             <label class="del-label">Acciones violentas</label>
-            <input type="text" class="del-quien" id="delViolInsultos" placeholder="💬 Insultos — ¿quiénes?">
-            <input type="text" class="del-quien" id="delViolAgresiones" placeholder="👊 Agresiones — ¿quiénes?" style="margin-top:6px;">
+            <div class="del-check-group">
+              <label><input type="checkbox" name="violencia" value="ninguna"> ✅ Ninguna</label>
+              <label><input type="checkbox" name="violencia" value="insultos"> 💬 Insultos</label>
+              <label><input type="checkbox" name="violencia" value="agresiones"> 👊 Agresiones</label>
+            </div>
+            <input type="text" class="del-quien" id="delViolExplica" placeholder="¿Quiénes? Explica si es necesario..." style="display:none;">
           </div>
           <div class="del-item">
             <label class="del-label">Otros aspectos a destacar</label>
@@ -1065,19 +1069,19 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
           <div class="del-bloque-titulo">🏁 Después del partido</div>
           <div class="del-item">
             <label class="del-label">Cordialidad</label>
-            <div class="del-check-group">
-              <label><input type="checkbox" name="cordialidad" value="ok"> Ningún problema</label>
-              <label><input type="checkbox" name="cordialidad" value="agresiones"> Agresiones verbales</label>
-              <label><input type="checkbox" name="cordialidad" value="enfados"> Enfados</label>
+            <div class="del-radio-group" style="flex-direction:column;gap:6px;">
+              <label><input type="radio" name="cordialidad" value="ok"> Ningún problema</label>
+              <label><input type="radio" name="cordialidad" value="agresiones"> Agresiones verbales</label>
+              <label><input type="radio" name="cordialidad" value="enfados"> Enfados</label>
             </div>
-            <input type="text" class="del-quien" id="delCordialidadQuien" placeholder="¿Quiénes?">
+            <input type="text" class="del-quien" id="delCordialidadQuien" placeholder="¿Quiénes?" style="display:none;">
           </div>
           <div class="del-item">
             <label class="del-label">Cuidado del vestuario</label>
-            <div class="del-check-group">
-              <label><input type="checkbox" name="vestuario_post" value="ok"> Todo OK</label>
-              <label><input type="checkbox" name="vestuario_post" value="rotura"> Rotura o desperfectos</label>
-              <label><input type="checkbox" name="vestuario_post" value="sucio"> Vestuario sucio</label>
+            <div class="del-radio-group" style="flex-direction:column;gap:6px;">
+              <label><input type="radio" name="vestuario_post" value="ok"> Todo OK</label>
+              <label><input type="radio" name="vestuario_post" value="rotura"> Rotura o desperfectos</label>
+              <label><input type="radio" name="vestuario_post" value="sucio"> Vestuario sucio</label>
             </div>
           </div>
 
@@ -1085,13 +1089,13 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
           <div class="del-bloque-titulo">👨‍👩‍👧 Familias</div>
           <div class="del-item">
             <label class="del-label">Comportamiento general</label>
-            <div class="del-check-group">
-              <label><input type="checkbox" name="familias" value="ok"> Todo OK</label>
-              <label><input type="checkbox" name="familias" value="protestas"> Protestas excesivas al árbitro</label>
-              <label><input type="checkbox" name="familias" value="tension"> Tensión con otras familias</label>
-              <label><input type="checkbox" name="familias" value="agresiones"> Agresiones verbales o físicas</label>
+            <div class="del-radio-group" style="flex-direction:column;gap:6px;">
+              <label><input type="radio" name="familias" value="ok"> Todo OK</label>
+              <label><input type="radio" name="familias" value="protestas"> Protestas excesivas al árbitro</label>
+              <label><input type="radio" name="familias" value="tension"> Tensión con otras familias</label>
+              <label><input type="radio" name="familias" value="agresiones"> Agresiones verbales o físicas</label>
             </div>
-            <input type="text" class="del-quien" id="delFamiliasQuien" placeholder="¿Quiénes? / Explica...">
+            <input type="text" class="del-quien" id="delFamiliasQuien" placeholder="¿Quiénes? / Explica..." style="display:none;">
           </div>
 
           <!-- ÁRBITRO -->
@@ -1114,6 +1118,45 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
               <label><input type="radio" name="rival" value="discrepancias"> Algunas discrepancias puntuales</label>
               <label><input type="radio" name="rival" value="tension"> Tensión excesiva</label>
             </div>
+          </div>
+
+          <!-- INSTALACIONES -->
+          <div class="del-bloque-titulo">🏟️ Instalaciones</div>
+          <div class="del-item">
+            <label class="del-label">¿Alguna incidencia con el campo o vestuarios?</label>
+            <div class="del-radio-group">
+              <label><input type="radio" name="instalaciones" value="no"> ✅ Todo correcto</label>
+              <label><input type="radio" name="instalaciones" value="si"> ⚠️ Sí, hubo incidencia</label>
+            </div>
+            <input type="text" class="del-quien" id="delInstalacionesQue" placeholder="¿Qué pasó? (campo, agua, vestuario...)" style="display:none;">
+          </div>
+
+          <!-- ESTADO FÍSICO -->
+          <div class="del-bloque-titulo">🩹 Estado físico</div>
+          <div class="del-item">
+            <label class="del-label">¿Algún lesionado?</label>
+            <div class="del-radio-group">
+              <label><input type="radio" name="lesionados" value="no"> ✅ Ninguno</label>
+              <label><input type="radio" name="lesionados" value="si"> 🩹 Sí</label>
+            </div>
+            <input type="text" class="del-quien" id="delLesionadosQuien" placeholder="¿Quién y qué ha podido ser?" style="display:none;">
+          </div>
+
+          <!-- MATERIAL DEL CLUB -->
+          <div class="del-bloque-titulo">🎒 Material del club</div>
+          <div class="del-item">
+            <label class="del-label">¿Se ha perdido o roto algo?</label>
+            <div class="del-radio-group">
+              <label><input type="radio" name="material" value="no"> ✅ Todo en orden</label>
+              <label><input type="radio" name="material" value="si"> ⚠️ Sí, falta/roto</label>
+            </div>
+            <input type="text" class="del-quien" id="delMaterialQue" placeholder="¿Qué se ha perdido o roto?" style="display:none;">
+          </div>
+
+          <!-- OBSERVACIONES GENERALES -->
+          <div class="del-bloque-titulo">📝 Observaciones generales</div>
+          <div class="del-item">
+            <textarea class="del-quien" id="delObservaciones" rows="3" placeholder="Cualquier cosa que no quede recogida arriba..."></textarea>
           </div>
 
           <button id="btnGuardarInfDel" style="width:100%;padding:13px;background:var(--azul-c);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;margin-top:18px;">💾 Guardar informe</button>
@@ -4629,16 +4672,23 @@ function abrirInformeDelegado(partido, informe) {
     _txt("delComienzoCuanto", informe.comienzoCuanto);
     _txt("delSancionAmar", informe.sancionAmar);
     _txt("delSancionRoja", informe.sancionRoja);
-    _txt("delViolInsultos", informe.violInsultos);
-    _txt("delViolAgresiones", informe.violAgresiones);
+    _checks("violencia", informe.violencia);
+    _txt("delViolExplica", informe.violExplica);
     _txt("delOtrosDurante", informe.otrosDurante);
-    _checks("cordialidad", informe.cordialidad);
+    _radio("cordialidad", informe.cordialidad);
     _txt("delCordialidadQuien", informe.cordialidadQuien);
-    _checks("vestuario_post", informe.vestuarioPost);
-    _checks("familias", informe.familias);
+    _radio("vestuario_post", informe.vestuarioPost);
+    _radio("familias", informe.familias);
     _txt("delFamiliasQuien", informe.familiasQuien);
     _radio("arbitro", informe.arbitro);
     _radio("rival", informe.rivalComp);
+    _radio("instalaciones", informe.instalaciones);
+    _txt("delInstalacionesQue", informe.instalacionesQue);
+    _radio("lesionados", informe.lesionados);
+    _txt("delLesionadosQuien", informe.lesionadosQuien);
+    _radio("material", informe.material);
+    _txt("delMaterialQue", informe.materialQue);
+    _txt("delObservaciones", informe.observaciones);
   }
 
   // Lógica condicional: mostrar campo "quién" si selección es negativa
@@ -4657,6 +4707,33 @@ function abrirInformeDelegado(partido, informe) {
   _condicional("puntualidad",["no"],"delPuntualidadQuien");
   _condicional("uniformidad",["no"],"delUniformidadQuien");
   _condicional("comienzo",["poco","mucho"],"delComienzoCuanto");
+  _condicional("cordialidad",["agresiones","enfados"],"delCordialidadQuien");
+  _condicional("familias",["tension","agresiones"],"delFamiliasQuien");
+  _condicional("instalaciones",["si"],"delInstalacionesQue");
+  _condicional("lesionados",["si"],"delLesionadosQuien");
+  _condicional("material",["si"],"delMaterialQue");
+
+  // Condicional especial para "violencia" (checkbox): mostrar cajetín si insultos o agresiones
+  function _condicionalViolencia(){
+    var el = document.getElementById("delViolExplica");
+    if(!el) return;
+    var marcados = Array.from(modal.querySelectorAll('input[name="violencia"]:checked')).map(function(c){return c.value;});
+    var hayViolencia = marcados.indexOf("insultos")>-1 || marcados.indexOf("agresiones")>-1;
+    el.style.display = hayViolencia ? "" : "none";
+  }
+  modal.querySelectorAll('input[name="violencia"]').forEach(function(c){
+    c.addEventListener("change", function(){
+      // "Ninguna" es excluyente con las otras
+      if(c.value==="ninguna" && c.checked){
+        modal.querySelectorAll('input[name="violencia"]').forEach(function(o){ if(o.value!=="ninguna") o.checked=false; });
+      } else if(c.value!=="ninguna" && c.checked){
+        var ning = modal.querySelector('input[name="violencia"][value="ninguna"]');
+        if(ning) ning.checked=false;
+      }
+      _condicionalViolencia();
+    });
+  });
+  _condicionalViolencia();
 
   modal.style.display="block";
 }
@@ -4695,16 +4772,23 @@ document.getElementById("btnGuardarInfDel").addEventListener("click", async func
     comienzoCuanto: _txtVal("delComienzoCuanto"),
     sancionAmar: _txtVal("delSancionAmar"),
     sancionRoja: _txtVal("delSancionRoja"),
-    violInsultos: _txtVal("delViolInsultos"),
-    violAgresiones: _txtVal("delViolAgresiones"),
+    violencia: _checkVals("violencia"),
+    violExplica: _txtVal("delViolExplica"),
     otrosDurante: _txtVal("delOtrosDurante"),
-    cordialidad: _checkVals("cordialidad"),
+    cordialidad: _radioVal("cordialidad"),
     cordialidadQuien: _txtVal("delCordialidadQuien"),
-    vestuarioPost: _checkVals("vestuario_post"),
-    familias: _checkVals("familias"),
+    vestuarioPost: _radioVal("vestuario_post"),
+    familias: _radioVal("familias"),
     familiasQuien: _txtVal("delFamiliasQuien"),
     arbitro: _radioVal("arbitro"),
     rivalComp: _radioVal("rival"),
+    instalaciones: _radioVal("instalaciones"),
+    instalacionesQue: _txtVal("delInstalacionesQue"),
+    lesionados: _radioVal("lesionados"),
+    lesionadosQuien: _txtVal("delLesionadosQuien"),
+    material: _radioVal("material"),
+    materialQue: _txtVal("delMaterialQue"),
+    observaciones: _txtVal("delObservaciones"),
     actualizadoEn: new Date().toISOString(),
     creadoPor: coachData ? coachData.nombre : ""
   };
