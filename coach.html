@@ -596,6 +596,23 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
 .cev-row { display:flex; gap:10px; }
 .cev-row .cev-campo { flex:1; }
 
+
+/* ── MEJORAS TÁCTILES MÓVIL (Android + iOS) ── */
+@media (max-width: 480px) {
+  .tab { padding:13px 11px !important; min-height:44px; display:flex; align-items:center; }
+  button[id*="Prev"], button[id*="Next"], button[id*="prev"], button[id*="next"],
+  .cal-nav-btn, .nav-btn { min-width:44px; min-height:44px; }
+  input[type="text"], input[type="number"], input[type="password"], input[type="email"],
+  input[type="date"], input[type="time"], input[type="tel"], select, textarea {
+    font-size:16px !important;
+  }
+  .sec button:not(.tab):not(.crt-stat) { min-height:42px; }
+  .ct { overflow-x:hidden; }
+  * { -webkit-tap-highlight-color: rgba(74,144,217,.2); }
+}
+/* iOS: scroll suave en contenedores con overflow */
+.tabs, .filtros, .ct { -webkit-overflow-scrolling: touch; }
+
 </style>
 </head>
 <body>
@@ -4823,7 +4840,7 @@ document.querySelectorAll('.tab[data-sec="delegado"]').forEach(function(t){
 </script>
 
 <style>
-  #modalCartaCoach .crt-wrap{display:flex;flex-direction:column;align-items:center;gap:16px;}
+  #modalCartaCoach .crt-wrap{display:flex;flex-direction:column;align-items:center;gap:16px;max-width:100%;overflow:hidden;}
   .crt-carta{width:310px;height:470px;border-radius:20px;position:relative;overflow:hidden;
     background:linear-gradient(165deg,#1e4f95 0%,#143a72 38%,#0b275a 68%,#061b40 100%);
     box-shadow:0 24px 60px rgba(0,0,0,.7);isolation:isolate;font-family:"DM Sans",sans-serif;}
