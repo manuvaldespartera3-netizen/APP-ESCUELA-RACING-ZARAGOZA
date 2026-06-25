@@ -1721,6 +1721,11 @@ function toast(msg, tipo) {
 // ── INIT ──
 function iniciarApp() {
   var hoy = new Date();
+  // ── ROL DELEGADO: solo ve y rellena la pestaña Delegado de su equipo ──
+  if (coachData.rol === "delegado") {
+    iniciarAppDelegado();
+    return;
+  }
   document.getElementById("hoyFecha").textContent = hoy.toLocaleDateString("es-ES", {weekday:"long", day:"numeric", month:"long"});
   document.getElementById("hoyTitulo").textContent = "Hola, " + coachData.nombre.split(" ")[0];
   document.getElementById("hoyEquipo").textContent = "Equipo: " + (coachData.grupo || "Sin asignar");
@@ -1747,6 +1752,35 @@ function iniciarApp() {
     console.log("[Partidos] Pestaña activada");
   } else {
     console.log("[Partidos] No activada — el equipo no está en EQUIPOS_CON_PARTIDOS");
+  }
+}
+
+// ── PANEL RESTRINGIDO PARA ROL DELEGADO ──
+function iniciarAppDelegado() {
+  // Cabecera: saludo y equipo
+  var nombreEl = document.getElementById("coachNombre");
+  if (nombreEl) nombreEl.textContent = coachData.nombre + " (Delegado)";
+
+  // Ocultar TODAS las pestañas excepto Delegado
+  document.querySelectorAll(".tab").forEach(function(t) {
+    if (t.dataset.sec === "delegado") {
+      t.style.display = "block";
+      t.classList.add("activo");
+    } else {
+      t.style.display = "none";
+      t.classList.remove("activo");
+    }
+  });
+
+  // Mostrar solo la sección Delegado
+  document.querySelectorAll(".sec").forEach(function(s) { s.classList.remove("activo"); });
+  var secDel = document.getElementById("sec-delegado");
+  if (secDel) secDel.classList.add("activo");
+
+  // Cargar los partidos de su equipo (la función ya existe y filtra por coachData.grupo)
+  if (typeof cargarDelegado === "function") {
+    _delSemOffset = 0;
+    cargarDelegado();
   }
 }
 
