@@ -1340,10 +1340,20 @@ async function cargarMedicoLista(){
   } catch(e){ console.error("medico lista:", e); }
   if (!jugadores.length){ cont.innerHTML = '<div style="color:#666;font-size:13px;">No hay jugadores en tu equipo.</div>'; return; }
   var html = "";
+  // Si es área médica (ve todos los equipos), ordenar por equipo y mostrarlo
+  var esRolMedico = (coachData.rol === "medico");
+  if (esRolMedico) {
+    jugadores.sort(function(a,b){
+      var ea=(a.grupo||""), eb=(b.grupo||"");
+      if(ea!==eb) return ea.localeCompare(eb);
+      return a.nombre.localeCompare(b.nombre);
+    });
+  }
   jugadores.forEach(function(j){
     var m = medicoCache[j.id] || {};
     var est = m.estado || "disponible";
-    html += '<div class="med-row" data-id="'+j.id+'"><div class="med-nom">'+j.nombre+' '+(j.apellidos||"")+'</div>' +
+    var equipoTxt = esRolMedico && j.grupo ? '<div style="font-size:11px;color:#888;margin-top:1px;">'+j.grupo+'</div>' : '';
+    html += '<div class="med-row" data-id="'+j.id+'"><div class="med-nom">'+j.nombre+' '+(j.apellidos||"")+equipoTxt+'</div>' +
             '<span class="med-badge '+est+'">'+ESTADOS_MED[est]+'</span></div>';
   });
   cont.innerHTML = html;
@@ -1459,12 +1469,18 @@ async function abrirFichaMedica(j){
         if (nuevo !== anterior) {
           datos.estadoDesde = new Date().toISOString().slice(0,10);
         }
+        // Registrar quién hizo el cambio (médico o entrenador)
+        datos.actualizadoPor = coachData.rol === "medico" ? ("Área médica: "+coachData.nombre) : coachData.nombre;
         await setDoc(doc(db,"medico",j.id), datos, { merge:true });
         if(!medicoCache[j.id]) medicoCache[j.id]={};
         medicoCache[j.id].estado = nuevo;
         if (datos.estadoDesde) medicoCache[j.id].estadoDesde = datos.estadoDesde;
         cont.querySelectorAll(".med-est-btn").forEach(function(b){ b.className = "med-est-btn"; });
         btn.className = "med-est-btn sel-"+nuevo;
+        // ── Si lo cambia el ÁREA MÉDICA y hay cambio real, generar aviso al entrenador ──
+        if (coachData.rol === "medico" && nuevo !== anterior) {
+          await crearAvisoMedico(j, nuevo, anterior);
+        }
         toast("✅ Estado actualizado");
       } catch(e){ toast("Error: "+e.message); }
     });
@@ -1726,6 +1742,11 @@ function iniciarApp() {
     iniciarAppDelegado();
     return;
   }
+  // ── ROL MÉDICO: solo ve la pestaña Médico, de todos los equipos ──
+  if (coachData.rol === "medico") {
+    iniciarAppMedico();
+    return;
+  }
   document.getElementById("hoyFecha").textContent = hoy.toLocaleDateString("es-ES", {weekday:"long", day:"numeric", month:"long"});
   document.getElementById("hoyTitulo").textContent = "Hola, " + coachData.nombre.split(" ")[0];
   document.getElementById("hoyEquipo").textContent = "Equipo: " + (coachData.grupo || "Sin asignar");
@@ -1753,6 +1774,8 @@ function iniciarApp() {
   } else {
     console.log("[Partidos] No activada — el equipo no está en EQUIPOS_CON_PARTIDOS");
   }
+  // Comprobar si hay avisos médicos pendientes para este entrenador
+  comprobarAvisosMedicos();
 }
 
 // ── PANEL RESTRINGIDO PARA ROL DELEGADO ──
@@ -1783,6 +1806,126 @@ function iniciarAppDelegado() {
     cargarDelegado();
   }
 }
+
+// ── PANEL RESTRINGIDO PARA ROL ÁREA MÉDICA ──
+function iniciarAppMedico() {
+  var nombreEl = document.getElementById("coachNombre");
+  if (nombreEl) nombreEl.textContent = coachData.nombre + " (Área médica)";
+
+  // Forzar que cargue jugadores de TODOS los equipos
+  coachData.grupo = "Todos";
+
+  // Ocultar todas las pestañas excepto Médico
+  document.querySelectorAll(".tab").forEach(function(t) {
+    if (t.dataset.sec === "medico") {
+      t.style.display = "block";
+      t.classList.add("activo");
+    } else {
+      t.style.display = "none";
+      t.classList.remove("activo");
+    }
+  });
+  document.querySelectorAll(".sec").forEach(function(s) { s.classList.remove("activo"); });
+  var secMed = document.getElementById("sec-medico");
+  if (secMed) secMed.classList.add("activo");
+
+  // Cargar jugadores de todos los equipos y luego la lista médica
+  cargarJugadores().then(function() {
+    mostrarListaMedico();
+    cargarMedicoLista();
+  });
+}
+
+// ── Crear aviso médico obligatorio para el entrenador del jugador ──
+async function crearAvisoMedico(jugador, nuevoEstado, estadoAnterior) {
+  try {
+    var LBL = { disponible:"🟢 Disponible (apto)", lesionado:"🔴 Lesionado (NO apto)", recuperacion:"🟡 En recuperación" };
+    await addDoc(collection(db, "avisos_medicos"), {
+      alumnoId: jugador.id,
+      alumnoNombre: jugador.nombre + " " + (jugador.apellidos || ""),
+      equipo: jugador.grupo || "",
+      estadoNuevo: nuevoEstado,
+      estadoNuevoTxt: LBL[nuevoEstado] || nuevoEstado,
+      estadoAnterior: estadoAnterior,
+      creadoPor: coachData.nombre,
+      creadoEn: Timestamp.now(),
+      leido: false
+    });
+  } catch(e) { console.error("crearAvisoMedico:", e); }
+}
+
+// ── Comprobar avisos médicos pendientes para el entrenador (cola obligatoria) ──
+var _avisosMedicosPendientes = [];
+async function comprobarAvisosMedicos() {
+  try {
+    // El entrenador ve avisos de los jugadores de SU equipo
+    var grupo = coachData.grupo;
+    if (!grupo) return;
+    var q;
+    if (grupo === "Todos") {
+      q = query(collection(db, "avisos_medicos"), where("leido", "==", false));
+    } else {
+      q = query(collection(db, "avisos_medicos"), where("equipo", "==", grupo), where("leido", "==", false));
+    }
+    var snap = await getDocs(q);
+    _avisosMedicosPendientes = [];
+    snap.forEach(function(d){ _avisosMedicosPendientes.push(Object.assign({id:d.id}, d.data())); });
+    // Ordenar por fecha (más antiguos primero)
+    _avisosMedicosPendientes.sort(function(a,b){
+      var ta = a.creadoEn && a.creadoEn.seconds ? a.creadoEn.seconds : 0;
+      var tb = b.creadoEn && b.creadoEn.seconds ? b.creadoEn.seconds : 0;
+      return ta - tb;
+    });
+    if (_avisosMedicosPendientes.length > 0) {
+      mostrarSiguienteAvisoMedico();
+    }
+  } catch(e) { console.error("comprobarAvisosMedicos:", e); }
+}
+
+function mostrarSiguienteAvisoMedico() {
+  if (_avisosMedicosPendientes.length === 0) {
+    document.getElementById("modalAvisoMedico").style.display = "none";
+    return;
+  }
+  var av = _avisosMedicosPendientes[0];
+  var fechaTxt = "";
+  if (av.creadoEn && av.creadoEn.seconds) {
+    var f = new Date(av.creadoEn.seconds * 1000);
+    fechaTxt = ("0"+f.getDate()).slice(-2)+"/"+("0"+(f.getMonth()+1)).slice(-2)+"/"+f.getFullYear()+" "+("0"+f.getHours()).slice(-2)+":"+("0"+f.getMinutes()).slice(-2);
+  }
+  var colorBorde = av.estadoNuevo === "lesionado" ? "#e03c3c" : (av.estadoNuevo === "recuperacion" ? "#f0b429" : "#25a352");
+  var cont = document.getElementById("avisoMedicoContenido");
+  cont.innerHTML =
+    '<div style="background:var(--gris,#1a1f2e);border:1px solid '+colorBorde+';border-radius:12px;padding:16px;">' +
+      '<div style="font-size:16px;font-weight:700;color:#fff;margin-bottom:6px;">'+av.alumnoNombre+'</div>' +
+      '<div style="font-size:13px;color:#aaa;margin-bottom:10px;">'+(av.equipo||"")+'</div>' +
+      '<div style="font-size:15px;font-weight:600;color:'+colorBorde+';margin-bottom:8px;">'+av.estadoNuevoTxt+'</div>' +
+      '<div style="font-size:12px;color:#888;">Indicado por '+(av.creadoPor||"Área médica")+(fechaTxt?" · "+fechaTxt:"")+'</div>' +
+    '</div>' +
+    (_avisosMedicosPendientes.length > 1 ? '<div style="text-align:center;font-size:12px;color:#888;margin-top:10px;">Hay '+_avisosMedicosPendientes.length+' avisos pendientes</div>' : '');
+  document.getElementById("modalAvisoMedico").style.display = "flex";
+}
+
+// Listener del botón aceptar
+document.getElementById("btnAceptarAvisoMedico").addEventListener("click", async function(){
+  if (_avisosMedicosPendientes.length === 0) return;
+  var av = _avisosMedicosPendientes[0];
+  var btn = this;
+  btn.disabled = true; btn.textContent = "Guardando...";
+  try {
+    await updateDoc(doc(db, "avisos_medicos", av.id), {
+      leido: true,
+      leidoPor: coachData.nombre,
+      leidoEn: Timestamp.now()
+    });
+    _avisosMedicosPendientes.shift(); // quitar el aceptado
+    btn.disabled = false; btn.textContent = "✓ He leído y lo acepto";
+    mostrarSiguienteAvisoMedico(); // mostrar el siguiente o cerrar
+  } catch(e) {
+    btn.disabled = false; btn.textContent = "✓ He leído y lo acepto";
+    toast("Error al confirmar: "+e.message);
+  }
+});
 
 // ── CALENDARIO PICKER ──
 var _MESES_CAL = ["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
@@ -4933,5 +5076,17 @@ document.querySelectorAll('.tab[data-sec="delegado"]').forEach(function(t){
     </div>
   </div>
 </div>
+
+<!-- ── MODAL AVISO MÉDICO OBLIGATORIO (para entrenador) ── -->
+<div id="modalAvisoMedico" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:99999;align-items:center;justify-content:center;padding:20px;">
+  <div style="background:#12182a;border:2px solid var(--rojo,#e03c3c);border-radius:16px;max-width:440px;width:100%;padding:24px;box-shadow:0 20px 60px rgba(0,0,0,.6);">
+    <div style="text-align:center;font-size:40px;margin-bottom:8px;">🏥</div>
+    <div style="text-align:center;font-size:18px;font-weight:700;color:#fff;margin-bottom:4px;">Aviso del Área Médica</div>
+    <div style="text-align:center;font-size:12px;color:#999;margin-bottom:18px;">Debes leer y aceptar para continuar</div>
+    <div id="avisoMedicoContenido"></div>
+    <button id="btnAceptarAvisoMedico" style="width:100%;padding:14px;background:var(--azul-c,#4a90d9);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:700;cursor:pointer;margin-top:18px;">✓ He leído y lo acepto</button>
+  </div>
+</div>
+
 </body>
 </html>
