@@ -574,6 +574,9 @@ body{background:var(--n);color:var(--t);font-family:"DM Sans",sans-serif;min-hei
           <div class="form-campo"><label>Grupo</label>
             <select id="jGrupo"><option value="Escuela">Escuela</option><option value="Prebenjamín B">Prebenjamín B</option></select>
           </div>
+          <div class="form-campo"><label>Posición</label>
+            <select id="jPosicion"><option value="jugador">Jugador de campo</option><option value="portero">🧤 Portero</option></select>
+          </div>
           <div class="form-campo"><label>Cuota (€/mes)</label><input type="number" id="jCuota" placeholder="0"></div>
           <div class="form-campo"><label>Estado</label>
             <select id="jEstado"><option value="activo">Activo</option><option value="baja">Baja</option></select>
@@ -681,6 +684,7 @@ body{background:var(--n);color:var(--t);font-family:"DM Sans",sans-serif;min-hei
               <option value="entrenador">Entrenador (acceso completo)</option>
               <option value="delegado">Delegado (solo informes de partido)</option>
               <option value="medico">Área médica (estado físico jugadores)</option>
+              <option value="porteros">🧤 Entrenador de porteros</option>
             </select>
           </div>
           <div class="form-campo"><label>Sueldo mensual (€)</label><input type="number" id="eSueldo" placeholder="0"></div>
@@ -1214,6 +1218,7 @@ body{background:var(--n);color:var(--t);font-family:"DM Sans",sans-serif;min-hei
       <div class="form-campo"><label>Apellidos</label><input type="text" id="editJApellidos"></div>
       <div class="form-campo"><label>Fecha nacimiento</label><input type="date" id="editJFnac"></div>
       <div class="form-campo"><label>Equipo</label><select id="editJGrupo"><option value="Escuela">Escuela</option><option value="Prebenjamín B">Prebenjamín B</option></select></div>
+      <div class="form-campo"><label>Posición</label><select id="editJPosicion"><option value="jugador">Jugador de campo</option><option value="portero">🧤 Portero</option></select></div>
       <div class="form-campo"><label>Estado</label><select id="editJEstado"><option value="activo">Activo</option><option value="baja">Baja</option></select></div>
       <div class="form-campo"><label>Dorsal (opcional)</label><input type="number" id="editJDorsal" min="1" max="99" placeholder="—"></div>
       <div class="form-campo"><label>Email padre</label><input type="email" id="editJPadreEmail"></div>
@@ -1248,7 +1253,7 @@ body{background:var(--n);color:var(--t);font-family:"DM Sans",sans-serif;min-hei
       <div class="form-campo"><label>Email</label><input type="email" id="editEEmail"></div>
       <div class="form-campo"><label>Teléfono</label><input type="tel" id="editETel"></div>
       <div class="form-campo"><label>Grupo</label><select id="editEGrupo"><option value="Escuela">Escuela</option><option value="Prebenjamín B">Prebenjamín B</option><option value="Todos">Todos</option></select></div>
-      <div class="form-campo"><label>Rol</label><select id="editERol"><option value="entrenador">Entrenador (acceso completo)</option><option value="delegado">Delegado (solo informes)</option><option value="medico">Área médica</option></select></div>
+      <div class="form-campo"><label>Rol</label><select id="editERol"><option value="entrenador">Entrenador (acceso completo)</option><option value="delegado">Delegado (solo informes)</option><option value="medico">Área médica</option><option value="porteros">🧤 Entrenador de porteros</option></select></div>
       <div class="form-campo"><label>Sueldo mensual (€)</label><input type="number" id="editESueldo"></div>
       <div class="form-campo ancho">
         <label>Foto (subir nueva desde galería)</label>
@@ -1806,7 +1811,7 @@ document.getElementById("btnGuardarJugador").addEventListener("click", async fun
   var btn=document.getElementById("btnGuardarJugador"); btn.disabled=true; btn.textContent="Guardando...";
   try {
     var photoUrl=""; var fi=document.getElementById("jFotoInput"); if(fi.files[0]){btn.textContent="Subiendo foto...";photoUrl=await subirFotoCloudinary(fi.files[0]);}
-    await addDoc(collection(db,"alumnos"),{nombre:nombre,apellidos:apellidos,fechaNacimiento:document.getElementById("jFnac").value||"",grupo:document.getElementById("jGrupo").value,cuota:parseFloat(document.getElementById("jCuota").value)||0,estado:document.getElementById("jEstado").value,padreNombre:document.getElementById("jPadreNombre").value.trim(),padreTel:document.getElementById("jPadreTel").value.trim(),padreEmail:document.getElementById("jPadreEmail").value.trim().toLowerCase(),madreNombre:document.getElementById("jMadreNombre").value.trim(),madreTel:document.getElementById("jMadreTel").value.trim(),madreEmail:document.getElementById("jMadreEmail").value.trim().toLowerCase(),pago1:document.getElementById("jPago1").value,pago2:document.getElementById("jPago2").value,photoUrl:photoUrl,creadoEn:Timestamp.now()});
+    await addDoc(collection(db,"alumnos"),{nombre:nombre,apellidos:apellidos,fechaNacimiento:document.getElementById("jFnac").value||"",grupo:document.getElementById("jGrupo").value,posicion:document.getElementById("jPosicion").value,cuota:parseFloat(document.getElementById("jCuota").value)||0,estado:document.getElementById("jEstado").value,padreNombre:document.getElementById("jPadreNombre").value.trim(),padreTel:document.getElementById("jPadreTel").value.trim(),padreEmail:document.getElementById("jPadreEmail").value.trim().toLowerCase(),madreNombre:document.getElementById("jMadreNombre").value.trim(),madreTel:document.getElementById("jMadreTel").value.trim(),madreEmail:document.getElementById("jMadreEmail").value.trim().toLowerCase(),pago1:document.getElementById("jPago1").value,pago2:document.getElementById("jPago2").value,photoUrl:photoUrl,creadoEn:Timestamp.now()});
     toast("✅ Jugador guardado","ok"); ["jNombre","jApellidos","jFnac","jCuota","jPadreNombre","jPadreTel","jPadreEmail","jMadreNombre","jMadreTel","jMadreEmail"].forEach(function(id){document.getElementById(id).value="";});
     await cargarJugadores(); renderInicioJugadores(); actualizarStatsInicio();
   } catch(e){toast("Error: "+e.message,"error");}
@@ -1821,6 +1826,7 @@ function abrirEditarJugador(id) {
     document.getElementById(fid).value=j[map[fid]]||"";
   });
   document.getElementById("editJGrupo").value=j.grupo||"Escuela";
+  document.getElementById("editJPosicion").value=j.posicion||"jugador";
   // Foto
   var fImg = document.getElementById("editJFotoActual");
   var fEmo = document.getElementById("editJFotoEmoji");
@@ -1841,7 +1847,7 @@ document.getElementById("btnGuardarEditarJ").addEventListener("click", async fun
     var pagoAntes1 = jAntes ? jAntes.pago1 : "";
     var pagoAntes2 = jAntes ? jAntes.pago2 : "";
 
-    var datosAct = {nombre:document.getElementById("editJNombre").value.trim(),apellidos:document.getElementById("editJApellidos").value.trim(),fechaNacimiento:document.getElementById("editJFnac").value,grupo:document.getElementById("editJGrupo").value,estado:document.getElementById("editJEstado").value,padreEmail:document.getElementById("editJPadreEmail").value.trim().toLowerCase(),padreTel:document.getElementById("editJPadreTel").value.trim(),madreEmail:document.getElementById("editJMadreEmail").value.trim().toLowerCase(),madreTel:document.getElementById("editJMadreTel").value.trim(),dorsal:(document.getElementById("editJDorsal").value.trim()===""?null:parseInt(document.getElementById("editJDorsal").value,10)),pago1:nuevoPago1,pago2:nuevoPago2};
+    var datosAct = {nombre:document.getElementById("editJNombre").value.trim(),apellidos:document.getElementById("editJApellidos").value.trim(),fechaNacimiento:document.getElementById("editJFnac").value,grupo:document.getElementById("editJGrupo").value,posicion:document.getElementById("editJPosicion").value,estado:document.getElementById("editJEstado").value,padreEmail:document.getElementById("editJPadreEmail").value.trim().toLowerCase(),padreTel:document.getElementById("editJPadreTel").value.trim(),madreEmail:document.getElementById("editJMadreEmail").value.trim().toLowerCase(),madreTel:document.getElementById("editJMadreTel").value.trim(),dorsal:(document.getElementById("editJDorsal").value.trim()===""?null:parseInt(document.getElementById("editJDorsal").value,10)),pago1:nuevoPago1,pago2:nuevoPago2};
     var fiEdit = document.getElementById("editJFotoInput");
     if (fiEdit && fiEdit.files[0]) {
       btn.textContent = "Subiendo foto...";
@@ -2082,6 +2088,7 @@ function pintarEntrenadores() {
     var rolBadge="";
     if(e.rol==="delegado") rolBadge=' <span style="font-size:10px;background:rgba(199,125,255,.18);color:#c77dff;border-radius:20px;padding:2px 8px;font-weight:600;vertical-align:middle;">📋 Delegado</span>';
     else if(e.rol==="medico") rolBadge=' <span style="font-size:10px;background:rgba(74,144,217,.18);color:#4a90d9;border-radius:20px;padding:2px 8px;font-weight:600;vertical-align:middle;">🏥 Médico</span>';
+    else if(e.rol==="porteros") rolBadge=' <span style="font-size:10px;background:rgba(37,163,82,.18);color:#25a352;border-radius:20px;padding:2px 8px;font-weight:600;vertical-align:middle;">🧤 Porteros</span>';
     hdr.innerHTML=foto+'<div class="ent-info"><div class="ent-nombre">'+e.nombre+rolBadge+'</div><div class="ent-meta">'+(e.email||"")+(e.grupo?" · "+e.grupo:"")+'</div>'+semaforo+'</div><div><div class="ent-sueldo">'+(e.sueldo||0)+'€/mes</div><button class="btn-j btn-edit" style="margin-top:6px;font-size:12px;padding:5px 10px;" data-id="'+e.id+'">✏️ Editar</button></div>';
     card.appendChild(hdr);
     var mDiv=document.createElement("div"); mDiv.innerHTML='<div style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;margin-top:10px;">Pagos temporada 25/26</div>';
