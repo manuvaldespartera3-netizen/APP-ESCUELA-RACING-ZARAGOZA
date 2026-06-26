@@ -654,6 +654,7 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
     <div class="tab" data-sec="delegado" id="tabDelegado" style="display:none">📋 Delegado</div>
     <div class="tab" data-sec="cumples">🎂 Cumpleaños</div>
     <div class="tab" data-sec="medico">🏥 Médico</div>
+    <div class="tab" data-sec="porteros" id="tabPorteros" style="display:none">🧤 Porteros</div>
   </div>
   <div class="ct">
 
@@ -846,6 +847,21 @@ body{background:var(--negro);color:var(--texto);font-family:"DM Sans",sans-serif
         <div id="medicoFichaCont"></div>
       </div>
     </div>
+    <!-- ════════════════════════════════════════
+          ÁREA DE PORTEROS
+          ════════════════════════════════════════ -->
+    <div class="sec" id="sec-porteros">
+      <div class="sec-titulo">🧤 Porteros</div>
+      <div id="porterosLista">
+        <p style="font-size:13px;color:#888;margin-bottom:14px;">Porteros de todos los equipos. Toca uno para ver y editar su evaluación.</p>
+        <div id="listaPorteros"><div class="cargando">Cargando...</div></div>
+      </div>
+      <div id="porterosFicha" style="display:none;">
+        <button id="btnVolverPorteros" style="background:var(--gris);border:1px solid var(--borde);color:var(--texto);border-radius:8px;padding:8px 14px;cursor:pointer;font-size:13px;margin-bottom:14px;">‹ Volver a la lista</button>
+        <div id="porterosFichaCont"></div>
+      </div>
+    </div>
+
     <!-- SCOUTING -->
     <div class="sec" id="sec-scouting">
       <div class="sc-section-header">
@@ -1747,6 +1763,11 @@ function iniciarApp() {
     iniciarAppMedico();
     return;
   }
+  // ── ROL PORTEROS: solo ve la pestaña Porteros, de todos los equipos ──
+  if (coachData.rol === "porteros") {
+    iniciarAppPorteros();
+    return;
+  }
   document.getElementById("hoyFecha").textContent = hoy.toLocaleDateString("es-ES", {weekday:"long", day:"numeric", month:"long"});
   document.getElementById("hoyTitulo").textContent = "Hola, " + coachData.nombre.split(" ")[0];
   document.getElementById("hoyEquipo").textContent = "Equipo: " + (coachData.grupo || "Sin asignar");
@@ -1835,6 +1856,287 @@ function iniciarAppMedico() {
     cargarMedicoLista();
   });
 }
+
+// ════════════════════════════════════════
+// MÓDULO ÁREA DE PORTEROS
+// ════════════════════════════════════════
+
+// Estructura de evaluación (4 bloques basados en metodología de fútbol base)
+var PORTEROS_BLOQUES = [
+  { id:"def", titulo:"🛡️ Técnica defensiva", items:[
+    {id:"posicion", txt:"Posición base / colocación"},
+    {id:"blocaje", txt:"Blocaje y sujeción del balón"},
+    {id:"caidas", txt:"Caídas laterales y estiradas"},
+    {id:"desvios", txt:"Desvíos"},
+    {id:"aereo", txt:"Juego aéreo y despejes"}
+  ]},
+  { id:"ofe", titulo:"⚽ Técnica ofensiva", items:[
+    {id:"saquemano", txt:"Saque con la mano"},
+    {id:"saquepie", txt:"Saque con el pie"},
+    {id:"juegopies", txt:"Juego con los pies"},
+    {id:"construccion", txt:"Construcción desde atrás"}
+  ]},
+  { id:"sit", titulo:"🎯 Situaciones de juego", items:[
+    {id:"unovsuno", txt:"1 contra 1"},
+    {id:"salidas", txt:"Salidas en deslizamiento"},
+    {id:"trayectorias", txt:"Lectura de trayectorias"},
+    {id:"decision", txt:"Toma de decisiones"}
+  ]},
+  { id:"fis", titulo:"💪 Físico y psicológico", items:[
+    {id:"coordinacion", txt:"Coordinación y agilidad"},
+    {id:"reflejos", txt:"Reflejos"},
+    {id:"explosividad", txt:"Fuerza explosiva"},
+    {id:"valentia", txt:"Valentía"},
+    {id:"concentracion", txt:"Concentración"},
+    {id:"comunicacion", txt:"Comunicación / mando"}
+  ]}
+];
+
+var porterosCache = {};   // datos de evaluación por alumnoId
+var porterosLista = [];   // jugadores con posicion=portero
+
+// ── Panel restringido para rol porteros ──
+function iniciarAppPorteros() {
+  var nombreEl = document.getElementById("coachNombre");
+  if (nombreEl) nombreEl.textContent = coachData.nombre + " (Entrenador de porteros)";
+  coachData.grupo = "Todos";
+
+  document.querySelectorAll(".tab").forEach(function(t) {
+    if (t.dataset.sec === "porteros") { t.style.display = "block"; t.classList.add("activo"); }
+    else { t.style.display = "none"; t.classList.remove("activo"); }
+  });
+  document.querySelectorAll(".sec").forEach(function(s) { s.classList.remove("activo"); });
+  var sec = document.getElementById("sec-porteros");
+  if (sec) sec.classList.add("activo");
+
+  cargarPorteros();
+}
+
+// ── Cargar lista de porteros (todos los equipos) ──
+async function cargarPorteros() {
+  mostrarListaPorteros();
+  var cont = document.getElementById("listaPorteros");
+  cont.innerHTML = '<div class="cargando">Cargando porteros...</div>';
+  porterosLista = [];
+  porterosCache = {};
+  try {
+    // Cargar todos los alumnos activos que sean porteros
+    var snap = await getDocs(query(collection(db,"alumnos"), where("estado","==","activo")));
+    snap.forEach(function(d){
+      var j = Object.assign({id:d.id}, d.data());
+      if (j.posicion === "portero") porterosLista.push(j);
+    });
+    // Cargar evaluaciones existentes
+    var snapEv = await getDocs(collection(db,"porteros"));
+    snapEv.forEach(function(d){ porterosCache[d.id] = d.data(); });
+  } catch(e){ console.error("cargarPorteros:", e); cont.innerHTML='<div class="vacio">Error cargando porteros.</div>'; return; }
+
+  if (!porterosLista.length) {
+    cont.innerHTML = '<div class="vacio">No hay porteros marcados. Marca jugadores como portero en su ficha (admin).</div>';
+    return;
+  }
+
+  // Ordenar por equipo y nombre
+  porterosLista.sort(function(a,b){
+    var ea=(a.grupo||""), eb=(b.grupo||"");
+    if(ea!==eb) return ea.localeCompare(eb);
+    return a.nombre.localeCompare(b.nombre);
+  });
+
+  var html = "";
+  porterosLista.forEach(function(j){
+    var ev = porterosCache[j.id] || {};
+    var nEval = ev.evaluaciones ? ev.evaluaciones.length : 0;
+    var ultEval = nEval > 0 ? ev.evaluaciones[ev.evaluaciones.length-1] : null;
+    var fechaTxt = ultEval && ultEval.fecha ? "Última: "+ultEval.fecha.split("-").reverse().join("/") : "Sin evaluar aún";
+    html += '<div class="med-row" data-id="'+j.id+'">' +
+              '<div class="med-nom">🧤 '+j.nombre+' '+(j.apellidos||"")+
+                '<div style="font-size:11px;color:#888;margin-top:1px;">'+(j.grupo||"")+' · '+fechaTxt+'</div>' +
+              '</div>' +
+              '<span style="font-size:18px;color:#666;">›</span>' +
+            '</div>';
+  });
+  cont.innerHTML = html;
+  cont.querySelectorAll(".med-row").forEach(function(row){
+    row.addEventListener("click", function(){
+      var j = porterosLista.find(function(x){ return x.id === row.dataset.id; });
+      if (j) abrirFichaPortero(j);
+    });
+  });
+}
+
+function mostrarListaPorteros() {
+  document.getElementById("porterosLista").style.display = "block";
+  document.getElementById("porterosFicha").style.display = "none";
+}
+
+// ── Ficha de evaluación de un portero ──
+var _porteroActual = null;
+function abrirFichaPortero(j) {
+  _porteroActual = j;
+  document.getElementById("porterosLista").style.display = "none";
+  document.getElementById("porterosFicha").style.display = "block";
+  var cont = document.getElementById("porterosFichaCont");
+  var ev = porterosCache[j.id] || {};
+  var evals = ev.evaluaciones || [];
+  var ultima = evals.length > 0 ? evals[evals.length-1] : null;
+
+  var html = '<div style="font-size:18px;font-weight:700;color:var(--bl);margin-bottom:2px;">🧤 '+j.nombre+' '+(j.apellidos||"")+'</div>';
+  html += '<div style="font-size:13px;color:#888;margin-bottom:16px;">'+(j.grupo||"")+'</div>';
+
+  // Aviso de evaluación
+  html += '<div style="background:rgba(74,144,217,.1);border:1px solid rgba(74,144,217,.3);border-radius:10px;padding:11px 13px;font-size:12px;color:#bbd;margin-bottom:16px;line-height:1.5;">📋 Evalúa cada aspecto con el semáforo (🟢 bien · 🟡 mejorable · 🔴 a trabajar) y una nota del 1 al 5. No hace falta rellenar todo. Al guardar se registra con la fecha de hoy para seguir el progreso.</div>';
+
+  // Bloques de evaluación
+  PORTEROS_BLOQUES.forEach(function(bloque){
+    html += '<div style="font-size:13px;font-weight:700;color:var(--ac);margin:18px 0 8px;">'+bloque.titulo+'</div>';
+    bloque.items.forEach(function(item){
+      var val = (ultima && ultima.items && ultima.items[item.id]) ? ultima.items[item.id] : {};
+      var sem = val.sem || "";
+      var nota = val.nota || "";
+      html += '<div class="pt-item" data-item="'+item.id+'" style="background:var(--gris);border:1px solid var(--borde);border-radius:10px;padding:10px 12px;margin-bottom:8px;">';
+      html += '<div style="font-size:13px;color:var(--texto);margin-bottom:8px;">'+item.txt+'</div>';
+      html += '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">';
+      // Semáforo
+      html += '<div style="display:flex;gap:5px;">';
+      [["verde","🟢"],["amarillo","🟡"],["rojo","🔴"]].forEach(function(s){
+        var activo = sem === s[0];
+        html += '<button class="pt-sem" data-sem="'+s[0]+'" style="font-size:18px;padding:3px 6px;border-radius:7px;border:2px solid '+(activo?"var(--ac)":"transparent")+';background:'+(activo?"rgba(74,144,217,.15)":"transparent")+';cursor:pointer;opacity:'+(activo?"1":".55")+';">'+s[1]+'</button>';
+      });
+      html += '</div>';
+      // Nota 1-5
+      html += '<div style="display:flex;gap:4px;margin-left:auto;">';
+      for (var n=1; n<=5; n++) {
+        var activoN = String(nota) === String(n);
+        html += '<button class="pt-nota" data-nota="'+n+'" style="width:28px;height:28px;border-radius:7px;border:1px solid '+(activoN?"var(--ac)":"var(--borde)")+';background:'+(activoN?"var(--ac)":"transparent")+';color:'+(activoN?"#fff":"#999")+';font-size:13px;font-weight:600;cursor:pointer;">'+n+'</button>';
+      }
+      html += '</div>';
+      html += '</div></div>';
+    });
+  });
+
+  // Objetivos individuales
+  html += '<div style="font-size:13px;font-weight:700;color:var(--ac);margin:18px 0 8px;">🎯 Objetivos individuales</div>';
+  html += '<textarea id="ptObjetivos" rows="3" style="width:100%;box-sizing:border-box;background:var(--gris);border:1px solid var(--borde);color:var(--texto);border-radius:8px;padding:10px;font-size:13px;font-family:inherit;" placeholder="Qué trabajar con este portero...">'+(ev.objetivos||"")+'</textarea>';
+
+  // Notas de sesión (de la última evaluación)
+  html += '<div style="font-size:13px;font-weight:700;color:var(--ac);margin:18px 0 8px;">📝 Observaciones de esta evaluación</div>';
+  html += '<textarea id="ptNotas" rows="3" style="width:100%;box-sizing:border-box;background:var(--gris);border:1px solid var(--borde);color:var(--texto);border-radius:8px;padding:10px;font-size:13px;font-family:inherit;" placeholder="Notas de la sesión de hoy..."></textarea>';
+
+  // Histórico de evaluaciones
+  if (evals.length > 0) {
+    html += '<div style="font-size:13px;font-weight:700;color:var(--ac);margin:18px 0 8px;">📈 Histórico ('+evals.length+' evaluacion'+(evals.length===1?"":"es")+')</div>';
+    evals.slice().reverse().forEach(function(e){
+      var media = _ptMediaEval(e);
+      html += '<div style="background:var(--gris);border:1px solid var(--borde);border-radius:8px;padding:9px 11px;margin-bottom:6px;font-size:12px;color:#bbb;">';
+      html += '<b style="color:var(--bl);">'+(e.fecha?e.fecha.split("-").reverse().join("/"):"")+'</b>';
+      if (media) html += ' · Media: '+media+'/5';
+      if (e.notas) html += '<div style="margin-top:3px;color:#999;">'+e.notas+'</div>';
+      html += '</div>';
+    });
+  }
+
+  // Botón guardar
+  html += '<button id="btnGuardarPortero" style="width:100%;padding:13px;background:var(--azul-c);color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;margin-top:18px;">💾 Guardar evaluación de hoy</button>';
+
+  cont.innerHTML = html;
+
+  // Listeners de semáforo (selección única por ítem)
+  cont.querySelectorAll(".pt-item").forEach(function(itemEl){
+    itemEl.querySelectorAll(".pt-sem").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        itemEl.querySelectorAll(".pt-sem").forEach(function(b){ b.style.border="2px solid transparent"; b.style.background="transparent"; b.style.opacity=".55"; });
+        btn.style.border="2px solid var(--ac)"; btn.style.background="rgba(74,144,217,.15)"; btn.style.opacity="1";
+        btn.dataset.sel = "1";
+        itemEl.querySelectorAll(".pt-sem").forEach(function(b){ if(b!==btn) b.dataset.sel=""; });
+      });
+    });
+    itemEl.querySelectorAll(".pt-nota").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        itemEl.querySelectorAll(".pt-nota").forEach(function(b){ b.style.border="1px solid var(--borde)"; b.style.background="transparent"; b.style.color="#999"; b.dataset.sel=""; });
+        btn.style.border="1px solid var(--ac)"; btn.style.background="var(--ac)"; btn.style.color="#fff"; btn.dataset.sel="1";
+      });
+    });
+  });
+  // Marcar como seleccionados los que ya tenían valor (para el guardado)
+  cont.querySelectorAll(".pt-item").forEach(function(itemEl){
+    itemEl.querySelectorAll(".pt-sem").forEach(function(b){ if(b.style.opacity==="1") b.dataset.sel="1"; });
+    itemEl.querySelectorAll(".pt-nota").forEach(function(b){ if(b.style.color.indexOf("255")>-1 || b.style.background.indexOf("var(--ac)")>-1) b.dataset.sel="1"; });
+  });
+
+  document.getElementById("btnGuardarPortero").addEventListener("click", guardarEvaluacionPortero);
+}
+
+// Media de una evaluación (solo ítems con nota)
+function _ptMediaEval(e) {
+  if (!e.items) return null;
+  var suma=0, n=0;
+  Object.keys(e.items).forEach(function(k){
+    if (e.items[k] && e.items[k].nota) { suma += parseInt(e.items[k].nota,10); n++; }
+  });
+  return n > 0 ? (suma/n).toFixed(1) : null;
+}
+
+// Guardar una nueva evaluación con fecha de hoy
+async function guardarEvaluacionPortero() {
+  if (!_porteroActual) return;
+  var btn = document.getElementById("btnGuardarPortero");
+  btn.disabled = true; btn.textContent = "Guardando...";
+  var cont = document.getElementById("porterosFichaCont");
+
+  // Recoger ítems evaluados
+  var items = {};
+  cont.querySelectorAll(".pt-item").forEach(function(itemEl){
+    var itemId = itemEl.dataset.item;
+    var semSel = itemEl.querySelector('.pt-sem[data-sel="1"]');
+    var notaSel = itemEl.querySelector('.pt-nota[data-sel="1"]');
+    var obj = {};
+    if (semSel) obj.sem = semSel.dataset.sem;
+    if (notaSel) obj.nota = notaSel.dataset.nota;
+    if (obj.sem || obj.nota) items[itemId] = obj;
+  });
+
+  var hoy = new Date().toISOString().slice(0,10);
+  var nuevaEval = {
+    fecha: hoy,
+    items: items,
+    notas: document.getElementById("ptNotas").value.trim(),
+    evaluadoPor: coachData.nombre
+  };
+
+  var ev = porterosCache[_porteroActual.id] || {};
+  var evals = ev.evaluaciones || [];
+  // Si ya hay una evaluación de hoy, la reemplazamos; si no, añadimos
+  var idxHoy = evals.findIndex(function(e){ return e.fecha === hoy; });
+  if (idxHoy >= 0) evals[idxHoy] = nuevaEval;
+  else evals.push(nuevaEval);
+
+  var datos = {
+    alumnoId: _porteroActual.id,
+    alumnoNombre: _porteroActual.nombre + " " + (_porteroActual.apellidos||""),
+    equipo: _porteroActual.grupo || "",
+    objetivos: document.getElementById("ptObjetivos").value.trim(),
+    evaluaciones: evals,
+    actualizadoEn: new Date().toISOString()
+  };
+
+  try {
+    await setDoc(doc(db,"porteros",_porteroActual.id), datos, { merge:true });
+    porterosCache[_porteroActual.id] = datos;
+    btn.disabled = false; btn.textContent = "💾 Guardar evaluación de hoy";
+    toast("✅ Evaluación guardada");
+    // Recargar la ficha para mostrar el histórico actualizado
+    abrirFichaPortero(_porteroActual);
+  } catch(e) {
+    btn.disabled = false; btn.textContent = "💾 Guardar evaluación de hoy";
+    toast("Error al guardar: "+e.message);
+  }
+}
+
+// Botón volver a la lista de porteros
+document.getElementById("btnVolverPorteros").addEventListener("click", function(){
+  mostrarListaPorteros();
+});
 
 // ── Crear aviso médico obligatorio para el entrenador del jugador ──
 async function crearAvisoMedico(jugador, nuevoEstado, estadoAnterior) {
