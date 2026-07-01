@@ -3162,19 +3162,8 @@ async function cargarConfirmacionesCoach() {
       '</div>';
     div.appendChild(totales);
 
-    // Lista de quién asiste
-    if (siArr.length) {
-      var lSi = document.createElement("div");
-      lSi.style.cssText = "font-size:11px;color:#888;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;";
-      lSi.textContent = "✅ Asisten";
-      div.appendChild(lSi);
-      var cSi = document.createElement("div"); cSi.className = "conf-lista-nombres";
-      siArr.forEach(function(n) {
-        var ch = document.createElement("span"); ch.className = "conf-chip conf-chip-si";
-        ch.textContent = n.split(" ")[0]; cSi.appendChild(ch);
-      });
-      div.appendChild(cSi);
-    }
+    // (La lista de asistentes no se muestra; basta el número del cajetín verde.
+    //  Solo se detallan las ausencias, más abajo, con su motivo.)
 
     // Lista de quién no asiste con motivo
     if (noArr.length) {
