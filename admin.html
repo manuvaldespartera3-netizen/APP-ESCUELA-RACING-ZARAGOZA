@@ -526,6 +526,41 @@ body{background:var(--n);color:var(--t);font-family:"DM Sans",sans-serif;min-hei
     <div class="sec" id="sec-jugadores">
       <div class="sec-titulo">Jugadores</div>
       <button class="collap-btn" data-target="formNuevoJugador"><span>➕</span><span>Añadir jugador</span><span class="arrow">▶</span></button>
+
+      <!-- ══════ CARGA DESDE EXCEL ══════ -->
+      <div style="background:rgba(37,163,82,.05);border:1px solid rgba(37,163,82,.2);border-radius:12px;padding:14px;margin-bottom:12px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+          <span style="font-size:16px;">📊</span>
+          <span style="font-size:13px;font-weight:700;color:var(--v);">Cargar lista desde Excel</span>
+          <span id="xlsInfoBtn" style="margin-left:auto;font-size:11px;color:#777;cursor:pointer;border:1px solid var(--b);border-radius:20px;width:20px;height:20px;display:flex;align-items:center;justify-content:center;">?</span>
+        </div>
+        <div id="xlsInfoTxt" style="display:none;font-size:11px;color:#999;line-height:1.5;margin-bottom:12px;background:var(--n);border-radius:8px;padding:10px;">La plantilla incluye estas columnas: <b>Nombre, Apellidos, Fecha nacimiento (AAAA-MM-DD), Posición (jugador/portero), Cuota, Padre/Madre nombre, Teléfono, Email, Padre/Madre 2 nombre, Teléfono 2, Email 2</b>. Rellena una fila por jugador y guárdalo. El equipo lo eliges aquí abajo, no en el Excel.</div>
+        <div style="display:flex;gap:8px;margin-bottom:10px;">
+          <div style="flex:1;">
+            <label style="font-size:11px;color:#999;display:block;margin-bottom:5px;">Categoría</label>
+            <select id="xlsCategoria" style="width:100%;padding:11px 10px;background:var(--n);border:1px solid var(--b);border-radius:9px;color:var(--w);font-size:14px;"></select>
+          </div>
+          <div style="flex:0 0 92px;">
+            <label style="font-size:11px;color:#999;display:block;margin-bottom:5px;">Letra</label>
+            <select id="xlsLetra" style="width:100%;padding:11px 8px;background:var(--n);border:1px solid var(--b);border-radius:9px;color:var(--w);font-size:14px;">
+              <option value="">— sin —</option>
+              <option>A</option><option>B</option><option>C</option><option>D</option>
+              <option>E</option><option>F</option><option>G</option><option>H</option>
+            </select>
+          </div>
+        </div>
+        <div style="background:rgba(74,144,217,.08);border:1px solid rgba(74,144,217,.25);border-radius:9px;padding:9px 12px;margin-bottom:11px;display:flex;align-items:center;gap:8px;">
+          <span style="color:#999;font-size:12px;">Se subirán a:</span>
+          <span id="xlsResultEq" style="color:var(--ac);font-weight:700;font-size:14px;">—</span>
+          <span id="xlsNuevoBadge" style="display:none;margin-left:auto;font-size:10px;background:rgba(37,163,82,.15);color:var(--v);border:1px solid rgba(37,163,82,.3);border-radius:20px;padding:2px 8px;font-weight:600;">✦ equipo nuevo</span>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button id="xlsDescargar" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;background:rgba(74,144,217,.08);border:1px solid rgba(74,144,217,.3);color:var(--ac);font-family:DM Sans,sans-serif;">⬇️ Plantilla</button>
+          <button id="xlsSubir" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;border-radius:9px;font-size:12px;font-weight:600;cursor:pointer;background:rgba(37,163,82,.1);border:1px solid rgba(37,163,82,.35);color:var(--v);font-family:DM Sans,sans-serif;">⬆️ Subir Excel</button>
+        </div>
+        <input type="file" id="xlsFileInput" accept=".xlsx,.xls,.csv" style="display:none;">
+        <div id="xlsStatus" style="font-size:12px;color:#888;margin-top:10px;line-height:1.5;"></div>
+      </div>
       <button class="collap-btn" data-target="formMoverLote" style="background:linear-gradient(135deg,#1a3a2a,#1a5a3a);border-color:rgba(37,163,82,.3);"><span>🔧</span><span>Gestionar jugadores en lote</span><span class="arrow">▶</span></button>
       <div class="form-card collap-content" id="formMoverLote">
         <div class="form-titulo">🔧 Gestionar jugadores en lote</div>
@@ -605,7 +640,7 @@ body{background:var(--n);color:var(--t);font-family:"DM Sans",sans-serif;min-hei
       </div>
 
       <!-- ═══════════ IMPORTAR EXCEL ═══════════ -->
-      <button class="collap-btn" data-target="importadorWrap" style="margin-top:8px;"><span>📥</span><span>Importar desde Excel</span><span class="arrow">▶</span></button>
+      <button class="collap-btn" data-target="importadorWrap" style="margin-top:8px;display:none;"><span>📥</span><span>Importar desde Excel</span><span class="arrow">▶</span></button>
       <div class="form-card collap-content" id="importadorWrap" style="border:1px solid rgba(74,144,217,.35);background:linear-gradient(135deg,rgba(74,144,217,.05),rgba(13,43,94,.1));">
         <div class="form-titulo">📥 Importar jugadores desde Excel</div>
         <div style="font-size:13px;color:#888;line-height:1.5;margin-bottom:16px;">
@@ -3421,7 +3456,7 @@ document.getElementById("importFile").addEventListener("change", async function(
       document.getElementById("importFile").value = "";
 
       // Recargar lista
-      if (typeof cargarJugadores === "function") await cargarJugadores();
+      var _cj = window.getCargarJugadores && window.getCargarJugadores(); if (_cj) await _cj();
       if (typeof actualizarStatsInicio === "function") actualizarStatsInicio();
 
     } catch(err) {
@@ -6102,6 +6137,16 @@ function exportarEvalPorteroPDFAdmin(jugador, e, objetivos) {
   docu.save(nombreArch);
 }
 
+// ── Exponer funciones/datos para el script de carga Excel (no-module) ──
+window.addDoc = addDoc;
+window.collection = collection;
+window.db = db;
+window.Timestamp = Timestamp;
+window.getCargarJugadores = function(){ return typeof cargarJugadores === "function" ? cargarJugadores : null; };
+window.getCargarEquipos = function(){ return typeof cargarEquipos === "function" ? cargarEquipos : null; };
+Object.defineProperty(window, "equiposGlobales", { get: function(){ return equiposGlobales; }, configurable: true });
+Object.defineProperty(window, "CATEGORIAS_DEFAULT", { get: function(){ return CATEGORIAS_DEFAULT; }, configurable: true });
+
 </script>
 
 
@@ -6303,6 +6348,158 @@ function exportarEvalPorteroPDFAdmin(jugador, e, objetivos) {
     </div>
   </div>
 </div>
+
+
+<script>
+// ══════ CARGA DE JUGADORES DESDE EXCEL ══════
+(function(){
+  var CATEGORIAS = ["Escuela","Prebenjamín","Benjamín","Alevín","Infantil","Cadete","Juvenil","Senior"];
+  var ORDEN_CAT = { "Escuela":0,"Prebenjamín":10,"Benjamín":20,"Alevín":30,"Infantil":40,"Cadete":50,"Juvenil":60,"Senior":70 };
+
+  function nombreEquipo(){
+    var cat = document.getElementById("xlsCategoria").value;
+    var letra = document.getElementById("xlsLetra").value;
+    return letra ? (cat + " " + letra) : cat;
+  }
+
+  function existeEquipo(nombre){
+    if (typeof equiposGlobales === "undefined") return false;
+    return equiposGlobales.some(function(e){ return e.nombre === nombre; });
+  }
+
+  function actualizarResultado(){
+    var nombre = nombreEquipo();
+    var elEq = document.getElementById("xlsResultEq");
+    var elBadge = document.getElementById("xlsNuevoBadge");
+    if (elEq) elEq.textContent = nombre || "—";
+    if (elBadge) elBadge.style.display = (nombre && !existeEquipo(nombre)) ? "" : "none";
+  }
+
+  function rellenarCategorias(){
+    var sel = document.getElementById("xlsCategoria");
+    if (!sel) return;
+    sel.innerHTML = CATEGORIAS.map(function(c){ return '<option>'+c+'</option>'; }).join("");
+    actualizarResultado();
+  }
+
+  // Plantilla Excel vacía
+  function descargarPlantilla(){
+    if (typeof XLSX === "undefined") { alert("La librería Excel aún se está cargando. Espera unos segundos."); return; }
+    var cols = ["Nombre","Apellidos","Fecha nacimiento (AAAA-MM-DD)","Posicion (jugador/portero)","Cuota (€/mes)","Padre/Madre nombre","Telefono","Email","Padre/Madre 2 nombre","Telefono 2","Email 2"];
+    var ejemplo = ["Juan","García López","2016-05-14","jugador","30","María López","600123456","maria@email.com","Pedro García","600654321","pedro@email.com"];
+    var ws = XLSX.utils.aoa_to_sheet([cols, ejemplo]);
+    ws["!cols"] = cols.map(function(){ return {wch:22}; });
+    var wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Jugadores");
+    XLSX.writeFile(wb, "plantilla_jugadores.xlsx");
+  }
+
+  // Procesar Excel subido
+  async function procesarExcel(file){
+    var status = document.getElementById("xlsStatus");
+    var nombreEq = nombreEquipo();
+    if (!nombreEq){ status.innerHTML = '<span style="color:var(--r)">Elige categoría antes de subir.</span>'; return; }
+
+    status.innerHTML = "Leyendo el archivo…";
+    try {
+      var data = await file.arrayBuffer();
+      var wb = XLSX.read(data, {type:"array"});
+      var ws = wb.Sheets[wb.SheetNames[0]];
+      var filas = XLSX.utils.sheet_to_json(ws, {header:1, defval:""});
+      // Quitar cabecera
+      if (!filas.length){ status.innerHTML = '<span style="color:var(--r)">El archivo está vacío.</span>'; return; }
+      var cuerpo = filas.slice(1).filter(function(f){ return f && (f[0]||"").toString().trim(); });
+      if (!cuerpo.length){ status.innerHTML = '<span style="color:var(--r)">No se encontraron jugadores en el archivo.</span>'; return; }
+
+      // ¿Hay que crear el equipo?
+      if (!existeEquipo(nombreEq)){
+        var cat = document.getElementById("xlsCategoria").value;
+        var def = (typeof CATEGORIAS_DEFAULT !== "undefined" && CATEGORIAS_DEFAULT[cat]) ? CATEGORIAS_DEFAULT[cat] : {tienePartidos:false,duracion:0,enCampo:0,orden:0};
+        var letra = document.getElementById("xlsLetra").value;
+        var ordenLetra = letra ? (letra.charCodeAt(0) - 64) : 0; // A=1, B=2…
+        await addDoc(collection(db, "equipos"), {
+          nombre: nombreEq, categoria: cat,
+          tienePartidos: def.tienePartidos, duracion: def.duracion,
+          jugadoresEnCampo: def.enCampo, orden: (ORDEN_CAT[cat]||0) + ordenLetra,
+          creadoEn: Timestamp.now()
+        });
+        var _ce = window.getCargarEquipos && window.getCargarEquipos(); if (_ce) await _ce();
+      }
+
+      // Insertar jugadores
+      var creados = 0, errores = 0;
+      for (var i = 0; i < cuerpo.length; i++){
+        var f = cuerpo[i];
+        try {
+          var nombre = (f[0]||"").toString().trim();
+          var apellidos = (f[1]||"").toString().trim();
+          if (!nombre) continue;
+          var pos = (f[3]||"jugador").toString().trim().toLowerCase();
+          if (pos !== "portero") pos = "jugador";
+          await addDoc(collection(db, "alumnos"), {
+            nombre: nombre,
+            apellidos: apellidos,
+            fechaNacimiento: (f[2]||"").toString().trim(),
+            grupo: nombreEq,
+            posicion: pos,
+            cuota: parseFloat(f[4]) || 0,
+            estado: "activo",
+            padreNombre: (f[5]||"").toString().trim(),
+            padreTel: (f[6]||"").toString().trim(),
+            padreEmail: (f[7]||"").toString().trim().toLowerCase(),
+            madreNombre: (f[8]||"").toString().trim(),
+            madreTel: (f[9]||"").toString().trim(),
+            madreEmail: (f[10]||"").toString().trim().toLowerCase(),
+            pago1: "pendiente", pago2: "pendiente",
+            photoUrl: "",
+            creadoEn: Timestamp.now()
+          });
+          creados++;
+        } catch(errJ){ console.error("Error jugador fila", i, errJ); errores++; }
+      }
+
+      status.innerHTML = '<span style="color:var(--v)">✅ ' + creados + ' jugador' + (creados===1?"":"es") + ' añadidos a <b>' + nombreEq + '</b>' + (errores? ' · '+errores+' con error':'') + '</span>';
+      // Recargar la lista de jugadores y el tablero
+      if (typeof cargarJugadores === "function") await cargarJugadores();
+    } catch(err){
+      console.error("Error procesando Excel:", err);
+      status.innerHTML = '<span style="color:var(--r)">Error al leer el archivo. ¿Es un Excel válido?</span>';
+    }
+  }
+
+  function init(){
+    rellenarCategorias();
+    var selCat = document.getElementById("xlsCategoria");
+    var selLetra = document.getElementById("xlsLetra");
+    if (selCat) selCat.addEventListener("change", actualizarResultado);
+    if (selLetra) selLetra.addEventListener("change", actualizarResultado);
+
+    var btnInfo = document.getElementById("xlsInfoBtn");
+    if (btnInfo) btnInfo.addEventListener("click", function(){
+      var t = document.getElementById("xlsInfoTxt");
+      if (t) t.style.display = (t.style.display === "none" || !t.style.display) ? "block" : "none";
+    });
+
+    var btnDesc = document.getElementById("xlsDescargar");
+    if (btnDesc) btnDesc.addEventListener("click", descargarPlantilla);
+
+    var btnSubir = document.getElementById("xlsSubir");
+    var fileInput = document.getElementById("xlsFileInput");
+    if (btnSubir && fileInput){
+      btnSubir.addEventListener("click", function(){ fileInput.click(); });
+      fileInput.addEventListener("change", function(){
+        if (fileInput.files && fileInput.files[0]) procesarExcel(fileInput.files[0]);
+        fileInput.value = "";
+      });
+    }
+  }
+
+  // Reintentar cuando equiposGlobales esté disponible
+  window.actualizarResultadoXls = actualizarResultado;
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+  else init();
+})();
+</script>
 
 </body>
 </html>
